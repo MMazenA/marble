@@ -3,6 +3,11 @@
         "*.erd": "json",
         "*.vuerd": "json",
         "print": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "stdexcept": "cpp",
+        "string": "cpp"
     },
+    "cSpell.words": [
+        "pqxx"
+    ],
 }

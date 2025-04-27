@@ -13,15 +13,26 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 add_executable(quarry_main src/bootstrap.cpp ${SOURCES})
 
+# 1. Locate header files
+# 2. Locate binaries
+# 3. Specify these binaries need to be linked to this executable
+
+
+# 1.
+# links header files (fixes the include linter errors)
 target_include_directories(quarry_main PRIVATE
     ${PostgreSQL_INCLUDE_DIRS}
     ${PQXX_INCLUDE_DIRS}
 )
 
+# 2.
+# .dylib or .a (the compiled binaries)
 target_link_directories(quarry_main PRIVATE
     ${PQXX_LIBRARY_DIRS}
 )
 
+# 3.
+# links my executable to the actual libraries
 target_link_libraries(quarry_main
     ${PostgreSQL_LIBRARIES}
     ${PQXX_LIBRARIES}

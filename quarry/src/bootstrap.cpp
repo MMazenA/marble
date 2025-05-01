@@ -1,64 +1,49 @@
-// this should create my initial schema_migrations table 
+// this should create my initial schema_migrations table
 
-#include <string>
 #include <iostream>
+#include <migration.h>
 #include <pqxx/pqxx>
+#include <string>
 
+void print_sql_response(const pqxx::result &r) {
+  // print column names
+  constexpr auto row_format = "{0:20}";
 
-std::string SQL_FILES_DIRECTORY = "./config/sql";
-
-void execute_migration_script(const char *migration_script){
-
-    try {
-        /**
-         * @todo
-         * This needs to be moved to an env file
-         * .gitignore it and then also add it to a .env.example
-         */
-        pqxx::connection c("host=localhost port=5432 dbname=postgres user=user password=password");
-
-        {
-            pqxx::work txn(c);
-            pqxx::result r = txn.exec(migration_script);
-            txn.commit();
-        }
-
-        pqxx::work txn(c);
-        pqxx::result r = txn.exec("SELECT version()");
-
-        for (auto row : r) {
-            std::cout << row[0].c_str() << std::endl;
-        }
-
-        txn.commit();
-    } catch (std::exception const &e) {
-        std::cerr << e.what() << std::endl;
-        throw e;
+  for (const auto &row : r) {
+    for (const auto &col : row) {
+      std::print(row_format, col.name());
     }
+  }
 }
 
+int main() {
 
+  /**
+   * @todo
+   *
+   * Want to load these in dynamically from config/sql/ .sql
+   * Load a single ordered file, VXX__name.sql
+   * Execute him
+   * Garbage collection
+   * Start the next one
+   */
 
-int main(){
+  quarry::Migration *sql = new quarry::Migration();
 
-    /**
-     * @todo
-     * 
-     * Want to load these in dynamically from config/sql/*.sql
-     * Load a single ordered file, VXX__name.sql
-     * Execute him
-     * Garbage collection
-     * Start the next one 
-     */
+  //   constexpr char *schema_migrations_table =
+  //       "CREATE TABLE IF NOT EXISTS schema_migrations ("
+  //       "id SERIAL PRIMARY KEY,"
+  //       "version VARCHAR(100) NOT NULL UNIQUE,"
+  //       "applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);";
 
-    const char *schema_migrations = "CREATE TABLE IF NOT EXISTS schema_migrations ("
-                                    "id SERIAL PRIMARY KEY,"
-                                    "version VARCHAR(100) NOT NULL UNIQUE,"
-                                    "applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);";
+  //   std::cout << schema_migrations_table << std::endl;
+  //   execute_migration_script(schema_migrations_table);
 
+  //   const char *schema_migrations_select = "SELECT * FROM
+  //   schema_migrations;";
 
-    std::cout << schema_migrations << std::endl;
+  //   pqxx::result r = execute_migration_script(schema_migrations_select);
+  //   print_sql_response(r);
 
-
-    return 0;
+  return 0;
 }

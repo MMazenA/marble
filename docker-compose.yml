@@ -4,7 +4,7 @@ services:
     container_name: backtest_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: chisel
+      POSTGRES_DB: marble
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
     ports:

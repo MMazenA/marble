@@ -53,7 +53,16 @@
     "span": "cpp",
     "pqxx": "cpp",
     "iostream": "cpp",
-    "source_location": "cpp"
+    "source_location": "cpp",
+    "__tree": "cpp",
+    "forward_list": "cpp",
+    "list": "cpp",
+    "cstddef": "cpp",
+    "tuple": "cpp",
+    "iterator": "cpp",
+    "regex": "cpp",
+    "__config": "cpp",
+    "unordered_set": "cpp"
   },
   "cSpell.words": [
     "pqxx"

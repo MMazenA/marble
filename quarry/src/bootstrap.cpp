@@ -28,22 +28,8 @@ int main() {
    * Start the next one
    */
 
-  quarry::Migration *sql = new quarry::Migration();
-
-  //   constexpr char *schema_migrations_table =
-  //       "CREATE TABLE IF NOT EXISTS schema_migrations ("
-  //       "id SERIAL PRIMARY KEY,"
-  //       "version VARCHAR(100) NOT NULL UNIQUE,"
-  //       "applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);";
-
-  //   std::cout << schema_migrations_table << std::endl;
-  //   execute_migration_script(schema_migrations_table);
-
-  //   const char *schema_migrations_select = "SELECT * FROM
-  //   schema_migrations;";
-
-  //   pqxx::result r = execute_migration_script(schema_migrations_select);
-  //   print_sql_response(r);
+  quarry::Migration migrator;
+  migrator.apply_migrations();
 
   return 0;
 }

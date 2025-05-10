@@ -7,6 +7,7 @@ set(CMAKE_BUILD_TYPE Debug)
 
 find_package(PostgreSQL REQUIRED)
 find_package(PkgConfig REQUIRED)
+find_package(Catch2 3 REQUIRED)
 pkg_check_modules(PQXX REQUIRED libpqxx)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -15,6 +16,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # idk why but globbing can be bad
 set(SOURCES
     ${PROJECT_SOURCE_DIR}/include/migration.h
+    ${PROJECT_SOURCE_DIR}/include/migration_runner.h
     ${PROJECT_SOURCE_DIR}/src/bootstrap.cpp
 )
 
@@ -44,4 +46,35 @@ target_link_libraries(quarry_main
 ${PostgreSQL_LIBRARIES}
 ${PQXX_LIBRARIES}
 )
+
+
+
+# testing information
+# TODO move this to a root cmakelists when I start on the engine
+# TODO Also look into cmakepresets.json
+
+enable_testing()
+
+file(GLOB TEST_SOURCES CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/tests/test_*.cpp)
+
+foreach(TEST_SRC ${TEST_SOURCES})
+    get_filename_component(TEST_NAME ${TEST_SRC} NAME_WE)
+
+    add_executable(${TEST_NAME} ${TEST_SRC})
+
+    target_include_directories(${TEST_NAME} PRIVATE
+        ${PROJECT_SOURCE_DIR}/include
+        ${PQXX_INCLUDE_DIRS}
+    )
+
+    target_link_directories(${TEST_NAME} PRIVATE ${PQXX_LIBRARY_DIRS})
+
+    target_link_libraries(${TEST_NAME}
+        Catch2::Catch2WithMain
+        ${PostgreSQL_LIBRARIES}
+        ${PQXX_LIBRARIES}
+    )
+
+    add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+endforeach()
 

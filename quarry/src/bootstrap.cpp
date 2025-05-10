@@ -1,34 +1,36 @@
-// this should create my initial schema_migrations table 
+// this should create my initial schema_migrations table
 
-#include <string>
 #include <iostream>
+#include <migration.h>
 #include <pqxx/pqxx>
+#include <string>
 
-int main(){
-    const char *schema_migrations = "CREATE TABLE IF NOT EXISTS schema_migrations ("
-                                    "id SERIAL PRIMARY KEY,"
-                                    "version VARCHAR(100) NOT NULL UNIQUE,"
-                                    "applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);";
+void print_sql_response(const pqxx::result &r) {
+  // print column names
+  constexpr auto row_format = "{0:20}";
 
-
-    std::cout << schema_migrations << std::endl;
-
-    try {
-        pqxx::connection c("host=localhost port=5432 dbname=postgres user=user password=password");
-
-        pqxx::work txn(c);
-
-        pqxx::result r = txn.exec("SELECT version()");
-
-        for (auto row : r) {
-            std::cout << row[0].c_str() << std::endl;
-        }
-
-        txn.commit();
-    } catch (const std::exception &e) {
-        std::cerr << e.what() << std::endl;
-        return 1;
+  for (const auto &row : r) {
+    for (const auto &col : row) {
+      std::print(row_format, col.name());
     }
+  }
+}
 
-    return 0;
+int main() {
+
+  /**
+   * @todo
+   *
+   * Want to load these in dynamically from config/sql/ .sql
+   * Load a single ordered file, VXX__name.sql
+   * Execute him
+   * Garbage collection
+   * Start the next one
+   */
+
+  quarry::Migration migrator;
+  migrator.init();
+  migrator.apply_migrations();
+
+  return 0;
 }

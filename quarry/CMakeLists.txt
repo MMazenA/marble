@@ -11,18 +11,37 @@ pkg_check_modules(PQXX REQUIRED libpqxx)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
+# specifying each sources, explicitly
+# idk why but globbing can be bad
+set(SOURCES
+    ${PROJECT_SOURCE_DIR}/include/migration.h
+    ${PROJECT_SOURCE_DIR}/src/bootstrap.cpp
+)
+
 add_executable(quarry_main src/bootstrap.cpp ${SOURCES})
 
-target_include_directories(quarry_main PRIVATE
-    ${PostgreSQL_INCLUDE_DIRS}
+# 1. Locate header files
+# 2. Locate binaries
+# 3. Specify these binaries need to be linked to this executable
+
+
+# 1.
+# links header files (fixes the include linter errors)
+target_include_directories(quarry_main PUBLIC
+    ${PROJECT_SOURCE_DIR}/include
     ${PQXX_INCLUDE_DIRS}
 )
 
+# 2.
+# .dylib or .a (the compiled binaries)
 target_link_directories(quarry_main PRIVATE
-    ${PQXX_LIBRARY_DIRS}
+${PQXX_LIBRARY_DIRS}
 )
 
+# 3.
+# links my executable to the actual libraries
 target_link_libraries(quarry_main
-    ${PostgreSQL_LIBRARIES}
-    ${PQXX_LIBRARIES}
+${PostgreSQL_LIBRARIES}
+${PQXX_LIBRARIES}
 )
+

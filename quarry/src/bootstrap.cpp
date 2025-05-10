@@ -1,7 +1,7 @@
 // this should create my initial schema_migrations table
 
 #include <iostream>
-#include <migration.h>
+#include <migration_runner.h>
 #include <pqxx/pqxx>
 #include <string>
 
@@ -18,19 +18,9 @@ void print_sql_response(const pqxx::result &r) {
 
 int main() {
 
-  /**
-   * @todo
-   *
-   * Want to load these in dynamically from config/sql/ .sql
-   * Load a single ordered file, VXX__name.sql
-   * Execute him
-   * Garbage collection
-   * Start the next one
-   */
-
-  quarry::Migration migrator;
-  migrator.init();
-  migrator.apply_migrations();
+  std::unique_ptr<quarry::IMigration> migrator =
+      std::make_unique<quarry::Migration>();
+  quarry::run_migrations(*migrator);
 
   return 0;
 }

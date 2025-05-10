@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <memory>
+#include <print>
 #include <regex>
 #include <unordered_set>
 
@@ -11,7 +12,17 @@ namespace fs = std::filesystem;
 
 namespace quarry {
 
-class Migration {
+/**
+ * Migration interface for testing
+ */
+class IMigration {
+public:
+  virtual ~IMigration() = default;
+  virtual void init() = 0;
+  virtual void apply_migrations() = 0;
+};
+
+class Migration : public IMigration {
 
 public:
   using file_map = std::unordered_map<std::string, fs::path>;
@@ -22,15 +33,16 @@ public:
         "host=localhost port=5432 dbname=postgres user=user password=password");
   };
 
-  void init() { m_setup_migration_table(); }
+  void init() override { m_setup_migration_table(); }
 
-  void apply_migrations() {
+  void apply_migrations() override {
     file_map version_file_map;
     const auto resolved_migrations = m_resolve_migrations();
 
     for (const auto [version, path] : m_files_to_apply(resolved_migrations)) {
       m_execute_migration_script(
           "INSERT INTO schema_migrations (version) VALUES ($1)", version);
+      std::println("Applied Migration {}", version);
     }
   }
 

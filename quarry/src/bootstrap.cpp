@@ -29,6 +29,7 @@ int main() {
    */
 
   quarry::Migration migrator;
+  migrator.init();
   migrator.apply_migrations();
 
   return 0;

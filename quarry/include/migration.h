@@ -12,18 +12,20 @@ namespace fs = std::filesystem;
 namespace quarry {
 
 class Migration {
+
+public:
+  using file_map = std::unordered_map<std::string, fs::path>;
+
 public:
   Migration() {
     m_conn = std::make_unique<pqxx::connection>(
         "host=localhost port=5432 dbname=postgres user=user password=password");
-    m_setup_migration_table();
   };
 
+  void init() { m_setup_migration_table(); }
+
   void apply_migrations() {
-
-    const std::basic_regex pattern(R"(^[v|V](\d{2,})__)");
-    std::unordered_map<std::string, fs::path> version_file_map;
-
+    file_map version_file_map;
     const auto resolved_migrations = m_resolve_migrations();
 
     for (const auto [version, path] : m_files_to_apply(resolved_migrations)) {
@@ -34,17 +36,18 @@ public:
 
 private:
   void m_setup_migration_table() {
-    constexpr char *m_schema_migrations_table_sql =
-        (char *)"CREATE TABLE IF NOT EXISTS schema_migrations ("
-                "id SERIAL PRIMARY KEY,"
-                "version VARCHAR(100) NOT NULL UNIQUE,"
-                "applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);";
+    constexpr std::string_view m_schema_migrations_table_sql =
+        "CREATE TABLE IF NOT EXISTS schema_migrations ("
+        "id SERIAL PRIMARY KEY,"
+        "version VARCHAR(100) NOT NULL UNIQUE,"
+        "applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);";
+
     m_execute_migration_script(m_schema_migrations_table_sql);
   }
 
-  std::unordered_map<std::string, fs::path> &
+  file_map &
   m_files_to_apply(const std::unordered_set<std::string> &already_resolved) {
-    static std::unordered_map<std::string, fs::path> version_path_map;
+    static file_map version_path_map;
     const fs::path current_file_path = __FILE__;
     const fs::path quarry_directory =
         current_file_path.parent_path().parent_path();
@@ -56,11 +59,11 @@ private:
         std::string file_name = file_path.path().filename().string();
         std::smatch match;
         std::regex_match(file_name, match, pattern);
-        std::string version = match[1];
-        if (!version.size() || already_resolved.count(version)) {
+        std::string version_str = match[1];
+        if (!version_str.size() || already_resolved.count(version_str)) {
           continue;
         }
-        version_path_map[version] = file_path.path();
+        version_path_map[version_str] = file_path.path();
       }
     }
 
@@ -74,7 +77,7 @@ private:
 
     for (const pqxx::row &row : select) {
       latest_resolved = std::max(latest_resolved,
-                                 static_cast<std::uint8_t>(*row.at(0).c_str()));
+                                 static_cast<std::size_t>(*row.at(0).c_str()));
       resolved_set.insert(row.at(0).c_str());
     }
 
@@ -99,7 +102,7 @@ private:
 
 private:
   std::unique_ptr<pqxx::connection> m_conn;
-  std::uint8_t latest_resolved = 0;
+  std::size_t latest_resolved = 0;
 };
 
 } // namespace quarry

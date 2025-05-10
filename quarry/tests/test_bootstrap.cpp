@@ -13,8 +13,8 @@ public:
 };
 
 TEST_CASE("Migration runs") {
-  MigrationMock MigrationMock;
-  quarry::run_migrations(MigrationMock);
-  REQUIRE(MigrationMock.execution_logger[0] == "init called");
-  REQUIRE(MigrationMock.execution_logger[1] == "apply_migrations called");
+  MigrationMock migrationMock;
+  quarry::run_migrations(migrationMock);
+  REQUIRE(migrationMock.execution_logger[0] == "init called");
+  REQUIRE(migrationMock.execution_logger[1] == "apply_migrations called");
 }

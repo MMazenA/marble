@@ -3,13 +3,12 @@
 
 #include <iostream>
 #include <memory>
+#include <pqxx/pqxx>
 #include <print>
 #include <regex>
 #include <unordered_set>
 
-#include <pqxx/pqxx>
 namespace fs = std::filesystem;
-
 namespace quarry {
 
 /**
@@ -62,7 +61,7 @@ private:
     static file_map version_path_map;
     const fs::path current_file_path = __FILE__;
     const fs::path quarry_directory =
-        current_file_path.parent_path().parent_path();
+        current_file_path.parent_path().parent_path().parent_path();
     const fs::path sql_migrations_dir = quarry_directory / "config/sql";
     const std::regex pattern(R"(V(\d+)__.+\.sql)");
     for (const fs::directory_entry &file_path :

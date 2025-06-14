@@ -8,24 +8,29 @@ set(CMAKE_BUILD_TYPE Debug)
 find_package(PostgreSQL REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(Catch2 3 REQUIRED)
+find_package(Boost CONFIG)
 pkg_check_modules(PQXX REQUIRED libpqxx)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(${PROJECT_SOURCE_DIR}/include/migration)
 
 # specifying each sources, explicitly
 # idk why but globbing can be bad
-set(SOURCES
-    ${PROJECT_SOURCE_DIR}/include/migration.h
-    ${PROJECT_SOURCE_DIR}/include/migration_runner.h
-    ${PROJECT_SOURCE_DIR}/src/bootstrap.cpp
+
+
+file(GLOB_RECURSE SOURCES
+    ${PROJECT_SOURCE_DIR}/include/**/*.h
+    ${PROJECT_SOURCE_DIR}/src/**/*.cpp
 )
 
-add_executable(quarry_main src/bootstrap.cpp ${SOURCES})
+add_executable(quarry_main ${SOURCES})
 
 # 1. Locate header files
 # 2. Locate binaries
 # 3. Specify these binaries need to be linked to this executable
 
+
+target_include_directories(quarry_main PRIVATE ${Boost_INCLUDE_DIRS})
 
 # 1.
 # links header files (fixes the include linter errors)
@@ -63,7 +68,8 @@ foreach(TEST_SRC ${TEST_SOURCES})
     add_executable(${TEST_NAME} ${TEST_SRC})
 
     target_include_directories(${TEST_NAME} PRIVATE
-        ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/include/api
+        ${PROJECT_SOURCE_DIR}/include/migration
         ${PQXX_INCLUDE_DIRS}
     )
 

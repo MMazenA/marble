@@ -18,10 +18,9 @@ http::response<http::dynamic_body> quarry::httpClient::get(
       m_client(m_host, m_port, endpoint, http::verb::get, headers, response);
 
   if (response_code != 200) {
-    std::cerr << "Invalid Response Recieved: " << response.result_int()
-              << std::endl
+    std::cerr << "Invalid Response Received: " << response_code << std::endl
               << response << std::endl;
-    throw response.result_int();
+    throw response_code;
   }
 
   return response;
@@ -32,6 +31,15 @@ quarry::httpClient::post(const std::string_view endpoint,
                          const std::string_view body,
                          std::unordered_map<std::string, std::string> headers) {
   http::response<http::dynamic_body> response;
+  int response_code =
+      m_client(m_host, m_port, endpoint, http::verb::post, headers, response);
+
+  if (response_code != 200) {
+    std::cerr << "Invalid Response Received: " << response_code << std::endl
+              << response << std::endl;
+    throw response_code;
+  }
+
   return response;
 };
 

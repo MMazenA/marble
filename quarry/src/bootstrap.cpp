@@ -1,7 +1,7 @@
 // this should create my initial schema_migrations table
 
+#include "migration_runner.h"
 #include <iostream>
-#include <migration_runner.h>
 #include <pqxx/pqxx>
 #include <string>
 

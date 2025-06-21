@@ -9,14 +9,12 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
-
 namespace beast = boost::beast;
 namespace http = beast::http;
 namespace net = boost::asio;
-using tcp = net::ip::tcp;
 
 namespace quarry {
-
+using tcp = net::ip::tcp;
 class httpClient {
 public:
   httpClient(

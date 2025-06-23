@@ -86,6 +86,7 @@ foreach(TEST_SRC ${TEST_SOURCES})
         ${PROJECT_SOURCE_DIR}/include
         ${PROJECT_SOURCE_DIR}/include/api
         ${PROJECT_SOURCE_DIR}/include/migration
+        ${PROJECT_SOURCE_DIR}/include/api/endpoints
         ${PQXX_INCLUDE_DIRS}
     )
 

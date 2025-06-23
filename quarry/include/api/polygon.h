@@ -1,25 +1,23 @@
 #ifndef POLYGON_H
 #define POLYGON_H
 
+#include "endpoints/base_endpoint.h"
 #include "http_client.h"
-// httpClient should be abstract and contain basic connection features
-// endPoint will contain the actual endpoint and params required for that
-// endpoint
-//
 
 namespace quarry {
-
-namespace endpoint {
-struct endpoint_params {};
-
-} // namespace endpoint
 
 // Should contain higher level functions I.E
 // get_minute_aggregates(?),
 class Polygon {
 
 public:
+  Polygon(std::string api_key);
+
+  std::string execute(const BaseEndpoint ep);
+
 private:
+  std::string m_api_key;
+  std::string m_build_url(const BaseEndpoint ep);
 };
 } // namespace quarry
 

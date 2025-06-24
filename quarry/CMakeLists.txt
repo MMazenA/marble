@@ -15,6 +15,7 @@ pkg_check_modules(PQXX REQUIRED libpqxx)
 # Include directories
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_SOURCE_DIR}/include/migration)
+include_directories(${PROJECT_SOURCE_DIR}/include/api)
 
 # === Source grouping ===
 

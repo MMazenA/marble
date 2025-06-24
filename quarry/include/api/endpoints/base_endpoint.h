@@ -10,9 +10,10 @@ namespace quarry {
 using headers = std::vector<std::pair<std::string, std::string>>;
 
 // @todo move this utils file
+
 enum sort_options { ASC, DSC };
 enum timespan_options { SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR };
-std::string timespan_resolver(timespan_options timespan) {
+inline std::string timespan_resolver(timespan_options timespan) {
   switch (timespan) {
   case timespan_options::SECOND:
     return "second";

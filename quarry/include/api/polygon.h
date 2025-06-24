@@ -3,6 +3,8 @@
 
 #include "endpoints/base_endpoint.h"
 #include "http_client.h"
+#include <memory>
+#include <string>
 
 namespace quarry {
 
@@ -13,11 +15,12 @@ class Polygon {
 public:
   Polygon(std::string api_key);
 
-  std::string execute(const BaseEndpoint ep);
+  std::string execute(const BaseEndpoint &ep);
 
 private:
   std::string m_api_key;
-  std::string m_build_url(const BaseEndpoint ep);
+  std::string m_authenticate_url(const BaseEndpoint &ep);
+  std::unique_ptr<quarry::httpClient> m_http;
 };
 } // namespace quarry
 

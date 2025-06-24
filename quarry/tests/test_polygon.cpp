@@ -1,0 +1,51 @@
+#include "aggregates_daily.h"
+#include "polygon.h"
+#include <catch2/catch_test_macros.hpp>
+#include <iostream>
+
+//* UTILS FILE PLEASE!!!
+#include <cstdlib> // for std::getenv
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <unordered_map>
+
+void load_dotenv(const std::string &path = ".env") {
+  std::ifstream env_file(path);
+  if (!env_file.is_open()) {
+    std::cerr << "Could not open .env file: " << path << std::endl;
+    return;
+  }
+
+  std::string line;
+  while (std::getline(env_file, line)) {
+    if (line.empty() || line[0] == '#')
+      continue;
+
+    std::istringstream is_line(line);
+    std::string key;
+    if (std::getline(is_line, key, '=')) {
+      std::string value;
+      if (std::getline(is_line, value)) {
+        key.erase(0, key.find_first_not_of(" \t"));
+        key.erase(key.find_last_not_of(" \t") + 1);
+        value.erase(0, value.find_first_not_of(" \t\""));
+        value.erase(value.find_last_not_of(" \t\"") + 1);
+
+        setenv(key.c_str(), value.c_str(), 1); // overwrite = true
+      }
+    }
+  }
+}
+TEST_CASE("HTTP Client can connect") {
+  load_dotenv("../.env");
+
+  quarry::Polygon polygon(std::getenv("POLYGON_API_KEY"));
+
+  auto ep =
+      quarry::Endpoint::AggregatesDaily("AAPL", "2024-01-09", "2024-01-11");
+  const auto response = polygon.execute(ep);
+
+  REQUIRE(true);
+}

@@ -69,7 +69,10 @@ int quarry::httpClient::m_client(
     stream.connect(resolved_results);
 
     // setting up the request object
-    http::request<http::string_body> req{verb, target, version};
+    http::request<http::string_body> req;
+    req.target(target);
+    req.method(verb);
+    req.version(version);
 
     for (const auto &[key, value] : m_persistent_headers) {
       req.set(key, value);

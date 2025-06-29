@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 3.4...3.18)
+cmake_minimum_required(VERSION 3.29)
+cmake_policy(SET CMP0167 OLD)
+
 project(quarry LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -9,7 +11,8 @@ set(CMAKE_BUILD_TYPE Debug)
 find_package(PostgreSQL REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(Catch2 3 REQUIRED)
-find_package(Boost CONFIG)
+find_package(Boost REQUIRED
+             COMPONENTS system headers)
 pkg_check_modules(PQXX REQUIRED libpqxx)
 
 # Include directories

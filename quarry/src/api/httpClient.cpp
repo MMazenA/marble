@@ -12,6 +12,10 @@ quarry::httpClient::httpClient(
 http::response<http::dynamic_body> quarry::httpClient::get(
     const std::string_view endpoint,
     const std::unordered_map<std::string, std::string> headers) {
+  /// @todo who should own this response
+  /// I feel like maybe this should be a unique pointer passed in by ref, that
+  /// way this function has no direct overhead, but what difference does that
+  /// make
   http::response<http::dynamic_body> response;
 
   int response_code =
@@ -23,6 +27,7 @@ http::response<http::dynamic_body> quarry::httpClient::get(
     throw response_code;
   }
 
+  /// this is returning a copy, i need to follow above @todo !!
   return response;
 };
 
@@ -43,7 +48,7 @@ quarry::httpClient::post(const std::string_view endpoint,
   return response;
 };
 
-/// @brief
+/// @brief Primary client for connecting to endpoints
 /// @param host www.example.com
 /// @param port 80
 /// @param target /endpoint
@@ -56,6 +61,11 @@ int quarry::httpClient::m_client(
     const std::unordered_map<std::string, std::string> &headers,
     http::response<http::dynamic_body> &http_response) {
   try {
+    /// @todo format this as the reidredct does !
+    // if (port == "443") {
+    //   return m_https_client(host, port, target, verb, headers,
+    //   http_response);
+    // }
     net::io_context ioc;
     tcp::resolver resolver(ioc);   // used to dispatch requests
     beast::tcp_stream stream(ioc); // TCP stream socket
@@ -74,14 +84,6 @@ int quarry::httpClient::m_client(
     req.method(verb);
     req.version(version);
 
-    for (const auto &[key, value] : m_persistent_headers) {
-      req.set(key, value);
-    }
-
-    for (const auto &[key, value] : headers) {
-      req.set(key, value);
-    }
-
     req.set(http::field::host, host);
     req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
 
@@ -91,6 +93,29 @@ int quarry::httpClient::m_client(
     beast::flat_buffer buffer;
 
     http::read(stream, buffer, http_response);
+
+    if (http_response.base().result_int() == 308) {
+
+      std::string_view redirect_url = http_response.base()["Location"];
+      // paths: [host,...args]
+      std::vector<std::string_view> paths;
+      auto substr_start = redirect_url.find("/") + 2;
+      auto substr_end =
+          redirect_url.substr(substr_start, redirect_url.length()).find("/");
+      std::string_view redirect_host =
+          redirect_url.substr(substr_start, substr_end);
+
+      while (redirect_url.contains("/")) {
+        paths.push_back(redirect_host);
+        redirect_url = redirect_url.substr(substr_start, redirect_url.length());
+        substr_start = redirect_url.find("/") + 1;
+        substr_end =
+            redirect_url.substr(substr_start, redirect_url.length()).find("/");
+        redirect_host = redirect_url.substr(substr_start, substr_end);
+      }
+
+      return 308;
+    }
 
     beast::error_code ec;
 

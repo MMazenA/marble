@@ -9,6 +9,7 @@ TEST_CASE("HTTP Client can connect") {
 
   REQUIRE(response.result_int() == 200);
 }
+
 TEST_CASE("HTTP Client can connect to an endpoint") {
   quarry::httpClient client("httpbin.org", "80");
 

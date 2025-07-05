@@ -7,8 +7,10 @@
 #include <boost/beast/version.hpp>
 #include <cstdlib>
 #include <iostream>
+#include <span>
 #include <string>
 #include <unordered_map>
+
 namespace beast = boost::beast;
 namespace http = beast::http;
 namespace net = boost::asio;
@@ -43,6 +45,11 @@ private:
                const std::string_view target, http::verb verb,
                const std::unordered_map<std::string, std::string> &headers,
                http::response<http::dynamic_body> &http_response);
+  // int m_https_client(
+  //     const std::string_view host, const std::string_view port,
+  //     const std::string_view target, http::verb verb,
+  //     const std::unordered_map<std::string, std::string> &headers,
+  //     http::response<http::dynamic_body> &http_response);
 };
 } // namespace quarry
 #endif

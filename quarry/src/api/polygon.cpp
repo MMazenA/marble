@@ -9,6 +9,7 @@ std::string quarry::Polygon::m_authenticate_url(const BaseEndpoint &ep) {
 };
 std::string quarry::Polygon::execute(const BaseEndpoint &ep) {
   std::string url = m_authenticate_url(ep);
+  url += "?" + ep.query_string();
   std::cout << url << std::endl;
   http::response<http::dynamic_body> result;
   if (ep.method() == "GET") {

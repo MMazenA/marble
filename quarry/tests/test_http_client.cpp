@@ -3,9 +3,17 @@
 #include <iostream>
 
 TEST_CASE("HTTP Client can connect") {
-  quarry::httpClient client("www.example.com", "80");
+  quarry::httpClient client("httpbin.org", "80");
 
   const auto response = client.get("/");
+
+  REQUIRE(response.result_int() == 200);
+}
+
+TEST_CASE("HTTP Client can connect to an endpoint") {
+  quarry::httpClient client("httpbin.org", "80");
+
+  const auto response = client.get("/user-agent");
 
   REQUIRE(response.result_int() == 200);
 }

@@ -28,7 +28,7 @@ public:
       const std::unordered_map<std::string, std::string> headers = {});
 
   http::response<http::dynamic_body>
-  post(const std::string_view endpoint, const std::string_view body,
+  post(const std::string_view endpoint, const std::string_view body = "",
        std::unordered_map<std::string, std::string> headers = {});
 
 private:

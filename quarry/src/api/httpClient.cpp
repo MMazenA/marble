@@ -5,6 +5,16 @@ quarry::httpClient::httpClient(
     std::unordered_map<std::string, std::string> persistent_headers)
     : m_host(host), m_port(port) {}
 
+ssl::context quarry::httpClient::make_client_ctx() {
+  ssl::context ctx{ssl::context::tls_client};
+
+  ctx.set_default_verify_paths();
+
+  ctx.set_verify_mode(ssl::verify_peer);
+
+  return ctx;
+}
+
 /// @brief `get` request to v2/endpoint/example and headers
 /// @param endpoint
 /// @param headers
@@ -62,10 +72,9 @@ int quarry::httpClient::m_client(
     http::response<http::dynamic_body> &http_response) {
   try {
     /// @todo format this as the reidredct does !
-    // if (port == "443") {
-    //   return m_https_client(host, port, target, verb, headers,
-    //   http_response);
-    // }
+    if (port == "443") {
+      return m_https_client(host, port, target, verb, headers, http_response);
+    }
     net::io_context ioc;
     tcp::resolver resolver(ioc);   // used to dispatch requests
     beast::tcp_stream stream(ioc); // TCP stream socket
@@ -132,4 +141,64 @@ int quarry::httpClient::m_client(
     return EXIT_FAILURE;
   }
   return EXIT_FAILURE;
+}
+
+int quarry::httpClient::m_https_client(
+    const std::string_view host, const std::string_view port,
+    const std::string_view target, http::verb verb,
+    const std::unordered_map<std::string, std::string> &headers,
+    http::response<http::dynamic_body> &http_response) {
+
+  // io context - contains context to execute the event loop and all system
+  try {
+
+    // calls needed
+    // https://app.studyraid.com/en/read/12426/401278/understanding-io-context-and-its-lifecycle
+    // https://stackoverflow.com/questions/60997939/what-exacty-is-io-context
+    // ssl handshake context
+    net::io_context ioc;
+    ssl::context ssl_ctx = make_client_ctx();
+    tcp::resolver resolver{ioc};
+
+    beast::ssl_stream<beast::tcp_stream> stream{ioc, ssl_ctx};
+
+    auto const results = resolver.resolve(host, port);
+    beast::get_lowest_layer(stream).connect(results);
+
+    // openSSL stuff?
+    std::string host_str(host);
+
+    if (!SSL_set_tlsext_host_name(stream.native_handle(), host_str.c_str()))
+      throw beast::system_error(
+          {static_cast<int>(::ERR_get_error()), net::error::get_ssl_category()},
+          "SNI");
+
+    stream.handshake(ssl::stream_base::client);
+
+    http::request<http::string_body> req{verb, target, 11};
+    req.set(http::field::host, host);
+    req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
+    for (auto &[k, v] : headers) {
+      req.set(k, v);
+    }
+
+    http::write(stream, req);
+
+    beast::flat_buffer buffer;
+    http::read(stream, buffer, http_response);
+
+    beast::error_code ec;
+
+    stream.shutdown(ec);
+    if (ec == net::error::eof || ec == net::ssl::error::stream_truncated)
+      ec = {};
+    if (ec)
+      throw beast::system_error{ec};
+  } catch (std::exception const &e) {
+    std::cerr << "HTTPS error: " << e.what() << '\n';
+    return EXIT_FAILURE;
+  }
+
+  std::cout << http_response << std::endl;
+  return http_response.result_int();
 }

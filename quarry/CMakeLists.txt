@@ -14,6 +14,8 @@ find_package(Catch2 3 REQUIRED)
 find_package(Boost REQUIRED
              COMPONENTS system headers)
 pkg_check_modules(PQXX REQUIRED libpqxx)
+find_package(OpenSSL REQUIRED)
+
 
 # Include directories
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -56,6 +58,7 @@ target_link_directories(quarry_main PRIVATE
 target_link_libraries(quarry_main
     ${PostgreSQL_LIBRARIES}
     ${PQXX_LIBRARIES}
+    OpenSSL::SSL
 )
 
 # === Executable: quarry_bootstrap ===
@@ -74,6 +77,7 @@ target_link_directories(quarry_bootstrap PRIVATE
 target_link_libraries(quarry_bootstrap
     ${PostgreSQL_LIBRARIES}
     ${PQXX_LIBRARIES}
+    OpenSSL::SSL
 )
 
 # === Testing ===
@@ -100,6 +104,7 @@ foreach(TEST_SRC ${TEST_SOURCES})
         Catch2::Catch2WithMain
         ${PostgreSQL_LIBRARIES}
         ${PQXX_LIBRARIES}
+        OpenSSL::SSL
     )
 
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})

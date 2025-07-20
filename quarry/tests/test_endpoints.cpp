@@ -12,6 +12,7 @@ TEST_CASE("HTTP Client can connect") {
 
   auto ep =
       quarry::Endpoint::AggregatesDaily("AAPL", "2024-01-09", "2024-01-11");
+  /// @todo properly test
   std::cout << ep.target("") << std::endl;
 
   REQUIRE(true);

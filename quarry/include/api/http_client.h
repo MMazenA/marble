@@ -2,8 +2,11 @@
 #define HTTP_CLIENT_H
 #include <boost/asio/connect.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/ssl/error.hpp>
+#include <boost/asio/ssl/stream.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
+#include <boost/beast/ssl.hpp>
 #include <boost/beast/version.hpp>
 #include <cstdlib>
 #include <iostream>
@@ -14,6 +17,8 @@
 namespace beast = boost::beast;
 namespace http = beast::http;
 namespace net = boost::asio;
+namespace ssl = net::ssl;
+using tcp = net::ip::tcp;
 
 namespace quarry {
 using tcp = net::ip::tcp;
@@ -22,6 +27,8 @@ public:
   httpClient(
       std::string host, std::string port,
       std::unordered_map<std::string, std::string> persistent_headers = {});
+
+  ssl::context make_client_ctx();
 
   http::response<http::dynamic_body>
   get(const std::string_view endpoint,
@@ -45,11 +52,11 @@ private:
                const std::string_view target, http::verb verb,
                const std::unordered_map<std::string, std::string> &headers,
                http::response<http::dynamic_body> &http_response);
-  // int m_https_client(
-  //     const std::string_view host, const std::string_view port,
-  //     const std::string_view target, http::verb verb,
-  //     const std::unordered_map<std::string, std::string> &headers,
-  //     http::response<http::dynamic_body> &http_response);
+  int m_https_client(
+      const std::string_view host, const std::string_view port,
+      const std::string_view target, http::verb verb,
+      const std::unordered_map<std::string, std::string> &headers,
+      http::response<http::dynamic_body> &http_response);
 };
 } // namespace quarry
 #endif

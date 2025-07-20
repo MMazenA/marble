@@ -42,7 +42,7 @@ public:
   virtual std::string build_payload() const { return ""; }
   virtual headers build_headers() const { return {}; }
   virtual ~BaseEndpoint() = default;
-}; // namespace quarry
+};
 
 } // namespace quarry
 

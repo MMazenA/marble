@@ -18,7 +18,6 @@ namespace beast = boost::beast;
 namespace http = beast::http;
 namespace net = boost::asio;
 namespace ssl = net::ssl;
-using tcp = net::ip::tcp;
 
 namespace quarry {
 using tcp = net::ip::tcp;

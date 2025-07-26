@@ -34,8 +34,11 @@ inline std::string timespan_resolver(timespan_options timespan) {
 class BaseEndpoint {
 public:
   virtual std::string method() const = 0;
-  virtual std::string path() const = 0;
-  virtual std::string query_string() const { return ""; }
+  virtual std::string target(std::string auth_path) const {
+    return m_target_path() + "?" + m_target_args() + auth_path;
+  };
+  virtual std::string m_target_path() const = 0;
+  virtual std::string m_target_args() const { return ""; }
   virtual std::string build_payload() const { return ""; }
   virtual headers build_headers() const { return {}; }
   virtual ~BaseEndpoint() = default;

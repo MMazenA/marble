@@ -25,7 +25,7 @@ struct AggregatesDaily : public quarry::BaseEndpoint {
 
   std::string method() const override { return "GET"; }
 
-  std::string path() const override {
+  std::string m_target_path() const override {
     std::ostringstream oss;
     oss << "/v2/aggs/ticker/" << ticker << "/range/" << multiplier << "/"
         << quarry::timespan_resolver(timespan) << "/" << from_date << "/"
@@ -37,7 +37,7 @@ struct AggregatesDaily : public quarry::BaseEndpoint {
     return {{"Accept", "application/json"}};
   }
 
-  std::string query_string() const override {
+  std::string m_target_args() const override {
     std::ostringstream oss;
     oss << "adjusted=" << (adjusted ? "true" : "false")
         << "&sort=" << (sort == sort_options::ASC ? "asc" : "desc")

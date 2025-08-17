@@ -1,5 +1,5 @@
 {
-  "cmake.sourceDirectory": "/Users/mazen/Documents/marble/",
+  "cmake.sourceDirectory": "${workspaceFolder}",
   "files.associations": {
     "*.erd": "json",
     "*.vuerd": "json",

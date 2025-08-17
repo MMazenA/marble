@@ -67,7 +67,7 @@ else()
   target_link_libraries(quarry_core PUBLIC PkgConfig::PQXX)
 endif()
 
-#anything that links to to quarry_core will have to inherit my standards
+#anything that links to quarry_core will have to inherit my standards
 add_library(marble_warnings INTERFACE)
 target_compile_features(marble_warnings INTERFACE cxx_std_23)
 

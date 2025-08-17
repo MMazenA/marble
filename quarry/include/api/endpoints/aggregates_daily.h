@@ -12,11 +12,14 @@ namespace quarry {
 namespace Endpoint {
 struct AggregatesDaily : public quarry::BaseEndpoint {
 
+  //Path Params
   std::string m_ticker;
-  std::string m_from_date;
-  std::string m_to_date;
   int multiplier = 1;
   timespan_options m_timespan = DAY;
+  std::string m_from_date;
+  std::string m_to_date;
+  
+  //Query Params
   bool m_adjusted = true;
   sort_options m_sort = ASC;
   uint16_t m_limit = 120;
@@ -29,6 +32,8 @@ struct AggregatesDaily : public quarry::BaseEndpoint {
    * \param to_date   End date (inclusive), format `YYYY-MM-DD`.
    *
    * \see https://polygon.io/docs/rest/stocks/aggregates/custom-bars
+   * 
+   * @todo: this should follow EXACTLY the above docs, and I should rename this class to match it, theres no reason for me to be inventing my own stuff here
    */
   AggregatesDaily(std::string ticker, std::string from_date,
                   std::string to_date)

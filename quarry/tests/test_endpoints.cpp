@@ -6,7 +6,7 @@
 #include <string>
 
 TEST_CASE("HTTP Client can connect") {
-  quarry::load_dotenv("../.env");
+  quarry::load_dotenv("../../quarry/.env");
 
   quarry::Polygon polygon(std::getenv("POLYGON_API_KEY"));
 

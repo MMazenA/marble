@@ -67,14 +67,14 @@ else()
   target_link_libraries(quarry_core PUBLIC PkgConfig::PQXX)
 endif()
 
-target_link_libraries(quarry_core INTERFACE marble_warnings)
+target_link_libraries(quarry_core INTERFACE)
 
 # ---- Executables ----
 add_executable(quarry_main "${QUARRY_DIR}/src/main.cpp")
-target_link_libraries(quarry_main PRIVATE quarry_core marble_warnings)
+target_link_libraries(quarry_main PRIVATE quarry_core)
 
 add_executable(quarry_bootstrap "${QUARRY_DIR}/src/bootstrap.cpp")
-target_link_libraries(quarry_bootstrap PRIVATE quarry_core marble_warnings)
+target_link_libraries(quarry_bootstrap PRIVATE quarry_core)
 
 
 # -Wl,-ld_classic for https://stackoverflow.com/a/77190575/20313250
@@ -96,7 +96,6 @@ if(BUILD_TESTING)
       PRIVATE
         quarry_core
         Catch2::Catch2WithMain
-        marble_warnings
     )
 
     catch_discover_tests(${TEST_NAME}

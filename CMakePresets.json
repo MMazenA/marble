@@ -1,0 +1,26 @@
+{
+  "version":6,
+    "cmakeMinimumRequired": { "major": 3, "minor": 25 },
+  "configurePresets": [
+    {
+      "name": "dev",
+      "displayName": "Dev (Ninja + vcpkg)",
+      "generator": "Ninja",
+      "binaryDir": "build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_STANDARD": "23",
+        "BUILD_TESTING": "ON",
+        "CMAKE_FIND_PACKAGE_PREFER_CONFIG": "ON",
+        "CMAKE_EXE_LINKER_FLAGS": "-Wl,-ld_classic",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/external/vcpkg/scripts/buildsystems/vcpkg.cmake"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "dev", "configurePreset": "dev" }
+  ],
+  "testPresets": [
+    { "name": "dev", "configurePreset": "dev", "output": {"outputOnFailure": true} }
+  ]
+}

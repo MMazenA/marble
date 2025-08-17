@@ -18,6 +18,35 @@ Mono-repo for stock ingestion, back testing, and analysis
 
 
 
+## Cmake Stuff 
+1. Generate Build System
+```zsh
+  cmake -S . -Bbuild
+```
+`-S` scanning Directory
+`-b` Building Directory 
+2. Use build system to create executables
+```zsh
+cmake --build build
+```
+
+### CmakePresets
+```
+rm -rf build
+cmake --preset dev
+cmake --build --preset dev --target quarry_main
+```
+Generate Dependency Graphs
+```zsh
+cd build
+cmake --graphviz=project.dot ..
+dot -T svg project.dot -o project.svg
+```
+
+
+
+
+
 
 
 
@@ -28,8 +57,6 @@ I want to save my strategy information in postgres, but its going to be unstruct
 ### Kafka
 - Where and when do kafka topics get made?
     - dockerfile in repo root?
-
-
 
 ### Chisel
 - Strategy Table: 

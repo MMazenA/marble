@@ -1,0 +1,9 @@
+{
+  "cmake.sourceDirectory": "/Users/mazen/Documents/marble/",
+  "files.associations": {
+    "*.erd": "json",
+    "*.vuerd": "json",
+    "memory": "cpp",
+    "string": "cpp"
+  }
+}

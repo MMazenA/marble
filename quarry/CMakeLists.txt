@@ -44,7 +44,7 @@ target_include_directories(quarry_core
     "${QUARRY_DIR}/include/api/endpoints"
 )
 
-# Link dependencies via imported targets
+# linking core to previously imported targets
 target_link_libraries(quarry_core
   PUBLIC
     PostgreSQL::PostgreSQL
@@ -53,8 +53,6 @@ target_link_libraries(quarry_core
     Threads::Threads
 )
 
-
-# Boost linkage (prefer imported targets if we found CONFIG)
 if(QUARRY_BOOST_USE_IMPORT_TARGETS)
   target_link_libraries(quarry_core PUBLIC Boost::headers Boost::system)
 else()
@@ -63,7 +61,6 @@ else()
   target_link_libraries(quarry_core PUBLIC ${Boost_LIBRARIES})
 endif()
 
-# libpqxx (config or pkg-config target)
 if(HAVE_UNOFFICIAL_LIBPQXX)
   target_link_libraries(quarry_core PUBLIC unofficial::libpqxx::pqxx)
 else()
@@ -82,7 +79,6 @@ $<$<CXX_COMPILER_ID:MSVC>:/W4 /permissive->
 target_link_libraries(quarry_core INTERFACE marble_warnings)
 
 # ---- Executables ----
-
 add_executable(quarry_main "${QUARRY_DIR}/src/main.cpp")
 target_link_libraries(quarry_main PRIVATE quarry_core marble_warnings)
 
@@ -112,7 +108,6 @@ if(BUILD_TESTING)
         marble_warnings
     )
 
-    # Auto-register tests with CTest
     catch_discover_tests(${TEST_NAME}
       TEST_PREFIX "[quarry] "
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}

@@ -36,6 +36,8 @@ rm -rf build
 cmake --preset dev
 cmake --build --preset dev --target quarry_main
 ```
+
+
 Generate Dependency Graphs
 ```zsh
 cd build
@@ -44,7 +46,15 @@ dot -T svg project.dot -o project.svg
 ```
 
 
+Available Targets:
+```zsh
+cmake --build --preset dev --target help               
+```
 
+run tests:
+```zsh
+ctest --test-dir ./build/quarry 
+```
 
 
 

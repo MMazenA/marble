@@ -67,15 +67,6 @@ else()
   target_link_libraries(quarry_core PUBLIC PkgConfig::PQXX)
 endif()
 
-#anything that links to quarry_core will have to inherit my standards
-add_library(marble_warnings INTERFACE)
-target_compile_features(marble_warnings INTERFACE cxx_std_23)
-
-target_compile_options(marble_warnings INTERFACE
-$<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall -Wextra -Wpedantic -Wconversion>
-$<$<CXX_COMPILER_ID:MSVC>:/W4 /permissive->
-)
-
 target_link_libraries(quarry_core INTERFACE marble_warnings)
 
 # ---- Executables ----

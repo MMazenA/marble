@@ -2,9 +2,48 @@
 
 Mono-repo for stock ingestion, back testing, and analysis
 
+## Requirements
+- C++23
+- CMake Version ^3.29
+- Docker ^27.1.2
+- Ninja ^1.13.1
+
+## Build and Run
+1. CD into the root `/marble`
+2. Give executable permissions 
+    ```bash
+    chmod +x start.sh
+    ```
+3. Execute run command
+    ```bash
+    ./start.sh
+    ```
 
 
-### Commands so i don't forget them
+## Dev
+
+
+### Common CMake Commands
+| Name    | Command |
+| -------- | ------- |
+| Build Target  |`cmake --build --preset dev --target help`   |
+| Run Tests  |`ctest --test-dir ./build/quarry`   |
+| Clear Build  |`rm -rf build`   |
+| Install Dependencies  |`cmake --preset dev`   |
+| Generate Dep Graph | 
+
+### Generate Dependency Graphs
+```bash
+cd build
+cmake --graphviz=project.dot ..
+dot -T svg project.dot -o project.svg
+```
+
+
+
+
+
+### Kafka Commands
 
 
 | Name    | Command |
@@ -18,49 +57,9 @@ Mono-repo for stock ingestion, back testing, and analysis
 
 
 
-## Cmake Stuff 
-1. Generate Build System
-```zsh
-  cmake -S . -Bbuild
-```
-`-S` scanning Directory
-`-b` Building Directory 
-2. Use build system to create executables
-```zsh
-cmake --build build
-```
-
-### CmakePresets
-```
-rm -rf build
-cmake --preset dev
-cmake --build --preset dev --target quarry_main
-```
 
 
-Generate Dependency Graphs
-```zsh
-cd build
-cmake --graphviz=project.dot ..
-dot -T svg project.dot -o project.svg
-```
-
-
-Available Targets:
-```zsh
-cmake --build --preset dev --target help               
-```
-
-run tests:
-```zsh
-ctest --test-dir ./build/quarry 
-```
-
-
-
-
-
-### Thoughts
+## Random
 
 I want to save my strategy information in postgres, but its going to be unstructured data most likely, maybe assign an id to each strategy?
 

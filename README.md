@@ -30,7 +30,6 @@ Mono-repo for stock ingestion, back testing, and analysis
 | Run Tests  |`ctest --test-dir ./build/quarry`   |
 | Clear Build  |`rm -rf build`   |
 | Install Dependencies  |`cmake --preset dev`   |
-| Generate Dep Graph | 
 
 ### Generate Dependency Graphs
 ```bash

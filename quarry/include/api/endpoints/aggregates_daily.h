@@ -36,8 +36,8 @@ struct AggregatesDaily : public quarry::BaseEndpoint {
    * class to match it, theres no reason for me to be inventing my own stuff
    * here
    */
-  AggregatesDaily(std::string ticker, std::string from_date,
-                  std::string to_date)
+  constexpr AggregatesDaily(std::string ticker, std::string from_date,
+                            std::string to_date)
       : m_ticker(std::move(ticker)) {
     constexpr int validDateSize = 10;
     if (from_date.size() != validDateSize || to_date.size() != validDateSize) {
@@ -51,9 +51,31 @@ struct AggregatesDaily : public quarry::BaseEndpoint {
     m_to_date = to_date;
   }
 
+  /**
+   * @brief Create a request for daily aggregate bars, without dates.
+   *
+   * @param ticker Stock symbol (e.g., "AAPL").
+   *
+   * @see https://polygon.io/docs/rest/stocks/aggregates/custom-bars
+   */
+  constexpr AggregatesDaily(std::string ticker) : m_ticker(std::move(ticker)) {
+    constexpr int validDateSize = 10;
+  }
+
+  constexpr ~AggregatesDaily() = default;
+
   std::string method() const override { return "GET"; }
 
   std::string m_target_path() const override {
+    constexpr int validDateSize = 10;
+    if (m_from_date.size() != validDateSize ||
+        m_to_date.size() != validDateSize) {
+      throw std::invalid_argument("Please configure dates properly");
+    }
+    if (m_from_date > m_to_date) {
+      throw std::invalid_argument("Start date must be before end date");
+    }
+
     std::ostringstream oss;
     oss << "/v2/aggs/ticker/" << m_ticker << "/range/" << multiplier << "/"
         << quarry::timespan_resolver(m_timespan) << "/" << m_from_date << "/"
@@ -86,6 +108,16 @@ struct AggregatesDaily : public quarry::BaseEndpoint {
 
   AggregatesDaily &setLimit(uint16_t limit) {
     m_limit = limit;
+    return *this;
+  }
+
+  AggregatesDaily &setFromDate(std::string from_date) {
+    m_from_date = from_date;
+    return *this;
+  }
+
+  AggregatesDaily &setToDate(std::string to_date) {
+    m_to_date = to_date;
     return *this;
   }
 };

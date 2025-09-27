@@ -31,6 +31,7 @@ inline std::string timespan_resolver(timespan_options timespan) {
     return "year";
   }
 }
+
 class BaseEndpoint {
 public:
   virtual std::string method() const = 0;

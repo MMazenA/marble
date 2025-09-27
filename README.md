@@ -60,6 +60,15 @@ dot -T svg project.dot -o project.svg
 
 ## Random
 
+
+- Need to have main loop
+- Each stock opens its own thread that handles its input
+  - Need to make sure there are no duplicates
+- Main loop should not be stopped to add or remove stocks
+  - Stocks to track should be externally added (gallery service)
+
+---
+
 I want to save my strategy information in postgres, but its going to be unstructured data most likely, maybe assign an id to each strategy?
 
 ### Kafka
@@ -79,4 +88,3 @@ I want to save my strategy information in postgres, but its going to be unstruct
     -  buy_or_sell : boolean
     -  quantity : int
     -  when_to_execute: datetime
-    - 

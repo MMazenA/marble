@@ -13,6 +13,12 @@ namespace quarry {
 class Polygon {
 
 public:
+  /**
+   * @brief Polygon API Client
+   *
+   * @param api_key Polygon API Key
+   *
+   */
   Polygon(std::string api_key);
 
   std::string execute(const BaseEndpoint &ep);

@@ -13,13 +13,21 @@ namespace quarry {
 class Polygon {
 
 public:
+  /**
+   * @brief Polygon API Client
+   *
+   * @param api_key Polygon API Key
+   *
+   */
   Polygon(std::string api_key);
 
-  std::string execute(const BaseEndpoint &ep);
+  template <quarry::endpoint_c endpoint>
+  std::string execute(const endpoint &ep);
 
 private:
   std::string m_api_key;
-  std::string m_authenticate_url(const BaseEndpoint &ep);
+  template <quarry::endpoint_c endpoint>
+  std::string m_authenticate_url(const endpoint &ep);
   std::unique_ptr<quarry::httpClient> m_http;
 };
 } // namespace quarry

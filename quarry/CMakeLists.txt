@@ -5,6 +5,7 @@ set(QUARRY_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 # ---- Dependencies ----
 
 find_package(PostgreSQL REQUIRED)
+find_package(glaze REQUIRED)
 find_package(OpenSSL REQUIRED COMPONENTS SSL Crypto)
 find_package(Threads REQUIRED)
 
@@ -48,6 +49,7 @@ target_include_directories(quarry_core
 target_link_libraries(quarry_core
   PUBLIC
     PostgreSQL::PostgreSQL
+    glaze::glaze
     OpenSSL::SSL
     OpenSSL::Crypto
     Threads::Threads

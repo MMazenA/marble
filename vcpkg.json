@@ -1,6 +1,6 @@
 {
-  "name":"marble",
-  "version-string":"0.1.0",
+  "name": "marble",
+  "version-string": "0.1.0",
   "dependencies": [
     "openssl",
     "libpq",
@@ -8,6 +8,7 @@
     "boost-system",
     "boost-asio",
     "boost-beast",
-    "catch2"
+    "catch2",
+    "glaze"
   ]
 }

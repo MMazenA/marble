@@ -1,4 +1,4 @@
-#include "aggregates_daily.h"
+#include "aggregates.h"
 #include "glaze/glaze.hpp"
 #include "polygon.h"
 #include "utils.h"
@@ -8,8 +8,8 @@ int main() {
   quarry::load_dotenv("./quarry/.env");
   quarry::Polygon polygon(std::getenv("POLYGON_API_KEY"));
 
-  constexpr quarry::Endpoint::AggregatesDaily aapl_daily_agg =
-      quarry::Endpoint::AggregatesDaily{"AAPL"};
+  // constexpr auto aapl_daily_agg =
+  // quarry::Endpoint::AggregatesRequest{"AAPL"};
   std::println("hi");
 
   /// @todo: need to save response here

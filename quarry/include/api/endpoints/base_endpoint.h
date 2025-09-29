@@ -9,9 +9,30 @@ namespace quarry {
 
 using headers = std::vector<std::pair<std::string, std::string>>;
 
-enum sort_options { ASC, DSC };
-enum timespan_options { SECOND, MINUTE, HOUR, DAY, WEEK, MONTH, QUARTER, YEAR };
-inline std::string timespan_resolver(timespan_options timespan) {
+enum class sort_options { ASC, DSC };
+enum class method_type { GET, POST };
+enum class timespan_options : uint8_t {
+  SECOND,
+  MINUTE,
+  HOUR,
+  DAY,
+  WEEK,
+  MONTH,
+  QUARTER,
+  YEAR
+};
+
+struct polygonRequest {
+  method_type method;
+  std::string path;
+  std::string query;
+  headers hdrs;
+};
+
+constexpr uint8_t ticker_size = 6;
+
+constexpr std::string_view
+timespan_resolver(timespan_options timespan) noexcept {
   switch (timespan) {
   case timespan_options::SECOND:
     return "second";
@@ -32,18 +53,26 @@ inline std::string timespan_resolver(timespan_options timespan) {
   }
 }
 
-class BaseEndpoint {
-public:
-  virtual std::string method() const = 0;
-  virtual std::string target(std::string auth_path) const {
-    return m_target_path() + "?" + m_target_args() + auth_path;
-  };
-  virtual std::string m_target_path() const = 0;
-  virtual std::string m_target_args() const { return ""; }
-  virtual std::string build_payload() const { return ""; }
-  virtual headers build_headers() const { return {}; }
-  virtual ~BaseEndpoint() = default;
+[[nodiscard]] inline bool is_iso_date(std::string_view s) noexcept {
+  return s.size() == 10 && s[4] == '-' && s[7] == '-' && (s[0] | 32) >= '0' &&
+         (s[0] | 32) <= '9';
+}
+
+template <class T>
+concept endpoint_c = requires(const T &ep) {
+  { ep.method() } -> std::convertible_to<std::string_view>;
+  { ep.path() } -> std::convertible_to<std::string_view>;
+  { ep.query() } -> std::convertible_to<std::string_view>;
+  { ep.headers() } -> std::same_as<headers>;
+  { ep.validate() } -> std::same_as<std::optional<std::string>>;
 };
+
+inline polygonRequest build_request(const endpoint_c auto &ep) {
+  int x;
+
+  return polygonRequest{std::string(ep.method()), std::string(ep.path()),
+                        std::string(ep.query()), ep.headers()};
+}
 
 } // namespace quarry
 

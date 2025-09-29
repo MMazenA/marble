@@ -2,11 +2,11 @@
 #define AGGREGATES_DAILY_H
 
 #include "base_endpoint.h"
-#include <sstream> // ostringstream
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
-#include <utility> // std::move
+#include <utility>
 
 namespace quarry {
 namespace Endpoint {
@@ -18,7 +18,7 @@ namespace Endpoint {
  *
  * @see https://polygon.io/docs/rest/stocks/aggregates/custom-bars
  */
-struct AggregatesRequest {
+class AggregatesRequest {
 private:
   AggregatesRequest() = default;
 

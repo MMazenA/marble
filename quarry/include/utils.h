@@ -14,7 +14,7 @@ void load_dotenv(const std::string &path = ".env") {
   std::ifstream env_file(path);
   if (!env_file.is_open()) {
     std::cerr << "Could not open .env file: " << path << std::endl;
-    std::cout << "Current path is " << fs::current_path() << '\n'; // (1)
+    std::cout << "Current path is " << fs::current_path() << '\n';
     return;
   }
 

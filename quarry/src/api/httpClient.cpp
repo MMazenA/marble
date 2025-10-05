@@ -19,14 +19,14 @@ ssl::context quarry::httpClient::make_client_ctx() {
 /// @param endpoint
 /// @param headers
 /// @return
-http::response<http::dynamic_body> quarry::httpClient::get(
+http::response<http::string_body> quarry::httpClient::get(
     const std::string_view endpoint,
     const std::unordered_map<std::string, std::string> headers) {
   /// @todo who should own this response
   /// I feel like maybe this should be a unique pointer passed in by ref, that
   /// way this function has no direct overhead, but what difference does that
   /// make
-  http::response<http::dynamic_body> response;
+  http::response<http::string_body> response;
 
   int response_code =
       m_client(m_host, m_port, endpoint, http::verb::get, headers, response);
@@ -41,11 +41,11 @@ http::response<http::dynamic_body> quarry::httpClient::get(
   return response;
 };
 
-http::response<http::dynamic_body>
+http::response<http::string_body>
 quarry::httpClient::post(const std::string_view endpoint,
                          const std::string_view body,
                          std::unordered_map<std::string, std::string> headers) {
-  http::response<http::dynamic_body> response;
+  http::response<http::string_body> response;
   int response_code =
       m_client(m_host, m_port, endpoint, http::verb::post, headers, response);
 
@@ -69,7 +69,7 @@ int quarry::httpClient::m_client(
     const std::string_view host, const std::string_view port,
     const std::string_view target, http::verb verb,
     const std::unordered_map<std::string, std::string> &headers,
-    http::response<http::dynamic_body> &http_response) {
+    http::response<http::string_body> &http_response) {
   try {
     /// @todo format this as the reidredct does !
     if (port == "443") {
@@ -147,7 +147,7 @@ int quarry::httpClient::m_https_client(
     const std::string_view host, const std::string_view port,
     const std::string_view target, http::verb verb,
     const std::unordered_map<std::string, std::string> &headers,
-    http::response<http::dynamic_body> &http_response) {
+    http::response<http::string_body> &http_response) {
 
   // io context - contains context to execute the event loop and all system
   try {
@@ -199,6 +199,5 @@ int quarry::httpClient::m_https_client(
     return EXIT_FAILURE;
   }
 
-  std::cout << http_response << std::endl;
   return http_response.result_int();
 }

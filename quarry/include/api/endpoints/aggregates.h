@@ -11,6 +11,29 @@
 namespace quarry {
 namespace ep {
 
+struct aggBar {
+  double o;
+  double c;
+  double h;
+  double l;
+  std::int64_t n;
+  bool otc;
+  std::int64_t t;
+  double v;
+  double vw;
+};
+struct AggregatesR {
+  std::string ticker;
+  bool adjusted;
+  int queryCount;
+  std::string request_id;
+  int resultsCount;
+  int count;
+  std::string status;
+  std::optional<std::vector<aggBar>> results;
+  std::optional<std::string> next_url;
+};
+
 /**
  * @brief Create a request for aggregate bars.
  *
@@ -33,7 +56,7 @@ public:
   uint16_t m_limit = 120;
 
 public:
-  class Builder {};
+  using response_type = AggregatesR;
 
   [[nodiscard]] static Aggregates withTicker(std::string_view ticker) {
     if (ticker.empty())
@@ -138,8 +161,6 @@ public:
   /// @todo add r-value && operators so builder pattern can be expanded to
   /// invalidate built objects
 };
-
-struct AggregatesResponse {};
 
 } // namespace ep
 } // namespace quarry

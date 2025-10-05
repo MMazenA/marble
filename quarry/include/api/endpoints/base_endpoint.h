@@ -65,6 +65,7 @@ concept endpoint_c = requires(const T &ep) {
   { ep.query() } -> std::convertible_to<std::string_view>;
   { ep.headers() } -> std::same_as<headers>;
   { ep.validate() } -> std::same_as<std::optional<std::string>>;
+  typename T::response_type;
 };
 
 inline polygonRequest build_request(const endpoint_c auto &ep) {

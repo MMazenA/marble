@@ -85,6 +85,13 @@
     "variant": "cpp",
     "vector": "cpp",
     "algorithm": "cpp",
-    "iterator": "cpp"
+    "iterator": "cpp",
+    "type_traits": "cpp",
+    "__assert": "cpp",
+    "__assertion_handler": "cpp",
+    "system_error": "cpp",
+    "__availability": "cpp",
+    "__config": "cpp",
+    "format": "cpp"
   }
 }

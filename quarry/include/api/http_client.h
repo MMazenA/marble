@@ -29,11 +29,11 @@ public:
 
   ssl::context make_client_ctx();
 
-  http::response<http::dynamic_body>
+  http::response<http::string_body>
   get(const std::string_view endpoint,
       const std::unordered_map<std::string, std::string> headers = {});
 
-  http::response<http::dynamic_body>
+  http::response<http::string_body>
   post(const std::string_view endpoint, const std::string_view body = "",
        std::unordered_map<std::string, std::string> headers = {});
 
@@ -50,12 +50,12 @@ private:
   int m_client(const std::string_view host, const std::string_view port,
                const std::string_view target, http::verb verb,
                const std::unordered_map<std::string, std::string> &headers,
-               http::response<http::dynamic_body> &http_response);
+               http::response<http::string_body> &http_response);
   int m_https_client(
       const std::string_view host, const std::string_view port,
       const std::string_view target, http::verb verb,
       const std::unordered_map<std::string, std::string> &headers,
-      http::response<http::dynamic_body> &http_response);
+      http::response<http::string_body> &http_response);
 };
 } // namespace quarry
 #endif

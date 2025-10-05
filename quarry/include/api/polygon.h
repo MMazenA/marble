@@ -3,6 +3,7 @@
 
 #include "base_endpoint.h"
 #include "http_client.h"
+#include <glaze/glaze.hpp>
 #include <memory>
 #include <string>
 
@@ -21,19 +22,29 @@ public:
    */
   Polygon(std::string api_key);
 
-  template <quarry::endpoint_c E> std::string execute(const E &ep) {
+  template <quarry::endpoint_c E> E::response_type execute(const E &ep) {
     std::string url = m_authenticate_url(ep);
 
-    http::response<http::dynamic_body> result;
+    http::response<http::string_body> result;
     if (ep.method() == "GET") {
       result = m_http->get(url);
     } else {
       result = m_http->post(url);
     }
 
-    std::cout << result << std::endl;
-    /// @todo return the correct thing here
-    return "hi";
+    std::string_view body_view = result.body();
+
+    auto parsed_json = glz::read_json<typename E::response_type>(body_view);
+
+    if (!parsed_json) {
+      const auto &e = parsed_json.error();
+      std::cerr << "JSON parse failed "
+                << glz::format_error(parsed_json, body_view) << std::endl;
+
+      throw std::runtime_error("parse failed");
+    }
+
+    return std::move(*parsed_json);
   };
 
 private:

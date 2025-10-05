@@ -1,6 +1,9 @@
 {
-  "version":6,
-    "cmakeMinimumRequired": { "major": 3, "minor": 25 },
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25
+  },
   "configurePresets": [
     {
       "name": "dev",
@@ -18,9 +21,18 @@
     }
   ],
   "buildPresets": [
-    { "name": "dev", "configurePreset": "dev" }
+    {
+      "name": "dev",
+      "configurePreset": "dev"
+    }
   ],
   "testPresets": [
-    { "name": "dev", "configurePreset": "dev", "output": {"outputOnFailure": true} }
+    {
+      "name": "dev",
+      "configurePreset": "dev",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
   ]
 }

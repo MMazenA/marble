@@ -8,8 +8,7 @@ int main() {
   quarry::load_dotenv("./quarry/.env");
   quarry::Polygon polygon(std::getenv("POLYGON_API_KEY"));
 
-  // constexpr auto aapl_daily_agg =
-  // quarry::Endpoint::AggregatesRequest{"AAPL"};
+  auto aapl_daily_agg = quarry::ep::Aggregates::withTicker("AAPL");
   std::println("hi");
 
   /// @todo: need to save response here

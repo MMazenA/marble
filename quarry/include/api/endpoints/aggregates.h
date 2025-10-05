@@ -9,7 +9,7 @@
 #include <utility>
 
 namespace quarry {
-namespace Endpoint {
+namespace ep {
 
 /**
  * @brief Create a request for aggregate bars.
@@ -18,10 +18,11 @@ namespace Endpoint {
  *
  * @see https://polygon.io/docs/rest/stocks/aggregates/custom-bars
  */
-class AggregatesRequest {
+class Aggregates {
 private:
-  AggregatesRequest() = default;
+  Aggregates() = default;
 
+public:
   std::string m_ticker;
   std::string m_from_date;
   std::string m_to_date;
@@ -32,10 +33,12 @@ private:
   uint16_t m_limit = 120;
 
 public:
-  [[nodiscard]] static AggregatesRequest withTicker(std::string_view ticker) {
+  class Builder {};
+
+  [[nodiscard]] static Aggregates withTicker(std::string_view ticker) {
     if (ticker.empty())
       throw std::invalid_argument("ticker can not be empty");
-    AggregatesRequest ep;
+    Aggregates ep;
     ep.m_ticker.assign(ticker);
     return ep;
   }
@@ -75,7 +78,7 @@ public:
   [[nodiscard]] std::string query() const {
     std::string query;
     query.reserve(48);
-    query += "adjusted=";
+    query += "?adjusted=";
     query += (m_adjusted ? "true" : "false");
     query += "&sort=";
     query += (m_sort == sort_options::ASC ? "asc" : "desc");
@@ -99,35 +102,35 @@ public:
   }
 
   // builders
-  [[nodiscard]] AggregatesRequest &sort(sort_options s) noexcept {
+  [[nodiscard]] Aggregates &sort(sort_options s) noexcept {
     m_sort = s;
     return *this;
   }
-  [[nodiscard]] AggregatesRequest &adjusted(bool a) noexcept {
+  [[nodiscard]] Aggregates &adjusted(bool a) noexcept {
     m_adjusted = a;
     return *this;
   }
-  [[nodiscard]] AggregatesRequest &limit(uint16_t lim) noexcept {
+  [[nodiscard]] Aggregates &limit(uint16_t lim) noexcept {
     m_limit = lim ? lim : 1;
     return *this;
   }
-  [[nodiscard]] AggregatesRequest &fromDate(std::string d) {
+  [[nodiscard]] Aggregates &fromDate(std::string d) {
     if (!d.empty() && !quarry::is_iso_date(d))
       throw std::invalid_argument("Bad ISO date for fromDate");
     m_from_date = std::move(d);
     return *this;
   }
-  [[nodiscard]] AggregatesRequest &toDate(std::string d) {
+  [[nodiscard]] Aggregates &toDate(std::string d) {
     if (!d.empty() && !quarry::is_iso_date(d))
       throw std::invalid_argument("Bad ISO date for toDate");
     m_to_date = std::move(d);
     return *this;
   }
-  [[nodiscard]] AggregatesRequest &timeSpan(timespan_options t) noexcept {
+  [[nodiscard]] Aggregates &timeSpan(timespan_options t) noexcept {
     m_timespan = t;
     return *this;
   }
-  [[nodiscard]] AggregatesRequest &multiplier(unsigned int m) noexcept {
+  [[nodiscard]] Aggregates &multiplier(unsigned int m) noexcept {
     m_multiplier = m ? m : 1;
     return *this;
   }
@@ -138,6 +141,6 @@ public:
 
 struct AggregatesResponse {};
 
-} // namespace Endpoint
+} // namespace ep
 } // namespace quarry
 #endif

@@ -67,8 +67,8 @@ public:
   }
 
   // concept requirements
-  [[nodiscard]] static constexpr std::string_view method() noexcept {
-    return "GET";
+  [[nodiscard]] static constexpr quarry::method_type method() noexcept {
+    return quarry::method_type::GET;
   }
 
   [[nodiscard]] std::string path() const {

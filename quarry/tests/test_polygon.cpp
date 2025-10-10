@@ -18,6 +18,4 @@ TEST_CASE("Polygon can send request to endpoint") {
 
   REQUIRE(response.ticker == "AAPL");
   REQUIRE(response.resultsCount == 3);
-
-  REQUIRE(true);
 }

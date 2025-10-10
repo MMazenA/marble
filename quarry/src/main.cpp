@@ -9,7 +9,6 @@ int main() {
   quarry::Polygon polygon(std::getenv("POLYGON_API_KEY"));
 
   auto aapl_daily_agg = quarry::ep::Aggregates::withTicker("AAPL");
-  std::println("hi");
 
   /// @todo: need to save response here
   /// start and end days need to be passed through from front-end

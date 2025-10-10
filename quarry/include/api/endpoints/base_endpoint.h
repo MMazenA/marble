@@ -60,7 +60,7 @@ timespan_resolver(timespan_options timespan) noexcept {
 
 template <class T>
 concept endpoint_c = requires(const T &ep) {
-  { ep.method() } -> std::convertible_to<std::string_view>;
+  { ep.method() } -> std::same_as<method_type>;
   { ep.path() } -> std::convertible_to<std::string_view>;
   { ep.query() } -> std::convertible_to<std::string_view>;
   { ep.headers() } -> std::same_as<headers>;
@@ -69,9 +69,8 @@ concept endpoint_c = requires(const T &ep) {
 };
 
 inline polygonRequest build_request(const endpoint_c auto &ep) {
-  int x;
 
-  return polygonRequest{std::string(ep.method()), std::string(ep.path()),
+  return polygonRequest{ep.method(), std::string(ep.path()),
                         std::string(ep.query()), ep.headers()};
 }
 

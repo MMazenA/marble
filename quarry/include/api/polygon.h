@@ -26,7 +26,7 @@ public:
     std::string url = m_authenticate_url(ep);
 
     http::response<http::string_body> result;
-    if (ep.method() == "GET") {
+    if (ep.method() == quarry::method_type::GET) {
       result = m_http->get(url);
     } else {
       result = m_http->post(url);

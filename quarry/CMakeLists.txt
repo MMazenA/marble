@@ -81,9 +81,9 @@ target_link_libraries(quarry_bootstrap PRIVATE quarry_core)
 
 # -Wl,-ld_classic for https://stackoverflow.com/a/77190575/20313250
 if(APPLE)
-  target_link_options(quarry_core PRIVATE "-Wl,-ld_classic")
-  target_link_options(quarry_main PRIVATE "-Wl,-ld_classic")
-  target_link_options(quarry_bootstrap PRIVATE "-Wl,-ld_classic")
+  target_link_options(quarry_core PRIVATE "-Wl,-no_warn_duplicate_libraries")
+  target_link_options(quarry_main PRIVATE "-Wl,-no_warn_duplicate_libraries")
+  target_link_options(quarry_bootstrap PRIVATE "-Wl,-no_warn_duplicate_libraries")
 endif()
 
 # ---- Tests ----

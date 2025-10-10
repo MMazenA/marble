@@ -1,7 +1,11 @@
 #ifndef BASE_ENDPOINT_H
 #define BASE_ENDPOINT_H
 
+#include <concepts>
+#include <cstdint>
+#include <optional>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -51,11 +55,22 @@ timespan_resolver(timespan_options timespan) noexcept {
   case timespan_options::YEAR:
     return "year";
   }
+  return "day";
 }
 
 [[nodiscard]] inline bool is_iso_date(std::string_view s) noexcept {
-  return s.size() == 10 && s[4] == '-' && s[7] == '-' && (s[0] | 32) >= '0' &&
-         (s[0] | 32) <= '9';
+  // ensure this is good
+  if (s.size() != 10) {
+    return false;
+  }
+  if (s[4] != '-' || s[7] != '-') {
+    return false;
+  }
+  auto is_digit = [](char c) constexpr noexcept {
+    return c >= '0' && c <= '9';
+  };
+  return is_digit(s[0]) && is_digit(s[1]) && is_digit(s[2]) && is_digit(s[3]) &&
+         is_digit(s[5]) && is_digit(s[6]) && is_digit(s[8]) && is_digit(s[9]);
 }
 
 template <class T>
@@ -67,12 +82,6 @@ concept endpoint_c = requires(const T &ep) {
   { ep.validate() } -> std::same_as<std::optional<std::string>>;
   typename T::response_type;
 };
-
-inline polygonRequest build_request(const endpoint_c auto &ep) {
-
-  return polygonRequest{ep.method(), std::string(ep.path()),
-                        std::string(ep.query()), ep.headers()};
-}
 
 } // namespace quarry
 

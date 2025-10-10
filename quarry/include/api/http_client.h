@@ -12,6 +12,7 @@
 #include <iostream>
 #include <span>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 namespace beast = boost::beast;
@@ -38,9 +39,10 @@ public:
        std::unordered_map<std::string, std::string> headers = {});
 
 private:
-  int m_requests_made; // gonna pass on this for now lol, need a mutex to
-                       // increment this but don't want each request to need to
-                       // wait for one another
+  [[maybe_unused]] int
+      m_requests_made{}; // gonna pass on this for now lol, need a mutex to
+                         // increment this but don't want each request to need
+                         // to wait for one another
 
   std::string m_host;
   std::string m_port;

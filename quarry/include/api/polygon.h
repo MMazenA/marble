@@ -37,14 +37,13 @@ public:
     auto parsed_json = glz::read_json<typename E::response_type>(body_view);
 
     if (!parsed_json) {
-      const auto &e = parsed_json.error();
       std::cerr << "JSON parse failed "
                 << glz::format_error(parsed_json, body_view) << std::endl;
 
       throw std::runtime_error("parse failed");
     }
 
-    return std::move(*parsed_json);
+    return *parsed_json;
   };
 
 private:

@@ -1,10 +1,14 @@
 #ifndef SQL_HANDLER_H
 #define SQL_HANDLER_H
 
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <print>
 #include <regex>
+#include <string>
+#include <string_view>
+#include <unordered_map>
 #include <unordered_set>
 
 #include <pqxx/pqxx>
@@ -41,10 +45,10 @@ private:
 
   std::unordered_set<std::string> &m_resolve_migrations();
 
-  pqxx::result m_execute_migration_script(const std::string_view &mig_script,
+  pqxx::result m_execute_migration_script(std::string_view mig_script,
                                           const pqxx::params &p);
 
-  pqxx::result m_execute_migration_script(const std::string_view &mig_script);
+  pqxx::result m_execute_migration_script(std::string_view mig_script);
 
 private:
   std::unique_ptr<pqxx::connection> m_conn;

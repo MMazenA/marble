@@ -88,10 +88,7 @@ int quarry::httpClient::m_client(
     stream.connect(resolved_results);
 
     // setting up the request object
-    http::request<http::string_body> req;
-    req.target(target);
-    req.method(verb);
-    req.version(version);
+    http::request<http::string_body> req{verb, target, version};
 
     req.set(http::field::host, host);
     req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);

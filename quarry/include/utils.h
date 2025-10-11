@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 #include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -9,9 +10,11 @@
 
 namespace quarry {
 void load_dotenv(const std::string &path = ".env") {
+  namespace fs = std::filesystem;
   std::ifstream env_file(path);
   if (!env_file.is_open()) {
     std::cerr << "Could not open .env file: " << path << std::endl;
+    std::cout << "Current path is " << fs::current_path() << '\n';
     return;
   }
 

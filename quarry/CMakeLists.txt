@@ -5,6 +5,7 @@ set(QUARRY_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 # ---- Dependencies ----
 
 find_package(PostgreSQL REQUIRED)
+find_package(glaze REQUIRED)
 find_package(OpenSSL REQUIRED COMPONENTS SSL Crypto)
 find_package(Threads REQUIRED)
 
@@ -48,6 +49,7 @@ target_include_directories(quarry_core
 target_link_libraries(quarry_core
   PUBLIC
     PostgreSQL::PostgreSQL
+    glaze::glaze
     OpenSSL::SSL
     OpenSSL::Crypto
     Threads::Threads
@@ -79,9 +81,9 @@ target_link_libraries(quarry_bootstrap PRIVATE quarry_core)
 
 # -Wl,-ld_classic for https://stackoverflow.com/a/77190575/20313250
 if(APPLE)
-  target_link_options(quarry_core PRIVATE "-Wl,-ld_classic")
-  target_link_options(quarry_main PRIVATE "-Wl,-ld_classic")
-  target_link_options(quarry_bootstrap PRIVATE "-Wl,-ld_classic")
+  target_link_options(quarry_core PRIVATE "-Wl,-no_warn_duplicate_libraries")
+  target_link_options(quarry_main PRIVATE "-Wl,-no_warn_duplicate_libraries")
+  target_link_options(quarry_bootstrap PRIVATE "-Wl,-no_warn_duplicate_libraries")
 endif()
 
 # ---- Tests ----

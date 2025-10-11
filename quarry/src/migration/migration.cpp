@@ -76,16 +76,17 @@ std::unordered_set<std::string> &quarry::Migration::m_resolve_migrations() {
   return resolved_set;
 }
 
-pqxx::result quarry::Migration::m_execute_migration_script(
-    const std::string_view &mig_script, const pqxx::params &p) {
+pqxx::result
+quarry::Migration::m_execute_migration_script(std::string_view mig_script,
+                                              const pqxx::params &p) {
   pqxx::work write_tsx(*m_conn);
   pqxx::result result = write_tsx.exec(mig_script, p);
   write_tsx.commit();
   return result;
 }
 
-pqxx::result quarry::Migration::m_execute_migration_script(
-    const std::string_view &mig_script) {
+pqxx::result
+quarry::Migration::m_execute_migration_script(std::string_view mig_script) {
   pqxx::work write_tsx(*m_conn);
   pqxx::result result = write_tsx.exec(mig_script);
   write_tsx.commit();

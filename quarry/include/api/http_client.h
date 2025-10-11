@@ -12,6 +12,7 @@
 #include <iostream>
 #include <span>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 namespace beast = boost::beast;
@@ -29,18 +30,19 @@ public:
 
   ssl::context make_client_ctx();
 
-  http::response<http::dynamic_body>
+  http::response<http::string_body>
   get(const std::string_view endpoint,
       const std::unordered_map<std::string, std::string> headers = {});
 
-  http::response<http::dynamic_body>
+  http::response<http::string_body>
   post(const std::string_view endpoint, const std::string_view body = "",
        std::unordered_map<std::string, std::string> headers = {});
 
 private:
-  int m_requests_made; // gonna pass on this for now lol, need a mutex to
-                       // increment this but don't want each request to need to
-                       // wait for one another
+  [[maybe_unused]] int
+      m_requests_made{}; // gonna pass on this for now lol, need a mutex to
+                         // increment this but don't want each request to need
+                         // to wait for one another
 
   std::string m_host;
   std::string m_port;
@@ -50,12 +52,12 @@ private:
   int m_client(const std::string_view host, const std::string_view port,
                const std::string_view target, http::verb verb,
                const std::unordered_map<std::string, std::string> &headers,
-               http::response<http::dynamic_body> &http_response);
+               http::response<http::string_body> &http_response);
   int m_https_client(
       const std::string_view host, const std::string_view port,
       const std::string_view target, http::verb verb,
       const std::unordered_map<std::string, std::string> &headers,
-      http::response<http::dynamic_body> &http_response);
+      http::response<http::string_body> &http_response);
 };
 } // namespace quarry
 #endif

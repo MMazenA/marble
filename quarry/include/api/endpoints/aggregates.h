@@ -11,17 +11,6 @@
 namespace quarry {
 namespace ep {
 
-struct aggBar {
-  double o;
-  double c;
-  double h;
-  double l;
-  std::int64_t n;
-  bool otc;
-  std::int64_t t;
-  double v;
-  double vw;
-};
 struct AggregatesR {
   std::string ticker;
   bool adjusted;
@@ -139,13 +128,13 @@ public:
   }
   [[nodiscard]] Aggregates &fromDate(std::string d) {
     if (!d.empty() && !quarry::is_iso_date(d))
-      throw std::invalid_argument("Bad ISO date for fromDate");
+      throw std::invalid_argument("Bad ISO date for fromDate: " + d);
     m_from_date = std::move(d);
     return *this;
   }
   [[nodiscard]] Aggregates &toDate(std::string d) {
     if (!d.empty() && !quarry::is_iso_date(d))
-      throw std::invalid_argument("Bad ISO date for toDate");
+      throw std::invalid_argument("Bad ISO date for toDate: " + d);
     m_to_date = std::move(d);
     return *this;
   }

@@ -3,6 +3,7 @@
 
 #include <concepts>
 #include <cstdint>
+#include <format>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -59,10 +60,6 @@ timespan_resolver(timespan_options timespan) noexcept {
 }
 
 [[nodiscard]] inline bool is_iso_date(std::string_view s) noexcept {
-  // ensure this is good
-  if (s.size() != 10) {
-    return false;
-  }
   if (s[4] != '-' || s[7] != '-') {
     return false;
   }
@@ -83,6 +80,35 @@ concept endpoint_c = requires(const T &ep) {
   typename T::response_type;
 };
 
+struct aggBar {
+  double o;
+  double c;
+  double h;
+  double l;
+  std::int64_t n;
+  bool otc;
+  std::int64_t t;
+  double v;
+  double vw;
+};
+
 } // namespace quarry
+
+template <>
+struct std::formatter<quarry::aggBar> : std::formatter<std::string> {
+  auto format(const quarry::aggBar &ab, auto &ctx) const {
+
+    std::string formatted_ab =
+        std::format("[Aggregate Bar {{"
+                    "open:{:<6} close:{:<6} "
+                    "high:{:<6} low:{:<6} transactions_c:{:<6} "
+                    "volume:{:<6} weighted_volume:{:<8} "
+                    "is_otc:{:<5} timestamp:{}}}]",
+                    ab.o, ab.c, ab.h, ab.l, ab.n, ab.v, ab.vw, ab.otc, ab.t);
+
+    // return std::formatter<std::string>::format
+    return std::formatter<std::string>::format(formatted_ab, ctx);
+  }
+};
 
 #endif

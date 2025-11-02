@@ -1,6 +1,5 @@
 #include "http_client.h"
 #include <catch2/catch_test_macros.hpp>
-#include <iostream>
 
 TEST_CASE("HTTP Client can connect to an endpoint") {
   quarry::HttpClient client("httpbin.org", "80");

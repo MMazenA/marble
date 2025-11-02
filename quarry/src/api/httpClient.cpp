@@ -5,7 +5,8 @@
 quarry::HttpClient::HttpClient(
     std::string host, std::string port,
     const std::unordered_map<std::string, std::string> &persistent_headers)
-    : m_host(std::move(host)), m_port(std::move(port)) {}
+    : m_host(std::move(host)), m_port(std::move(port)),
+      m_ssl_ioc(m_make_client_ctx()) {}
 
 ssl::context quarry::HttpClient::m_make_client_ctx() {
   ssl::context ctx{ssl::context::tls_client};
@@ -69,7 +70,7 @@ u_int quarry::HttpClient::m_client(
     const std::unordered_map<std::string, std::string> &headers,
     http::response<http::string_body> &http_response) {
   try {
-    /// @todo format this as the reidredct does !
+    /// @todo format this as the redirect does !
     if (port == "443") {
       return m_https_client(host, port, target, verb, headers, http_response);
     }
@@ -177,7 +178,7 @@ u_int quarry::HttpClient::m_https_client(
     http::request<http::string_body> req{verb, target, 11};
     req.set(http::field::host, host);
     req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
-    for (auto &[k, v] : headers) {
+    for (const auto &[k, v] : headers) {
       req.set(k, v);
     }
 
@@ -189,10 +190,12 @@ u_int quarry::HttpClient::m_https_client(
     beast::error_code ec;
 
     stream.shutdown(ec);
-    if (ec == net::error::eof || ec == net::ssl::error::stream_truncated)
+    if (ec == net::error::eof || ec == net::ssl::error::stream_truncated) {
       ec = {};
-    if (ec)
+    }
+    if (ec) {
       throw beast::system_error{ec};
+    }
   } catch (std::exception const &e) {
     std::cerr << "HTTPS error: " << e.what() << '\n';
     return EXIT_FAILURE;

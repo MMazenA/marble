@@ -72,7 +72,7 @@ private:
 
   std::string m_host;
   std::string m_port;
-  ssl::context m_ssl_ioc = m_make_client_ctx();
+  ssl::context m_ssl_ioc;
   net::io_context m_ioc;
 
   std::unordered_map<ResolverKey, tcp_resolver, ResolverKeyHasher>
@@ -89,7 +89,7 @@ private:
                  const std::unordered_map<std::string, std::string> &headers,
                  http::response<http::string_body> &http_response);
 
-  ssl::context m_make_client_ctx();
+  static ssl::context m_make_client_ctx();
 
   tcp_resolver &resolve_dns_cache(DnsCacheContext &context);
 
@@ -103,10 +103,12 @@ private:
     beast::ssl_stream<beast::tcp_stream> stream{context.ioc, m_ssl_ioc};
     beast::get_lowest_layer(stream).connect(results);
     std::string host_str(context.host);
-    if (!SSL_set_tlsext_host_name(stream.native_handle(), host_str.c_str()))
+    if (!SSL_set_tlsext_host_name(stream.native_handle(), host_str.c_str())) {
+
       throw beast::system_error(
           {static_cast<int>(::ERR_get_error()), net::error::get_ssl_category()},
           "SNI");
+    }
 
     stream.handshake(ssl::stream_base::client);
     return std::move(stream);

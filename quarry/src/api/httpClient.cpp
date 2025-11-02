@@ -1,13 +1,13 @@
 #include "api/http_client.h"
 #include <format>
-#include <system_error>
+#include <iostream>
 
-quarry::httpClient::httpClient(
+quarry::HttpClient::HttpClient(
     std::string host, std::string port,
     const std::unordered_map<std::string, std::string> &persistent_headers)
     : m_host(std::move(host)), m_port(std::move(port)) {}
 
-const ssl::context quarry::httpClient::m_make_client_ctx() {
+ssl::context quarry::HttpClient::m_make_client_ctx() {
   ssl::context ctx{ssl::context::tls_client};
   ctx.set_default_verify_paths();
   ctx.set_verify_mode(ssl::verify_peer);
@@ -22,9 +22,9 @@ const ssl::context quarry::httpClient::m_make_client_ctx() {
 /// @param endpoint
 /// @param headers
 /// @return
-http::response<http::string_body> quarry::httpClient::get(
+http::response<http::string_body> quarry::HttpClient::get(
     const std::string_view endpoint,
-    const std::unordered_map<std::string, std::string> headers) {
+    const std::unordered_map<std::string, std::string> &headers) {
   /// @todo who should own this response
   /// I feel like maybe this should be a unique pointer passed in by ref, that
   /// way this function has no direct overhead, but what difference does that
@@ -42,10 +42,9 @@ http::response<http::string_body> quarry::httpClient::get(
   return response;
 };
 
-http::response<http::string_body>
-quarry::httpClient::post(const std::string_view endpoint,
-                         const std::string_view body,
-                         std::unordered_map<std::string, std::string> headers) {
+http::response<http::string_body> quarry::HttpClient::post(
+    const std::string_view endpoint, const std::string_view body,
+    const std::unordered_map<std::string, std::string> &headers) {
   http::response<http::string_body> response;
   u_int response_code =
       m_client(m_host, m_port, endpoint, http::verb::post, headers, response);
@@ -64,7 +63,7 @@ quarry::httpClient::post(const std::string_view endpoint,
 /// @param headers key:value dict of headers
 /// @param http_response boost http object to save response
 /// @return https response code
-u_int quarry::httpClient::m_client(
+u_int quarry::HttpClient::m_client(
     const std::string_view host, const std::string_view port,
     const std::string_view target, http::verb verb,
     const std::unordered_map<std::string, std::string> &headers,
@@ -122,12 +121,12 @@ u_int quarry::httpClient::m_client(
       return 308;
     }
 
-    beast::error_code ec;
+    beast::error_code error_code;
 
-    stream.socket().shutdown(tcp::socket::shutdown_both, ec);
+    stream.socket().shutdown(tcp::socket::shutdown_both, error_code);
 
-    if (ec && ec != beast::errc::not_connected) {
-      throw beast::system_error{ec};
+    if (error_code && error_code != beast::errc::not_connected) {
+      throw beast::system_error{error_code};
     }
 
     return http_response.result_int();
@@ -138,7 +137,7 @@ u_int quarry::httpClient::m_client(
   return EXIT_FAILURE;
 }
 
-u_int quarry::httpClient::m_https_client(
+u_int quarry::HttpClient::m_https_client(
     const std::string_view host, const std::string_view port,
     const std::string_view target, http::verb verb,
     const std::unordered_map<std::string, std::string> &headers,
@@ -206,7 +205,7 @@ u_int quarry::httpClient::m_https_client(
  * possible race conditions here if multiple resolutions hit at the same time
  */
 quarry::tcp_resolver &
-quarry::httpClient::resolve_dns_cache(DnsCacheContext &context) {
+quarry::HttpClient::resolve_dns_cache(DnsCacheContext &context) {
 
   auto const key =
       quarry::ResolverKey(context.host, context.port, context.is_tls);

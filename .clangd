@@ -6,5 +6,11 @@ InlayHints:
 Diagnostics:
   UnusedIncludes: Strict
   ClangTidy:
-    Remove: [bugprone-easily-swappable-parameters, modernize-use-trailing-return-type]
-    Add: [bugprone-*, cert-*, modernize-*, performance-*]
+    Remove: [bugprone-easily-swappable-parameters, modernize-use-trailing-return-type,readability-magic-numbers,readability-identifier-length]
+    Add: [bugprone-*, cert-*, modernize-*, performance-*, readability-*]
+    CheckOptions:
+      readability-identifier-naming.VariableCase: lower_case
+      readability-identifier-naming.ParameterCase: lower_case
+      readability-identifier-naming.FunctionCase: lower_case
+      readability-identifier-naming.ClassCase: CamelCase
+      readability-identifier-naming.StructCase: CamelCase

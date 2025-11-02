@@ -9,9 +9,6 @@
 #include <boost/beast/ssl.hpp>
 #include <boost/beast/version.hpp>
 #include <cstdlib>
-#include <ios>
-#include <iostream>
-#include <span>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -53,19 +50,19 @@ struct ResolverKeyHasher {
            std::hash<bool>{}(key.is_tls);
   }
 };
-class httpClient {
+class HttpClient {
 public:
-  httpClient(std::string host, std::string port,
+  HttpClient(std::string host, std::string port,
              const std::unordered_map<std::string, std::string>
                  &persistent_headers = {});
 
   http::response<http::string_body>
-  get(const std::string_view endpoint,
-      const std::unordered_map<std::string, std::string> headers = {});
+  get(std::string_view endpoint,
+      const std::unordered_map<std::string, std::string> &headers = {});
 
   http::response<http::string_body>
-  post(const std::string_view endpoint, const std::string_view body = "",
-       std::unordered_map<std::string, std::string> headers = {});
+  post(std::string_view endpoint, std::string_view body = "",
+       const std::unordered_map<std::string, std::string> &headers = {});
 
 private:
   [[maybe_unused]] int
@@ -82,17 +79,17 @@ private:
       m_cachedResolutions;
   std::unordered_map<std::string, std::string> m_persistent_headers;
 
-  u_int m_client(const std::string_view host, const std::string_view port,
-                 const std::string_view target, http::verb verb,
+  u_int m_client(std::string_view host, std::string_view port,
+                 std::string_view target, http::verb verb,
                  const std::unordered_map<std::string, std::string> &headers,
                  http::response<http::string_body> &http_response);
   u_int
-  m_https_client(const std::string_view host, const std::string_view port,
-                 const std::string_view target, http::verb verb,
+  m_https_client(std::string_view host, std::string_view port,
+                 std::string_view target, http::verb verb,
                  const std::unordered_map<std::string, std::string> &headers,
                  http::response<http::string_body> &http_response);
 
-  const ssl::context m_make_client_ctx();
+  ssl::context m_make_client_ctx();
 
   tcp_resolver &resolve_dns_cache(DnsCacheContext &context);
 

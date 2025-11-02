@@ -1,21 +1,18 @@
 #include "api/http_client.h"
+#include <format>
+#include <system_error>
 
 quarry::httpClient::httpClient(
     std::string host, std::string port,
-    std::unordered_map<std::string, std::string> persistent_headers)
-    : m_host(host), m_port(port) {}
+    const std::unordered_map<std::string, std::string> &persistent_headers)
+    : m_host(std::move(host)), m_port(std::move(port)) {}
 
 const ssl::context quarry::httpClient::m_make_client_ctx() {
   ssl::context ctx{ssl::context::tls_client};
   ctx.set_default_verify_paths();
   ctx.set_verify_mode(ssl::verify_peer);
 
-  // Enable SSL/TLS session resumption for performance
-  // This allows reusing session keys from previous connections
   SSL_CTX_set_session_cache_mode(ctx.native_handle(), SSL_SESS_CACHE_CLIENT);
-
-  // Set cache size (default is often too small)
-  // Allows caching sessions for up to 128 different hosts
   SSL_CTX_sess_set_cache_size(ctx.native_handle(), 128);
 
   return ctx;
@@ -34,13 +31,11 @@ http::response<http::string_body> quarry::httpClient::get(
   /// make
   http::response<http::string_body> response;
 
-  int response_code =
+  u_int response_code =
       m_client(m_host, m_port, endpoint, http::verb::get, headers, response);
 
   if (response_code != 200) {
-    std::cerr << "Invalid Response Received: " << response_code << '\n'
-              << response << std::endl;
-    throw response_code;
+    throw std::runtime_error(std::format("HTTP Error coe: {}", response_code));
   }
 
   /// this is returning a copy, i need to follow above @todo !!
@@ -52,13 +47,11 @@ quarry::httpClient::post(const std::string_view endpoint,
                          const std::string_view body,
                          std::unordered_map<std::string, std::string> headers) {
   http::response<http::string_body> response;
-  int response_code =
+  u_int response_code =
       m_client(m_host, m_port, endpoint, http::verb::post, headers, response);
 
   if (response_code != 200) {
-    std::cerr << "Invalid Response Received: " << response_code << std::endl
-              << response << std::endl;
-    throw response_code;
+    throw std::runtime_error(std::format("HTTP Error coe: {}", response_code));
   }
 
   return response;
@@ -71,7 +64,7 @@ quarry::httpClient::post(const std::string_view endpoint,
 /// @param headers key:value dict of headers
 /// @param http_response boost http object to save response
 /// @return https response code
-int quarry::httpClient::m_client(
+u_int quarry::httpClient::m_client(
     const std::string_view host, const std::string_view port,
     const std::string_view target, http::verb verb,
     const std::unordered_map<std::string, std::string> &headers,
@@ -120,7 +113,7 @@ int quarry::httpClient::m_client(
       while (redirect_url.contains("/")) {
         paths.push_back(redirect_host);
         redirect_url = redirect_url.substr(substr_start, redirect_url.length());
-        substr_start = redirect_url.find("/") + 1;
+        substr_start = redirect_url.find('/') + 1;
         substr_end =
             redirect_url.substr(substr_start, redirect_url.length()).find('/');
         redirect_host = redirect_url.substr(substr_start, substr_end);
@@ -145,7 +138,7 @@ int quarry::httpClient::m_client(
   return EXIT_FAILURE;
 }
 
-int quarry::httpClient::m_https_client(
+u_int quarry::httpClient::m_https_client(
     const std::string_view host, const std::string_view port,
     const std::string_view target, http::verb verb,
     const std::unordered_map<std::string, std::string> &headers,

@@ -55,9 +55,9 @@ struct ResolverKeyHasher {
 };
 class httpClient {
 public:
-  httpClient(
-      std::string host, std::string port,
-      std::unordered_map<std::string, std::string> persistent_headers = {});
+  httpClient(std::string host, std::string port,
+             const std::unordered_map<std::string, std::string>
+                 &persistent_headers = {});
 
   http::response<http::string_body>
   get(const std::string_view endpoint,
@@ -82,18 +82,17 @@ private:
       m_cachedResolutions;
   std::unordered_map<std::string, std::string> m_persistent_headers;
 
-  int m_client(const std::string_view host, const std::string_view port,
-               const std::string_view target, http::verb verb,
-               const std::unordered_map<std::string, std::string> &headers,
-               http::response<http::string_body> &http_response);
-  int m_https_client(
-      const std::string_view host, const std::string_view port,
-      const std::string_view target, http::verb verb,
-      const std::unordered_map<std::string, std::string> &headers,
-      http::response<http::string_body> &http_response);
+  u_int m_client(const std::string_view host, const std::string_view port,
+                 const std::string_view target, http::verb verb,
+                 const std::unordered_map<std::string, std::string> &headers,
+                 http::response<http::string_body> &http_response);
+  u_int
+  m_https_client(const std::string_view host, const std::string_view port,
+                 const std::string_view target, http::verb verb,
+                 const std::unordered_map<std::string, std::string> &headers,
+                 http::response<http::string_body> &http_response);
 
   const ssl::context m_make_client_ctx();
-  void configure_ssl_session_cache();
 
   tcp_resolver &resolve_dns_cache(DnsCacheContext &context);
 

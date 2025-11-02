@@ -1,0 +1,10 @@
+CompileFlags:
+  Add: [-Wunused-variable]
+InlayHints:
+  ParameterNames: No
+  DeducedTypes: No
+Diagnostics:
+  UnusedIncludes: Strict
+  ClangTidy:
+    Remove: [bugprone-easily-swappable-parameters, modernize-use-trailing-return-type]
+    Add: [bugprone-*, cert-*, modernize-*, performance-*]

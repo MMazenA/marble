@@ -5,12 +5,18 @@ quarry::httpClient::httpClient(
     std::unordered_map<std::string, std::string> persistent_headers)
     : m_host(host), m_port(port) {}
 
-ssl::context quarry::httpClient::make_client_ctx() {
+const ssl::context quarry::httpClient::m_make_client_ctx() {
   ssl::context ctx{ssl::context::tls_client};
-
   ctx.set_default_verify_paths();
-
   ctx.set_verify_mode(ssl::verify_peer);
+
+  // Enable SSL/TLS session resumption for performance
+  // This allows reusing session keys from previous connections
+  SSL_CTX_set_session_cache_mode(ctx.native_handle(), SSL_SESS_CACHE_CLIENT);
+
+  // Set cache size (default is often too small)
+  // Allows caching sessions for up to 128 different hosts
+  SSL_CTX_sess_set_cache_size(ctx.native_handle(), 128);
 
   return ctx;
 }
@@ -32,7 +38,7 @@ http::response<http::string_body> quarry::httpClient::get(
       m_client(m_host, m_port, endpoint, http::verb::get, headers, response);
 
   if (response_code != 200) {
-    std::cerr << "Invalid Response Received: " << response_code << std::endl
+    std::cerr << "Invalid Response Received: " << response_code << '\n'
               << response << std::endl;
     throw response_code;
   }
@@ -75,25 +81,25 @@ int quarry::httpClient::m_client(
     if (port == "443") {
       return m_https_client(host, port, target, verb, headers, http_response);
     }
-    net::io_context ioc;
-    tcp::resolver resolver(ioc);   // used to dispatch requests
-    beast::tcp_stream stream(ioc); // TCP stream socket
+    auto ioc = net::io_context();
     int version = 11;
 
-    // retrieves list of resolved ip:port pairs for the corresponding
-    // host:port
-    auto const resolved_results = resolver.resolve(host, port);
+    quarry::DnsCacheContext context{
+        .ioc = ioc,
+        .host = host,
+        .port = port,
+        .verb = verb,
+        .target = target,
+        .is_tls = false,
+        .force_refresh = false,
+    };
+    auto stream = create_tcp_stream(context);
 
-    // connect to the IP returned from the DNS lookup (goes through the list)
-    stream.connect(resolved_results);
-
-    // setting up the request object
     http::request<http::string_body> req{verb, target, version};
 
     req.set(http::field::host, host);
     req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
 
-    // connects resolved IP and target,verb, and other headers
     http::write(stream, req);
 
     beast::flat_buffer buffer;
@@ -105,9 +111,9 @@ int quarry::httpClient::m_client(
       std::string_view redirect_url = http_response.base()["Location"];
       // paths: [host,...args]
       std::vector<std::string_view> paths;
-      auto substr_start = redirect_url.find("/") + 2;
+      auto substr_start = redirect_url.find('/') + 2;
       auto substr_end =
-          redirect_url.substr(substr_start, redirect_url.length()).find("/");
+          redirect_url.substr(substr_start, redirect_url.length()).find('/');
       std::string_view redirect_host =
           redirect_url.substr(substr_start, substr_end);
 
@@ -116,7 +122,7 @@ int quarry::httpClient::m_client(
         redirect_url = redirect_url.substr(substr_start, redirect_url.length());
         substr_start = redirect_url.find("/") + 1;
         substr_end =
-            redirect_url.substr(substr_start, redirect_url.length()).find("/");
+            redirect_url.substr(substr_start, redirect_url.length()).find('/');
         redirect_host = redirect_url.substr(substr_start, substr_end);
       }
 
@@ -125,7 +131,6 @@ int quarry::httpClient::m_client(
 
     beast::error_code ec;
 
-    // closes reading and writing side of the stream
     stream.socket().shutdown(tcp::socket::shutdown_both, ec);
 
     if (ec && ec != beast::errc::not_connected) {
@@ -134,7 +139,7 @@ int quarry::httpClient::m_client(
 
     return http_response.result_int();
   } catch (std::exception const &e) {
-    std::cerr << "Error " << e.what() << std::endl;
+    std::cerr << "Error " << e.what() << '\n';
     return EXIT_FAILURE;
   }
   return EXIT_FAILURE;
@@ -154,23 +159,28 @@ int quarry::httpClient::m_https_client(
     // https://stackoverflow.com/questions/60997939/what-exacty-is-io-context
     // ssl handshake context
     net::io_context ioc;
-    ssl::context ssl_ctx = make_client_ctx();
+    // Use member m_ssl_ioc to preserve session cache across requests
+    // Creating new context here would destroy cached sessions!
     tcp::resolver resolver{ioc};
 
-    beast::ssl_stream<beast::tcp_stream> stream{ioc, ssl_ctx};
+    // i need to make a  pointer with the new stream, give it back, and if
+    // it needs the handshake context, also give that optionally,
 
-    auto const results = resolver.resolve(host, port);
-    beast::get_lowest_layer(stream).connect(results);
+    // 1. generate unique pointer in cache function for stream
+    // 2. handshake if needed on the stream
+    // 3. return the expected dns resolution always
 
-    // openSSL stuff?
-    std::string host_str(host);
+    quarry::DnsCacheContext context{
+        .ioc = ioc,
+        .host = host,
+        .port = port,
+        .verb = verb,
+        .target = target,
+        .is_tls = true,
+        .force_refresh = false,
+    };
 
-    if (!SSL_set_tlsext_host_name(stream.native_handle(), host_str.c_str()))
-      throw beast::system_error(
-          {static_cast<int>(::ERR_get_error()), net::error::get_ssl_category()},
-          "SNI");
-
-    stream.handshake(ssl::stream_base::client);
+    auto stream = create_ssl_stream(context);
 
     http::request<http::string_body> req{verb, target, 11};
     req.set(http::field::host, host);
@@ -197,4 +207,24 @@ int quarry::httpClient::m_https_client(
   }
 
   return http_response.result_int();
+}
+
+/**
+ * possible race conditions here if multiple resolutions hit at the same time
+ */
+quarry::tcp_resolver &
+quarry::httpClient::resolve_dns_cache(DnsCacheContext &context) {
+
+  auto const key =
+      quarry::ResolverKey(context.host, context.port, context.is_tls);
+  if (!context.force_refresh && m_cachedResolutions.contains(key)) {
+    return m_cachedResolutions[key];
+  }
+
+  net::io_context &ioc = context.ioc;
+  tcp::resolver resolver(ioc);
+  auto const resolved_results = resolver.resolve(context.host, context.port);
+  m_cachedResolutions[key] = resolved_results;
+
+  return m_cachedResolutions[key];
 }

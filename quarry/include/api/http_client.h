@@ -10,7 +10,6 @@
 #include <boost/beast/version.hpp>
 #include <cstdint>
 #include <cstdlib>
-#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -86,36 +85,9 @@ private:
   tcp_resolver &resolve_dns_cache(const DnsCacheContext &context);
 
   beast::ssl_stream<beast::tcp_stream>
-  create_ssl_stream(const DnsCacheContext &context) {
-    if (!context.is_tls) {
-      throw std::logic_error("Cannot use ssl with basic tcp stream");
-    }
+  create_ssl_stream(const DnsCacheContext &context);
 
-    tcp_resolver &results = resolve_dns_cache(context);
-    beast::ssl_stream<beast::tcp_stream> stream{context.ioc, m_ssl_ioc};
-    beast::get_lowest_layer(stream).connect(results);
-    std::string host_str(context.host);
-    if (!SSL_set_tlsext_host_name(stream.native_handle(), host_str.c_str())) {
-
-      throw beast::system_error(
-          {static_cast<int>(::ERR_get_error()), net::error::get_ssl_category()},
-          "SNI");
-    }
-
-    stream.handshake(ssl::stream_base::client);
-    return stream;
-  };
-
-  beast::tcp_stream create_tcp_stream(DnsCacheContext &context) {
-    if (context.is_tls) {
-      throw std::logic_error("Cannot use basic tcp stream with tls");
-    }
-
-    tcp_resolver &results = resolve_dns_cache(context);
-    beast::tcp_stream stream(m_ioc);
-    stream.connect((results));
-    return stream;
-  }
+  beast::tcp_stream create_tcp_stream(DnsCacheContext &context);
 };
 
 } // namespace quarry

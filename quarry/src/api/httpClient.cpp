@@ -1,6 +1,7 @@
 #include "api/http_client.h"
 #include <format>
 #include <iostream>
+#include <stdexcept>
 
 quarry::HttpClient::HttpClient(
     std::string host, port_type port,
@@ -210,4 +211,37 @@ quarry::HttpClient::resolve_dns_cache(const DnsCacheContext &context) {
   m_cachedResolutions[key] = resolved_results;
 
   return m_cachedResolutions[key];
+}
+
+beast::ssl_stream<beast::tcp_stream>
+quarry::HttpClient::create_ssl_stream(const DnsCacheContext &context) {
+  if (!context.is_tls) {
+    throw std::logic_error("Cannot use ssl with basic tcp stream");
+  }
+
+  tcp_resolver &results = resolve_dns_cache(context);
+  beast::ssl_stream<beast::tcp_stream> stream{context.ioc, m_ssl_ioc};
+  beast::get_lowest_layer(stream).connect(results);
+  std::string host_str(context.host);
+  if (!SSL_set_tlsext_host_name(stream.native_handle(), host_str.c_str())) {
+
+    throw beast::system_error(
+        {static_cast<int>(::ERR_get_error()), net::error::get_ssl_category()},
+        "SNI");
+  }
+
+  stream.handshake(ssl::stream_base::client);
+  return stream;
+}
+
+beast::tcp_stream
+quarry::HttpClient::create_tcp_stream(DnsCacheContext &context) {
+  if (context.is_tls) {
+    throw std::logic_error("Cannot use basic tcp stream with tls");
+  }
+
+  tcp_resolver &results = resolve_dns_cache(context);
+  beast::tcp_stream stream(m_ioc);
+  stream.connect((results));
+  return stream;
 }

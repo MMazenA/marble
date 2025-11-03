@@ -35,7 +35,7 @@ http::response<http::string_body> quarry::HttpClient::get(
       m_client(m_host, m_port, endpoint, http::verb::get, headers, response);
 
   if (response_code != 200) {
-    throw std::runtime_error(std::format("HTTP Error coe: {}", response_code));
+    throw std::runtime_error(std::format("HTTP Error code: {}", response_code));
   }
 
   /// this is returning a copy, i need to follow above @todo !!
@@ -50,7 +50,7 @@ http::response<http::string_body> quarry::HttpClient::post(
       m_client(m_host, m_port, endpoint, http::verb::post, headers, response);
 
   if (response_code != 200) {
-    throw std::runtime_error(std::format("HTTP Error coe: {}", response_code));
+    throw std::runtime_error(std::format("HTTP Error code: {}", response_code));
   }
 
   return response;
@@ -195,7 +195,7 @@ u_int quarry::HttpClient::m_https_client(
  * possible race conditions here if multiple resolutions hit at the same time
  */
 quarry::tcp_resolver &
-quarry::HttpClient::resolve_dns_cache(DnsCacheContext &context) {
+quarry::HttpClient::resolve_dns_cache(const DnsCacheContext &context) {
 
   auto const key =
       quarry::ResolverKey(context.host, context.port, context.is_tls);

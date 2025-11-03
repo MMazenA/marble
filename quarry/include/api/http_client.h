@@ -83,10 +83,10 @@ private:
 
   static ssl::context m_make_client_ctx();
 
-  tcp_resolver &resolve_dns_cache(DnsCacheContext &context);
+  tcp_resolver &resolve_dns_cache(const DnsCacheContext &context);
 
   beast::ssl_stream<beast::tcp_stream>
-  create_ssl_stream(DnsCacheContext context) {
+  create_ssl_stream(const DnsCacheContext &context) {
     if (!context.is_tls) {
       throw std::logic_error("Cannot use ssl with basic tcp stream");
     }

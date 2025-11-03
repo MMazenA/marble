@@ -103,7 +103,7 @@ private:
     }
 
     stream.handshake(ssl::stream_base::client);
-    return std::move(stream);
+    return stream;
   };
 
   beast::tcp_stream create_tcp_stream(DnsCacheContext &context) {
@@ -114,7 +114,7 @@ private:
     tcp_resolver &results = resolve_dns_cache(context);
     beast::tcp_stream stream(m_ioc);
     stream.connect((results));
-    return std::move(stream);
+    return stream;
   }
 };
 

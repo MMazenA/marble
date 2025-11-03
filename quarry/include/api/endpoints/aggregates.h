@@ -2,7 +2,6 @@
 #define AGGREGATES_DAILY_H
 
 #include "base_endpoint.h"
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -44,12 +43,12 @@ public:
   sort_options m_sort = sort_options::ASC;
   uint16_t m_limit = 120;
 
-public:
   using response_type = AggregatesR;
 
-  [[nodiscard]] static Aggregates withTicker(std::string_view ticker) {
-    if (ticker.empty())
+  [[nodiscard]] static Aggregates with_ticker(std::string_view ticker) {
+    if (ticker.empty()) {
       throw std::invalid_argument("ticker can not be empty");
+    }
     Aggregates ep;
     ep.m_ticker.assign(ticker);
     return ep;
@@ -61,19 +60,22 @@ public:
   }
 
   [[nodiscard]] std::string path() const {
-    if (m_ticker.empty())
+    if (m_ticker.empty()) {
       throw std::logic_error("ticker is empty");
-    if (!m_from_date.empty() && !quarry::is_iso_date(m_from_date))
+    }
+    if (!m_from_date.empty() && !quarry::is_iso_date(m_from_date)) {
       throw std::logic_error("from_date not ISO YYYY-MM-DD");
-    if (!m_to_date.empty() && !quarry::is_iso_date(m_to_date))
+    }
+    if (!m_to_date.empty() && !quarry::is_iso_date(m_to_date)) {
       throw std::logic_error("to_date not ISO YYYY-MM-DD");
+    }
 
     std::string path;
     path.reserve(64 + m_ticker.size() + m_from_date.size() + m_to_date.size());
     path += "/v2/aggs/ticker/";
     path += m_ticker;
     path += "/range/";
-    path += std::to_string(m_multiplier == 0 ? 1u : m_multiplier);
+    path += std::to_string(m_multiplier == 0 ? 1U : m_multiplier);
     path += "/";
     path += quarry::timespan_resolver(m_timespan);
     path += "/";
@@ -83,7 +85,7 @@ public:
     return path;
   }
 
-  [[nodiscard]] quarry::headers headers() const {
+  [[nodiscard]] static quarry::headers headers() {
     return {{"Accept", "application/json"}};
   }
 
@@ -95,21 +97,26 @@ public:
     query += "&sort=";
     query += (m_sort == sort_options::ASC ? "asc" : "desc");
     query += "&limit=";
-    query += std::to_string(m_limit == 0 ? 1u : m_limit);
+    query += std::to_string(m_limit == 0 ? 1U : m_limit);
     return query;
   }
 
   [[nodiscard]] std::optional<std::string> validate() const noexcept {
-    if (m_ticker.empty())
+    if (m_ticker.empty()) {
       return "ticker empty";
-    if (m_multiplier == 0)
+    }
+    if (m_multiplier == 0) {
       return "multiplier must be > 0";
-    if (m_limit == 0)
+    }
+    if (m_limit == 0) {
       return "limit must be > 0";
-    if (!m_from_date.empty() && !quarry::is_iso_date(m_from_date))
+    }
+    if (!m_from_date.empty() && !quarry::is_iso_date(m_from_date)) {
       return "from_date not ISO YYYY-MM-DD";
-    if (!m_to_date.empty() && !quarry::is_iso_date(m_to_date))
+    }
+    if (!m_to_date.empty() && !quarry::is_iso_date(m_to_date)) {
       return "to_date not ISO YYYY-MM-DD";
+    }
     return std::nullopt;
   }
 
@@ -123,27 +130,29 @@ public:
     return *this;
   }
   [[nodiscard]] Aggregates &limit(uint16_t lim) noexcept {
-    m_limit = lim ? lim : 1;
+    m_limit = (lim != 0U) ? lim : 1;
     return *this;
   }
-  [[nodiscard]] Aggregates &fromDate(std::string d) {
-    if (!d.empty() && !quarry::is_iso_date(d))
+  [[nodiscard]] Aggregates &from_date(std::string d) {
+    if (!d.empty() && !quarry::is_iso_date(d)) {
       throw std::invalid_argument("Bad ISO date for fromDate: " + d);
+    }
     m_from_date = std::move(d);
     return *this;
   }
-  [[nodiscard]] Aggregates &toDate(std::string d) {
-    if (!d.empty() && !quarry::is_iso_date(d))
+  [[nodiscard]] Aggregates &to_date(std::string d) {
+    if (!d.empty() && !quarry::is_iso_date(d)) {
       throw std::invalid_argument("Bad ISO date for toDate: " + d);
+    }
     m_to_date = std::move(d);
     return *this;
   }
-  [[nodiscard]] Aggregates &timeSpan(timespan_options t) noexcept {
+  [[nodiscard]] Aggregates &time_span(timespan_options t) noexcept {
     m_timespan = t;
     return *this;
   }
   [[nodiscard]] Aggregates &multiplier(unsigned int m) noexcept {
-    m_multiplier = m ? m : 1;
+    m_multiplier = (m != 0U) ? m : 1;
     return *this;
   }
 

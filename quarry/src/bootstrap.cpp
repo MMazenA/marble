@@ -1,9 +1,7 @@
 // this should create my initial schema_migrations table
 
 #include "migration_runner.h"
-#include <iostream>
 #include <pqxx/pqxx>
-#include <string>
 
 void print_sql_response(const pqxx::result &r) {
   // print column names

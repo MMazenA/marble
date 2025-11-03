@@ -3,10 +3,9 @@
 #include <iostream>
 
 quarry::HttpClient::HttpClient(
-    std::string host, std::string port,
+    std::string host, port_type port,
     const std::unordered_map<std::string, std::string> &persistent_headers)
-    : m_host(std::move(host)), m_port(std::move(port)),
-      m_ssl_ioc(m_make_client_ctx()) {}
+    : m_host(std::move(host)), m_port(port), m_ssl_ioc(m_make_client_ctx()) {}
 
 ssl::context quarry::HttpClient::m_make_client_ctx() {
   ssl::context ctx{ssl::context::tls_client};
@@ -65,24 +64,22 @@ http::response<http::string_body> quarry::HttpClient::post(
 /// @param http_response boost http object to save response
 /// @return https response code
 u_int quarry::HttpClient::m_client(
-    const std::string_view host, const std::string_view port,
+    const std::string_view host, const port_type port,
     const std::string_view target, http::verb verb,
     const std::unordered_map<std::string, std::string> &headers,
     http::response<http::string_body> &http_response) {
   try {
     /// @todo format this as the redirect does !
-    if (port == "443") {
+    if (port == 443) {
       return m_https_client(host, port, target, verb, headers, http_response);
     }
     auto ioc = net::io_context();
     int version = 11;
 
     quarry::DnsCacheContext context{
-        .ioc = ioc,
         .host = host,
+        .ioc = ioc,
         .port = port,
-        .verb = verb,
-        .target = target,
         .is_tls = false,
         .force_refresh = false,
     };
@@ -124,6 +121,7 @@ u_int quarry::HttpClient::m_client(
 
     beast::error_code error_code;
 
+    // NOLINTNEXTLINE(bugprone-unused-return-value, cert-err33-c)
     stream.socket().shutdown(tcp::socket::shutdown_both, error_code);
 
     if (error_code && error_code != beast::errc::not_connected) {
@@ -139,7 +137,7 @@ u_int quarry::HttpClient::m_client(
 }
 
 u_int quarry::HttpClient::m_https_client(
-    const std::string_view host, const std::string_view port,
+    const std::string_view host, const port_type port,
     const std::string_view target, http::verb verb,
     const std::unordered_map<std::string, std::string> &headers,
     http::response<http::string_body> &http_response) {
@@ -152,23 +150,11 @@ u_int quarry::HttpClient::m_https_client(
     // https://stackoverflow.com/questions/60997939/what-exacty-is-io-context
     // ssl handshake context
     net::io_context ioc;
-    // Use member m_ssl_ioc to preserve session cache across requests
-    // Creating new context here would destroy cached sessions!
     tcp::resolver resolver{ioc};
-
-    // i need to make a  pointer with the new stream, give it back, and if
-    // it needs the handshake context, also give that optionally,
-
-    // 1. generate unique pointer in cache function for stream
-    // 2. handshake if needed on the stream
-    // 3. return the expected dns resolution always
-
     quarry::DnsCacheContext context{
-        .ioc = ioc,
         .host = host,
+        .ioc = ioc,
         .port = port,
-        .verb = verb,
-        .target = target,
         .is_tls = true,
         .force_refresh = false,
     };
@@ -189,6 +175,7 @@ u_int quarry::HttpClient::m_https_client(
 
     beast::error_code ec;
 
+    // NOLINTNEXTLINE(bugprone-unused-return-value, cert-err33-c)
     stream.shutdown(ec);
     if (ec == net::error::eof || ec == net::ssl::error::stream_truncated) {
       ec = {};
@@ -218,7 +205,8 @@ quarry::HttpClient::resolve_dns_cache(DnsCacheContext &context) {
 
   net::io_context &ioc = context.ioc;
   tcp::resolver resolver(ioc);
-  auto const resolved_results = resolver.resolve(context.host, context.port);
+  auto const resolved_results =
+      resolver.resolve(context.host, std::to_string(context.port));
   m_cachedResolutions[key] = resolved_results;
 
   return m_cachedResolutions[key];

@@ -6,22 +6,22 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <unordered_map>
 
 namespace quarry {
 void load_dotenv(const std::string &path = ".env") {
   namespace fs = std::filesystem;
   std::ifstream env_file(path);
   if (!env_file.is_open()) {
-    std::cerr << "Could not open .env file: " << path << std::endl;
+    std::cerr << "Could not open .env file: " << path << '\n';
     std::cout << "Current path is " << fs::current_path() << '\n';
     return;
   }
 
   std::string line;
   while (std::getline(env_file, line)) {
-    if (line.empty() || line[0] == '#')
+    if (line.empty() || line[0] == '#') {
       continue;
+    }
 
     std::istringstream is_line(line);
     std::string key;

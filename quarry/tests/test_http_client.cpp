@@ -2,7 +2,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("HTTP Client can connect to an endpoint") {
-  quarry::HttpClient client("httpbin.org", "80");
+  quarry::HttpClient client("httpbin.org", 80);
 
   const auto response = client.get("/");
 
@@ -10,7 +10,7 @@ TEST_CASE("HTTP Client can connect to an endpoint") {
 }
 
 TEST_CASE("HTTP Client can connect to an endpoint and target") {
-  quarry::HttpClient client("httpbin.org", "80");
+  quarry::HttpClient client("httpbin.org", 80);
 
   const auto response = client.get("/user-agent");
 
@@ -18,7 +18,7 @@ TEST_CASE("HTTP Client can connect to an endpoint and target") {
 }
 
 TEST_CASE("HTTPS Client can connect to an endpoint") {
-  quarry::HttpClient client("httpbin.org", "443");
+  quarry::HttpClient client("httpbin.org", 443);
 
   const auto response = client.get("/");
 
@@ -26,7 +26,7 @@ TEST_CASE("HTTPS Client can connect to an endpoint") {
 }
 
 TEST_CASE("HTTPS Client can connect to an endpoint and target") {
-  quarry::HttpClient client("httpbin.org", "443");
+  quarry::HttpClient client("httpbin.org", 443);
 
   const auto response = client.get("/user-agent");
 

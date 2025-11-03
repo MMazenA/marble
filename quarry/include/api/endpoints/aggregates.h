@@ -25,7 +25,7 @@ struct AggregatesR {
 /**
  * @brief Create a request for aggregate bars.
  *
- * @attention Use `withTicker` to begin builder
+ * @attention Use `with_ticker` to begin builder
  *
  * @see https://polygon.io/docs/rest/stocks/aggregates/custom-bars
  */

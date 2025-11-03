@@ -241,6 +241,6 @@ quarry::HttpClient::create_tcp_stream(DnsCacheContext &context) {
 
   tcp_resolver &results = resolve_dns_cache(context);
   beast::tcp_stream stream(m_ioc);
-  stream.connect((results));
+  stream.connect(results);
   return stream;
 }

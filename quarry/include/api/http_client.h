@@ -33,6 +33,16 @@ struct DnsCacheContext {
   const bool is_tls;
   const bool force_refresh;
 };
+
+struct HttpRequestParams {
+  std::string_view host;
+  port_type port;
+  std::string_view target;
+  http::verb verb;
+  const std::unordered_map<std::string, std::string> &headers;
+  http::response<http::string_body> &http_response;
+};
+
 struct ResolverKey {
   std::string_view host;
   port_type port;
@@ -48,11 +58,9 @@ struct ResolverKeyHasher {
            std::hash<port_type>{}(key.port) ^ std::hash<bool>{}(key.is_tls);
   }
 };
-class HttpClient { // 176
+class HttpClient {
 public:
-  HttpClient(std::string host, port_type port,
-             const std::unordered_map<std::string, std::string>
-                 &persistent_headers = {});
+  HttpClient(std::string host, port_type port);
 
   http::response<http::string_body>
   get(std::string_view endpoint,
@@ -70,15 +78,8 @@ private:
   net::io_context m_ioc;
   port_type m_port;
 
-  u_int m_client(std::string_view host, port_type port, std::string_view target,
-                 http::verb verb,
-                 const std::unordered_map<std::string, std::string> &headers,
-                 http::response<http::string_body> &http_response);
-  u_int
-  m_https_client(std::string_view host, port_type port, std::string_view target,
-                 http::verb verb,
-                 const std::unordered_map<std::string, std::string> &headers,
-                 http::response<http::string_body> &http_response);
+  u_int m_client(const HttpRequestParams &params);
+  u_int m_https_client(const HttpRequestParams &params);
 
   static ssl::context m_make_client_ctx();
 

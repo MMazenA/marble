@@ -4,6 +4,7 @@
 #include "base_endpoint.h"
 #include "http_client.h"
 #include <glaze/glaze.hpp>
+#include <iostream>
 #include <memory>
 #include <string>
 
@@ -61,7 +62,7 @@ private:
     return full_url;
   };
 
-  std::unique_ptr<quarry::httpClient> m_http;
+  std::unique_ptr<quarry::HttpClient> m_http;
 };
 } // namespace quarry
 

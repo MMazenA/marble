@@ -8,13 +8,12 @@ public:
     execution_logger.push_back("apply_migrations called");
   };
 
-public:
   std::vector<std::string> execution_logger;
 };
 
 TEST_CASE("Migration runs") {
-  MigrationMock migrationMock;
-  quarry::run_migrations(migrationMock);
-  REQUIRE(migrationMock.execution_logger[0] == "init called");
-  REQUIRE(migrationMock.execution_logger[1] == "apply_migrations called");
+  MigrationMock migration_mock;
+  quarry::run_migrations(migration_mock);
+  REQUIRE(migration_mock.execution_logger[0] == "init called");
+  REQUIRE(migration_mock.execution_logger[1] == "apply_migrations called");
 }

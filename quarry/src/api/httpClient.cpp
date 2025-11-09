@@ -1,12 +1,16 @@
 #include "api/http_client.h"
+#include "http_types.h"
+#include "stream_guard.h"
 #include <format>
 #include <iostream>
 #include <stdexcept>
 
-quarry::HttpClient::HttpClient(std::string host, port_type port)
+namespace quarry {
+
+HttpClient::HttpClient(std::string host, port_type port)
     : m_host(std::move(host)), m_port(port), m_ssl_ioc(m_make_client_ctx()) {}
 
-ssl::context quarry::HttpClient::m_make_client_ctx() {
+ssl::context HttpClient::m_make_client_ctx() {
   ssl::context ctx{ssl::context::tls_client};
   ctx.set_default_verify_paths();
   ctx.set_verify_mode(ssl::verify_peer);
@@ -21,9 +25,9 @@ ssl::context quarry::HttpClient::m_make_client_ctx() {
 /// @param endpoint
 /// @param headers
 /// @return
-http::response<http::string_body> quarry::HttpClient::get(
-    const std::string_view endpoint,
-    const std::unordered_map<std::string, std::string> &headers) {
+http::response<http::string_body>
+HttpClient::get(const std::string_view endpoint,
+                const std::unordered_map<std::string, std::string> &headers) {
   http::response<http::string_body> response;
 
   HttpRequestParams params{
@@ -44,9 +48,9 @@ http::response<http::string_body> quarry::HttpClient::get(
   return response;
 };
 
-http::response<http::string_body> quarry::HttpClient::post(
-    const std::string_view endpoint, const std::string_view body,
-    const std::unordered_map<std::string, std::string> &headers) {
+http::response<http::string_body>
+HttpClient::post(const std::string_view endpoint, const std::string_view body,
+                 const std::unordered_map<std::string, std::string> &headers) {
   http::response<http::string_body> response;
 
   HttpRequestParams params{
@@ -71,7 +75,7 @@ http::response<http::string_body> quarry::HttpClient::post(
 /// @param params HttpRequestParams containing host, port, target, verb,
 /// headers, and response
 /// @return https response code
-u_int quarry::HttpClient::m_client(const HttpRequestParams &params) {
+u_int HttpClient::m_client(const HttpRequestParams &params) {
   try {
     /// @todo format this as the redirect does !
     if (params.port == 443) {
@@ -80,25 +84,28 @@ u_int quarry::HttpClient::m_client(const HttpRequestParams &params) {
     auto ioc = net::io_context();
     int version = 11;
 
-    quarry::DnsCacheContext context{
+    DnsCacheContext context{
         .host = params.host,
         .ioc = ioc,
         .port = params.port,
         .is_tls = false,
         .force_refresh = false,
     };
-    auto stream = create_tcp_stream(context);
+    StreamGuard stream_guard(context.ioc);
+    tcp_resolver &endpoints = resolve_dns_cache(context);
+    stream_guard.connect(endpoints);
 
     http::request<http::string_body> req{params.verb, params.target, version};
 
     req.set(http::field::host, params.host);
     req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
 
-    http::write(stream, req);
+    http::write(stream_guard.get<tcp_stream>(), req); // check no copy
 
     beast::flat_buffer buffer;
 
-    http::read(stream, buffer, params.http_response);
+    http::read(stream_guard.get<tcp_stream>(), buffer,
+               params.http_response); // check no copy
 
     if (params.http_response.base().result_int() == 308) {
 
@@ -123,15 +130,6 @@ u_int quarry::HttpClient::m_client(const HttpRequestParams &params) {
       return 308;
     }
 
-    beast::error_code error_code;
-
-    // NOLINTNEXTLINE(bugprone-unused-return-value, cert-err33-c)
-    stream.socket().shutdown(tcp::socket::shutdown_both, error_code);
-
-    if (error_code && error_code != beast::errc::not_connected) {
-      throw beast::system_error{error_code};
-    }
-
     return params.http_response.result_int();
   } catch (std::exception const &e) {
     std::cerr << "Error " << e.what() << '\n';
@@ -140,7 +138,7 @@ u_int quarry::HttpClient::m_client(const HttpRequestParams &params) {
   return EXIT_FAILURE;
 }
 
-u_int quarry::HttpClient::m_https_client(const HttpRequestParams &params) {
+u_int HttpClient::m_https_client(const HttpRequestParams &params) {
 
   // io context - contains context to execute the event loop and all system
   try {
@@ -151,7 +149,7 @@ u_int quarry::HttpClient::m_https_client(const HttpRequestParams &params) {
     // ssl handshake context
     net::io_context ioc;
     tcp::resolver resolver{ioc};
-    quarry::DnsCacheContext context{
+    DnsCacheContext context{
         .host = params.host,
         .ioc = ioc,
         .port = params.port,
@@ -175,14 +173,6 @@ u_int quarry::HttpClient::m_https_client(const HttpRequestParams &params) {
 
     beast::error_code ec;
 
-    // NOLINTNEXTLINE(bugprone-unused-return-value, cert-err33-c)
-    stream.shutdown(ec);
-    if (ec == net::error::eof || ec == net::ssl::error::stream_truncated) {
-      ec = {};
-    }
-    if (ec) {
-      throw beast::system_error{ec};
-    }
   } catch (std::exception const &e) {
     std::cerr << "HTTPS error: " << e.what() << '\n';
     return EXIT_FAILURE;
@@ -194,11 +184,9 @@ u_int quarry::HttpClient::m_https_client(const HttpRequestParams &params) {
 /**
  * possible race conditions here if multiple resolutions hit at the same time
  */
-quarry::tcp_resolver &
-quarry::HttpClient::resolve_dns_cache(const DnsCacheContext &context) {
+tcp_resolver &HttpClient::resolve_dns_cache(const DnsCacheContext &context) {
 
-  auto const key =
-      quarry::ResolverKey(context.host, context.port, context.is_tls);
+  auto const key = ResolverKey(context.host, context.port, context.is_tls);
   if (!context.force_refresh && m_cachedResolutions.contains(key)) {
     return m_cachedResolutions[key];
   }
@@ -213,7 +201,7 @@ quarry::HttpClient::resolve_dns_cache(const DnsCacheContext &context) {
 }
 
 beast::ssl_stream<beast::tcp_stream>
-quarry::HttpClient::create_ssl_stream(const DnsCacheContext &context) {
+HttpClient::create_ssl_stream(const DnsCacheContext &context) {
   if (!context.is_tls) {
     throw std::logic_error("Cannot use ssl with basic tcp stream");
   }
@@ -233,14 +221,4 @@ quarry::HttpClient::create_ssl_stream(const DnsCacheContext &context) {
   return stream;
 }
 
-beast::tcp_stream
-quarry::HttpClient::create_tcp_stream(DnsCacheContext &context) {
-  if (context.is_tls) {
-    throw std::logic_error("Cannot use basic tcp stream with tls");
-  }
-
-  tcp_resolver &results = resolve_dns_cache(context);
-  beast::tcp_stream stream(m_ioc);
-  stream.connect(results);
-  return stream;
-}
+} // namespace quarry

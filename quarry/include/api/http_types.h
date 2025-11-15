@@ -9,6 +9,10 @@
 #include <boost/beast/ssl.hpp>
 #include <boost/beast/version.hpp>
 #include <concepts>
+#include <cstdint>
+#include <string>
+#include <string_view>
+#include <unordered_map>
 
 namespace beast = boost::beast;
 namespace http = beast::http;

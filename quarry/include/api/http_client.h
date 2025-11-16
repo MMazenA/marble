@@ -1,5 +1,6 @@
 #ifndef HTTP_CLIENT_H
 #define HTTP_CLIENT_H
+#include "dns_cache.h"
 #include "http_types.h"
 #include <boost/asio/connect.hpp>
 #include <boost/asio/ip/tcp.hpp>
@@ -28,8 +29,7 @@ public:
        const std::unordered_map<std::string, std::string> &headers = {});
 
 private:
-  std::unordered_map<ResolverKey, tcp_resolver, ResolverKeyHasher>
-      m_cachedResolutions;
+  quarry::DnsCache m_dns_cache;
   std::string m_host;
   ssl::context m_ssl_ioc;
   net::io_context m_ioc;
@@ -40,7 +40,7 @@ private:
 
   static ssl::context m_make_client_ctx();
 
-  tcp_resolver &resolve_dns_cache(const DnsCacheContext &context);
+  tcp_resolver_results &resolve_dns_cache(const DnsCacheContext &context);
 
   beast::ssl_stream<beast::tcp_stream>
   create_ssl_stream(const DnsCacheContext &context);

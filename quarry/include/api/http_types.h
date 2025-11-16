@@ -23,7 +23,7 @@ namespace quarry {
 
 using tcp_stream = boost::beast::tcp_stream;
 using tls_stream = beast::ssl_stream<beast::tcp_stream>;
-using tcp_resolver =
+using tcp_resolver_results =
     boost::asio::ip::basic_resolver_results<boost::asio::ip::tcp>;
 using tcp = net::ip::tcp;
 using port_type = std::uint16_t;
@@ -33,7 +33,6 @@ struct DnsCacheContext {
   net::io_context &ioc;
   port_type port;
   const bool is_tls;
-  const bool force_refresh;
 };
 
 struct HttpRequestParams {

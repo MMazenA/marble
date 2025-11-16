@@ -1,5 +1,5 @@
-#ifndef STREAM_GUARD_H
-#define STREAM_GUARD_H
+#ifndef QUARRY_STREAM_GUARD_H
+#define QUARRY_STREAM_GUARD_H
 
 #include "http_types.h"
 #include <boost/beast/core/tcp_stream.hpp>

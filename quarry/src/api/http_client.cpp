@@ -89,10 +89,9 @@ u_int HttpClient::m_client(const HttpRequestParams &params) {
         .ioc = ioc,
         .port = params.port,
         .is_tls = false,
-        .force_refresh = false,
     };
     StreamGuard stream_guard(context.ioc);
-    tcp_resolver &endpoints = resolve_dns_cache(context);
+    const tcp_resolver_results &endpoints = m_dns_cache.get(context);
     stream_guard.connect(endpoints);
 
     http::request<http::string_body> req{params.verb, params.target, version};
@@ -106,29 +105,6 @@ u_int HttpClient::m_client(const HttpRequestParams &params) {
 
     http::read(stream_guard.get<tcp_stream>(), buffer,
                params.http_response); // check no copy
-
-    if (params.http_response.base().result_int() == 308) {
-
-      std::string_view redirect_url = params.http_response.base()["Location"];
-      // paths: [host,...args]
-      std::vector<std::string_view> paths;
-      auto substr_start = redirect_url.find('/') + 2;
-      auto substr_end =
-          redirect_url.substr(substr_start, redirect_url.length()).find('/');
-      std::string_view redirect_host =
-          redirect_url.substr(substr_start, substr_end);
-
-      while (redirect_url.contains("/")) {
-        paths.push_back(redirect_host);
-        redirect_url = redirect_url.substr(substr_start, redirect_url.length());
-        substr_start = redirect_url.find('/') + 1;
-        substr_end =
-            redirect_url.substr(substr_start, redirect_url.length()).find('/');
-        redirect_host = redirect_url.substr(substr_start, substr_end);
-      }
-
-      return 308;
-    }
 
     return params.http_response.result_int();
   } catch (std::exception const &e) {
@@ -154,10 +130,11 @@ u_int HttpClient::m_https_client(const HttpRequestParams &params) {
         .ioc = ioc,
         .port = params.port,
         .is_tls = true,
-        .force_refresh = false,
     };
 
-    auto stream = create_ssl_stream(context);
+    StreamGuard stream_guard(std::string{context.host}, context.ioc, m_ssl_ioc);
+    const tcp_resolver_results endpoints = m_dns_cache.get(context);
+    stream_guard.connect(endpoints);
 
     http::request<http::string_body> req{params.verb, params.target, 11};
     req.set(http::field::host, params.host);
@@ -166,12 +143,10 @@ u_int HttpClient::m_https_client(const HttpRequestParams &params) {
       req.set(k, v);
     }
 
-    http::write(stream, req);
+    http::write(stream_guard.get<tls_stream>(), req);
 
     beast::flat_buffer buffer;
-    http::read(stream, buffer, params.http_response);
-
-    beast::error_code ec;
+    http::read(stream_guard.get<tls_stream>(), buffer, params.http_response);
 
   } catch (std::exception const &e) {
     std::cerr << "HTTPS error: " << e.what() << '\n';
@@ -179,46 +154,6 @@ u_int HttpClient::m_https_client(const HttpRequestParams &params) {
   }
 
   return params.http_response.result_int();
-}
-
-/**
- * possible race conditions here if multiple resolutions hit at the same time
- */
-tcp_resolver &HttpClient::resolve_dns_cache(const DnsCacheContext &context) {
-
-  auto const key = ResolverKey(context.host, context.port, context.is_tls);
-  if (!context.force_refresh && m_cachedResolutions.contains(key)) {
-    return m_cachedResolutions[key];
-  }
-
-  net::io_context &ioc = context.ioc;
-  tcp::resolver resolver(ioc);
-  auto const resolved_results =
-      resolver.resolve(context.host, std::to_string(context.port));
-  m_cachedResolutions[key] = resolved_results;
-
-  return m_cachedResolutions[key];
-}
-
-beast::ssl_stream<beast::tcp_stream>
-HttpClient::create_ssl_stream(const DnsCacheContext &context) {
-  if (!context.is_tls) {
-    throw std::logic_error("Cannot use ssl with basic tcp stream");
-  }
-
-  tcp_resolver &results = resolve_dns_cache(context);
-  beast::ssl_stream<beast::tcp_stream> stream{context.ioc, m_ssl_ioc};
-  beast::get_lowest_layer(stream).connect(results);
-  std::string host_str(context.host);
-  if (!SSL_set_tlsext_host_name(stream.native_handle(), host_str.c_str())) {
-
-    throw beast::system_error(
-        {static_cast<int>(::ERR_get_error()), net::error::get_ssl_category()},
-        "SNI");
-  }
-
-  stream.handshake(ssl::stream_base::client);
-  return stream;
 }
 
 } // namespace quarry

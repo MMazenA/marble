@@ -2,11 +2,14 @@
 #define QUARRY_DNS_CACHE_H
 
 #include "http_types.h"
+#include <memory>
 #include <shared_mutex>
 
 namespace quarry {
 class DnsCache {
 public:
+  static std::shared_ptr<DnsCache> global_cache();
+
   DnsCache() = default;
 
   DnsCache &operator=(const DnsCache &) = delete;

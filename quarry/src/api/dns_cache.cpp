@@ -1,7 +1,13 @@
 #include "dns_cache.h"
+#include <memory>
 #include <shared_mutex>
 
 namespace quarry {
+
+std::shared_ptr<DnsCache> DnsCache::global_cache() {
+  static std::shared_ptr<DnsCache> singleton{std::make_shared<DnsCache>()};
+  return singleton;
+};
 
 DnsCache &DnsCache::operator=(DnsCache &&other) noexcept {
   if (this != &other) {

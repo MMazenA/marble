@@ -40,8 +40,6 @@ private:
 
   static ssl::context m_make_client_ctx();
 
-  tcp_resolver_results &resolve_dns_cache(const DnsCacheContext &context);
-
   beast::ssl_stream<beast::tcp_stream>
   create_ssl_stream(const DnsCacheContext &context);
 };

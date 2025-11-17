@@ -1,25 +1,16 @@
 #include "api/http_client.h"
+#include "dns_cache.h"
 #include "http_types.h"
 #include "stream_guard.h"
 #include <format>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 
 namespace quarry {
 
 HttpClient::HttpClient(std::string host, port_type port)
     : m_host(std::move(host)), m_port(port), m_ssl_ioc(m_make_client_ctx()) {}
-
-ssl::context HttpClient::m_make_client_ctx() {
-  ssl::context ctx{ssl::context::tls_client};
-  ctx.set_default_verify_paths();
-  ctx.set_verify_mode(ssl::verify_peer);
-
-  SSL_CTX_set_session_cache_mode(ctx.native_handle(), SSL_SESS_CACHE_CLIENT);
-  SSL_CTX_sess_set_cache_size(ctx.native_handle(), 128);
-
-  return ctx;
-}
 
 /// @brief `get` request to v2/endpoint/example and headers
 /// @param endpoint
@@ -91,7 +82,8 @@ u_int HttpClient::m_client(const HttpRequestParams &params) {
         .is_tls = false,
     };
     StreamGuard stream_guard(context.ioc);
-    const tcp_resolver_results &endpoints = m_dns_cache.get(context);
+    const tcp_resolver_results &endpoints =
+        quarry::DnsCache::global_cache()->get(context);
     stream_guard.connect(endpoints);
 
     http::request<http::string_body> req{params.verb, params.target, version};
@@ -133,7 +125,8 @@ u_int HttpClient::m_https_client(const HttpRequestParams &params) {
     };
 
     StreamGuard stream_guard(std::string{context.host}, context.ioc, m_ssl_ioc);
-    const tcp_resolver_results endpoints = m_dns_cache.get(context);
+    const tcp_resolver_results endpoints =
+        quarry::DnsCache::global_cache()->get(context);
     stream_guard.connect(endpoints);
 
     http::request<http::string_body> req{params.verb, params.target, 11};
@@ -154,6 +147,17 @@ u_int HttpClient::m_https_client(const HttpRequestParams &params) {
   }
 
   return params.http_response.result_int();
+}
+
+ssl::context HttpClient::m_make_client_ctx() {
+  ssl::context ctx{ssl::context::tls_client};
+  ctx.set_default_verify_paths();
+  ctx.set_verify_mode(ssl::verify_peer);
+
+  SSL_CTX_set_session_cache_mode(ctx.native_handle(), SSL_SESS_CACHE_CLIENT);
+  SSL_CTX_sess_set_cache_size(ctx.native_handle(), 128);
+
+  return ctx;
 }
 
 } // namespace quarry

@@ -4,7 +4,6 @@
 #include "stream_guard.h"
 #include <format>
 #include <iostream>
-#include <memory>
 #include <stdexcept>
 
 namespace quarry {
@@ -90,6 +89,9 @@ u_int HttpClient::m_client(const HttpRequestParams &params) {
 
     req.set(http::field::host, params.host);
     req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
+    for (const auto &[k, v] : params.headers) {
+      req.set(k, v);
+    }
 
     http::write(stream_guard.get<tcp_stream>(), req); // check no copy
 
@@ -100,10 +102,9 @@ u_int HttpClient::m_client(const HttpRequestParams &params) {
 
     return params.http_response.result_int();
   } catch (std::exception const &e) {
-    std::cerr << "Error " << e.what() << '\n';
+    std::cerr << "HTTP error: " << e.what() << '\n';
     return EXIT_FAILURE;
   }
-  return EXIT_FAILURE;
 }
 
 u_int HttpClient::m_https_client(const HttpRequestParams &params) {
@@ -116,7 +117,6 @@ u_int HttpClient::m_https_client(const HttpRequestParams &params) {
     // https://stackoverflow.com/questions/60997939/what-exacty-is-io-context
     // ssl handshake context
     net::io_context ioc;
-    tcp::resolver resolver{ioc};
     DnsCacheContext context{
         .host = params.host,
         .ioc = ioc,

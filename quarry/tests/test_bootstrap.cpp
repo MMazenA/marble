@@ -11,9 +11,11 @@ public:
   std::vector<std::string> execution_logger;
 };
 
-TEST_CASE("Migration runs") {
-  MigrationMock migration_mock;
-  quarry::run_migrations(migration_mock);
-  REQUIRE(migration_mock.execution_logger[0] == "init called");
-  REQUIRE(migration_mock.execution_logger[1] == "apply_migrations called");
+TEST_CASE("MigrationRunner") {
+  SECTION("Migration runs") {
+    MigrationMock migration_mock;
+    quarry::run_migrations(migration_mock);
+    REQUIRE(migration_mock.execution_logger[0] == "init called");
+    REQUIRE(migration_mock.execution_logger[1] == "apply_migrations called");
+  }
 }

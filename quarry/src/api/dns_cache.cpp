@@ -27,7 +27,8 @@ DnsCache::DnsCache(DnsCache &&other) noexcept {
 const tcp_resolver_results &
 DnsCache::get(const DnsCacheContext &context) const {
 
-  auto const key = ResolverKey(context.host, context.port, context.is_tls);
+  auto const key = ResolverKey{
+      .host = context.host, .port = context.port, .is_tls = context.is_tls};
   // scoped read access
   {
     std::shared_lock<std::shared_mutex> rlock(m_cache_lock);
@@ -45,13 +46,8 @@ DnsCache::get(const DnsCacheContext &context) const {
   // scoped write access
   {
     std::unique_lock<std::shared_mutex> wlock(m_cache_lock);
-    if (auto it = m_cached_resolutions.find(key);
-        it != m_cached_resolutions.end()) {
-      return it->second;
-    }
-
     auto [it, is_inserted] =
-        m_cached_resolutions.emplace(key, resolved_results);
+        m_cached_resolutions.try_emplace(key, resolved_results);
     return it->second;
   }
 }

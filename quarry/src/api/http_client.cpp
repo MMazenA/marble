@@ -66,11 +66,11 @@ HttpClient::post(const std::string_view endpoint, const std::string_view body,
 /// headers, and response
 /// @return https response code
 u_int HttpClient::m_client(const HttpRequestParams &params) {
+  if (params.port == 443) {
+    return m_https_client(params);
+  }
+
   try {
-    /// @todo format this as the redirect does !
-    if (params.port == 443) {
-      return m_https_client(params);
-    }
     auto ioc = net::io_context();
     int version = 11;
 

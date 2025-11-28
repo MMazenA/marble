@@ -1,15 +1,22 @@
 #include "api/http_client.h"
+#include "api/http_request_builder.h"
+#include "api/transport.h"
 #include "dns_cache.h"
 #include "http_types.h"
-#include "stream_guard.h"
+#include "ssl_context_provider.h"
 #include <format>
 #include <iostream>
 #include <stdexcept>
 
 namespace quarry {
+// resolve dns endpoint
+// generate a stream to the endpoint
+// write request to the stream
+// read response from stream
 
 HttpClient::HttpClient(std::string host, port_type port)
-    : m_host(std::move(host)), m_port(port), m_ssl_ioc(m_make_client_ctx()) {}
+    : m_host(std::move(host)), m_port(port),
+      m_ssl_ioc(quarry::SslContextProvider::make_client_ctx()) {}
 
 /// @brief `get` request to v2/endpoint/example and headers
 /// @param endpoint
@@ -72,7 +79,6 @@ u_int HttpClient::m_client(const HttpRequestParams &params) {
 
   try {
     auto ioc = net::io_context();
-    int version = 11;
 
     DnsCacheContext context{
         .host = params.host,
@@ -80,25 +86,23 @@ u_int HttpClient::m_client(const HttpRequestParams &params) {
         .port = params.port,
         .is_tls = false,
     };
-    StreamGuard stream_guard(context.ioc);
     const tcp_resolver_results &endpoints =
         quarry::DnsCache::global_cache()->get(context);
-    stream_guard.connect(endpoints);
 
-    http::request<http::string_body> req{params.verb, params.target, version};
+    TcpTransport transport(ioc);
+    transport.connect(endpoints);
 
-    req.set(http::field::host, params.host);
-    req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
-    for (const auto &[k, v] : params.headers) {
-      req.set(k, v);
-    }
+    auto req = HttpRequestBuilder{}
+                   .verb(params.verb)
+                   .target(params.target)
+                   .version(11)
+                   .host(params.host)
+                   .user_agent(BOOST_BEAST_VERSION_STRING)
+                   .headers(params.headers)
+                   .build();
 
-    http::write(stream_guard.get<tcp_stream>(), req); // check no copy
-
-    beast::flat_buffer buffer;
-
-    http::read(stream_guard.get<tcp_stream>(), buffer,
-               params.http_response); // check no copy
+    transport.write(req);
+    transport.read(params.http_response);
 
     return params.http_response.result_int();
   } catch (std::exception const &e) {
@@ -109,13 +113,7 @@ u_int HttpClient::m_client(const HttpRequestParams &params) {
 
 u_int HttpClient::m_https_client(const HttpRequestParams &params) {
 
-  // io context - contains context to execute the event loop and all system
   try {
-
-    // calls needed
-    // https://app.studyraid.com/en/read/12426/401278/understanding-io-context-and-its-lifecycle
-    // https://stackoverflow.com/questions/60997939/what-exacty-is-io-context
-    // ssl handshake context
     net::io_context ioc;
     DnsCacheContext context{
         .host = params.host,
@@ -123,23 +121,22 @@ u_int HttpClient::m_https_client(const HttpRequestParams &params) {
         .port = params.port,
         .is_tls = true,
     };
-
-    StreamGuard stream_guard(std::string{context.host}, context.ioc, m_ssl_ioc);
     const tcp_resolver_results endpoints =
         quarry::DnsCache::global_cache()->get(context);
-    stream_guard.connect(endpoints);
+    TlsTransport transport(std::string{context.host}, context.ioc, m_ssl_ioc);
+    transport.connect(endpoints);
 
-    http::request<http::string_body> req{params.verb, params.target, 11};
-    req.set(http::field::host, params.host);
-    req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
-    for (const auto &[k, v] : params.headers) {
-      req.set(k, v);
-    }
+    auto req = HttpRequestBuilder{}
+                   .verb(params.verb)
+                   .target(params.target)
+                   .version(11)
+                   .host(params.host)
+                   .user_agent(BOOST_BEAST_VERSION_STRING)
+                   .headers(params.headers)
+                   .build();
 
-    http::write(stream_guard.get<tls_stream>(), req);
-
-    beast::flat_buffer buffer;
-    http::read(stream_guard.get<tls_stream>(), buffer, params.http_response);
+    transport.write(req);
+    transport.read(params.http_response);
 
   } catch (std::exception const &e) {
     std::cerr << "HTTPS error: " << e.what() << '\n';
@@ -147,17 +144,6 @@ u_int HttpClient::m_https_client(const HttpRequestParams &params) {
   }
 
   return params.http_response.result_int();
-}
-
-ssl::context HttpClient::m_make_client_ctx() {
-  ssl::context ctx{ssl::context::tls_client};
-  ctx.set_default_verify_paths();
-  ctx.set_verify_mode(ssl::verify_peer);
-
-  SSL_CTX_set_session_cache_mode(ctx.native_handle(), SSL_SESS_CACHE_CLIENT);
-  SSL_CTX_sess_set_cache_size(ctx.native_handle(), 128);
-
-  return ctx;
 }
 
 } // namespace quarry

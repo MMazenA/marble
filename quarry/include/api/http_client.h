@@ -31,12 +31,11 @@ private:
   std::string m_host;
   ssl::context m_ssl_ioc;
   net::io_context m_ioc;
+
   port_type m_port;
 
   u_int m_client(const HttpRequestParams &params);
   u_int m_https_client(const HttpRequestParams &params);
-
-  static ssl::context m_make_client_ctx();
 };
 
 } // namespace quarry

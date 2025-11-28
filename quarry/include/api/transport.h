@@ -4,36 +4,20 @@
 #include "http_types.h"
 #include "stream_guard.h"
 #include <boost/asio/io_context.hpp>
-#include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp>
 
 namespace quarry {
 
-class ITransport {
+class Transport final {
 public:
-  virtual ~ITransport() = default;
-  virtual void connect(const tcp_resolver_results &endpoints) = 0;
-  virtual void write(const http::request<http::string_body> &req) = 0;
-  virtual void read(http::response<http::string_body> &resp) = 0;
-};
+  explicit Transport(net::io_context &ioc);
+  Transport(std::string host, net::io_context &ioc, ssl::context &ssl_ctx);
 
-class TcpTransport : public ITransport {
-public:
-  explicit TcpTransport(net::io_context &ioc);
-  void connect(const tcp_resolver_results &endpoints) override;
-  void write(const http::request<http::string_body> &req) override;
-  void read(http::response<http::string_body> &resp) override;
+  void connect(const tcp_resolver_results &endpoints);
+  void write(const http::request<http::string_body> &req);
+  void read(http::response<http::string_body> &resp);
 
-private:
-  StreamGuard m_guard;
-};
-
-class TlsTransport : public ITransport {
-public:
-  TlsTransport(std::string host, net::io_context &ioc, ssl::context &ssl_ctx);
-  void connect(const tcp_resolver_results &endpoints) override;
-  void write(const http::request<http::string_body> &req) override;
-  void read(http::response<http::string_body> &resp) override;
+  [[nodiscard]] bool is_tls() const noexcept { return m_guard.is_ssl(); }
 
 private:
   StreamGuard m_guard;

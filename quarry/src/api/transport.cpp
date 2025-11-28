@@ -1,44 +1,34 @@
 #include "api/transport.h"
+#include <boost/beast/core/flat_buffer.hpp>
 #include <boost/beast/http.hpp>
 
 namespace quarry {
 
-/**
- * tls
- */
-TcpTransport::TcpTransport(net::io_context &ioc) : m_guard(ioc) {}
+Transport::Transport(net::io_context &ioc) : m_guard(ioc) {}
 
-void TcpTransport::connect(const tcp_resolver_results &endpoints) {
-  m_guard.connect(endpoints);
-}
-
-void TcpTransport::write(const http::request<http::string_body> &req) {
-  http::write(m_guard.get<tcp_stream>(), req);
-}
-
-void TcpTransport::read(http::response<http::string_body> &resp) {
-  beast::flat_buffer buffer;
-  http::read(m_guard.get<tcp_stream>(), buffer, resp);
-}
-
-/**
- * tcp
- */
-TlsTransport::TlsTransport(std::string host, net::io_context &ioc,
-                           ssl::context &ssl_ctx)
+Transport::Transport(std::string host, net::io_context &ioc,
+                     ssl::context &ssl_ctx)
     : m_guard(std::move(host), ioc, ssl_ctx) {}
 
-void TlsTransport::connect(const tcp_resolver_results &endpoints) {
+void Transport::connect(const tcp_resolver_results &endpoints) {
   m_guard.connect(endpoints);
 }
 
-void TlsTransport::write(const http::request<http::string_body> &req) {
-  http::write(m_guard.get<tls_stream>(), req);
+void Transport::write(const http::request<http::string_body> &req) {
+  if (m_guard.is_ssl()) {
+    http::write(m_guard.get<tls_stream>(), req);
+  } else {
+    http::write(m_guard.get<tcp_stream>(), req);
+  }
 }
 
-void TlsTransport::read(http::response<http::string_body> &resp) {
+void Transport::read(http::response<http::string_body> &resp) {
   beast::flat_buffer buffer;
-  http::read(m_guard.get<tls_stream>(), buffer, resp);
+  if (m_guard.is_ssl()) {
+    http::read(m_guard.get<tls_stream>(), buffer, resp);
+  } else {
+    http::read(m_guard.get<tcp_stream>(), buffer, resp);
+  }
 }
 
 } // namespace quarry

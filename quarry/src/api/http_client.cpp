@@ -89,7 +89,7 @@ u_int HttpClient::m_client(const HttpRequestParams &params) {
     const tcp_resolver_results &endpoints =
         quarry::DnsCache::global_cache()->get(context);
 
-    TcpTransport transport(ioc);
+    Transport transport(ioc);
     transport.connect(endpoints);
 
     auto req = HttpRequestBuilder{}
@@ -123,7 +123,7 @@ u_int HttpClient::m_https_client(const HttpRequestParams &params) {
     };
     const tcp_resolver_results endpoints =
         quarry::DnsCache::global_cache()->get(context);
-    TlsTransport transport(std::string{context.host}, context.ioc, m_ssl_ioc);
+    Transport transport(std::string{context.host}, context.ioc, m_ssl_ioc);
     transport.connect(endpoints);
 
     auto req = HttpRequestBuilder{}

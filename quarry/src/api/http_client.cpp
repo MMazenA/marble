@@ -36,7 +36,7 @@ HttpClient::get(const std::string_view endpoint,
       .http_response = response,
   };
 
-  u_int response_code = m_client(params);
+  unsigned int response_code = m_client(params);
 
   if (response_code != 200) {
     throw std::runtime_error(std::format("HTTP Error code: {}", response_code));
@@ -59,7 +59,7 @@ HttpClient::post(const std::string_view endpoint, const std::string_view body,
       .http_response = response,
   };
 
-  u_int response_code = m_client(params);
+  unsigned int response_code = m_client(params);
 
   if (response_code != 200) {
     throw std::runtime_error(std::format("HTTP Error code: {}", response_code));
@@ -72,7 +72,7 @@ HttpClient::post(const std::string_view endpoint, const std::string_view body,
 /// @param params HttpRequestParams containing host, port, target, verb,
 /// headers, and response
 /// @return https response code
-u_int HttpClient::m_client(const HttpRequestParams &params) {
+unsigned int HttpClient::m_client(const HttpRequestParams &params) {
   if (params.port == 443) {
     return m_https_client(params);
   }
@@ -111,7 +111,7 @@ u_int HttpClient::m_client(const HttpRequestParams &params) {
   }
 }
 
-u_int HttpClient::m_https_client(const HttpRequestParams &params) {
+unsigned int HttpClient::m_https_client(const HttpRequestParams &params) {
 
   try {
     net::io_context ioc;

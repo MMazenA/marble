@@ -60,7 +60,7 @@ timespan_resolver(timespan_options timespan) noexcept {
 }
 
 [[nodiscard]] inline bool is_iso_date(std::string_view s) noexcept {
-  if (s[4] != '-' || s[7] != '-') {
+  if (s.size() != 10 || s[4] != '-' || s[7] != '-') {
     return false;
   }
   auto is_digit = [](char c) constexpr noexcept {

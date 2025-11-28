@@ -45,7 +45,7 @@ struct HttpRequestParams {
 };
 
 struct ResolverKey {
-  std::string_view host;
+  std::string host;
   port_type port;
   bool is_tls;
   bool operator==(const ResolverKey &other) const {
@@ -55,7 +55,7 @@ struct ResolverKey {
 
 struct ResolverKeyHasher {
   auto operator()(const ResolverKey &key) const -> size_t {
-    return std::hash<std::string_view>{}(key.host) ^
+    return std::hash<std::string>{}(key.host) ^
            std::hash<port_type>{}(key.port) ^ std::hash<bool>{}(key.is_tls);
   }
 };

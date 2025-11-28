@@ -16,7 +16,7 @@ StreamGuard::~StreamGuard() noexcept { shutdown_safely(); };
 
 // configures ssl stream and handshakes the stream
 void StreamGuard::set_sni_hostname(const std::string &host_str) {
-  auto tcp_handler = [&](tcp_stream &stream) {};
+  auto tcp_handler = [&](tcp_stream & /* stream */) {};
   auto tls_handler = [&](tls_stream &stream) {
     if (!SSL_set_tlsext_host_name(stream.native_handle(), host_str.c_str())) {
       auto err_code = static_cast<int>(::ERR_get_error());

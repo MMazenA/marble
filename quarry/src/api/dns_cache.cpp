@@ -28,7 +28,7 @@ const tcp_resolver_results &
 DnsCache::get(const DnsCacheContext &context) const {
 
   auto const key = ResolverKey{
-      .host = context.host, .port = context.port, .is_tls = context.is_tls};
+      .host = std::string{context.host}, .port = context.port, .is_tls = context.is_tls};
   // scoped read access
   {
     std::shared_lock<std::shared_mutex> rlock(m_cache_lock);

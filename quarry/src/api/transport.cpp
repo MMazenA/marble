@@ -4,7 +4,7 @@
 namespace quarry {
 
 /**
- * tls
+ * tcp
  */
 TcpTransport::TcpTransport(net::io_context &ioc) : m_guard(ioc) {}
 
@@ -22,7 +22,7 @@ void TcpTransport::read(http::response<http::string_body> &resp) {
 }
 
 /**
- * tcp
+ * tls
  */
 TlsTransport::TlsTransport(std::string host, net::io_context &ioc,
                            ssl::context &ssl_ctx)

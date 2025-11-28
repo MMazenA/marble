@@ -34,8 +34,8 @@ private:
 
   port_type m_port;
 
-  u_int m_client(const HttpRequestParams &params);
-  u_int m_https_client(const HttpRequestParams &params);
+  unsigned int m_client(const HttpRequestParams &params);
+  unsigned int m_https_client(const HttpRequestParams &params);
 };
 
 } // namespace quarry

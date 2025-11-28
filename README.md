@@ -56,35 +56,3 @@ dot -T svg project.dot -o project.svg
 
 
 
-
-
-## Random
-
-
-- Need to have main loop
-- Each stock opens its own thread that handles its input
-  - Need to make sure there are no duplicates
-- Main loop should not be stopped to add or remove stocks
-  - Stocks to track should be externally added (gallery service)
-
----
-
-I want to save my strategy information in postgres, but its going to be unstructured data most likely, maybe assign an id to each strategy?
-
-### Kafka
-- Where and when do kafka topics get made?
-    - dockerfile in repo root?
-
-### Chisel
-- Strategy Table: 
-    - Auto Increment ID
-    - name
-    - daily_average_return
-    - strategy_time
-    - created_at
-    - updated_at
-
-- Strategy Abstract class (can expose to python later):
-    -  buy_or_sell : boolean
-    -  quantity : int
-    -  when_to_execute: datetime

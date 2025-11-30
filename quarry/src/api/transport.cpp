@@ -1,6 +1,8 @@
 #include "api/transport.h"
+#include "http_types.h"
 #include <boost/beast/core/flat_buffer.hpp>
 #include <boost/beast/http.hpp>
+#include <print>
 
 namespace quarry {
 
@@ -30,5 +32,28 @@ void Transport::read(http::response<http::string_body> &resp) {
     http::read(m_guard.get<tcp_stream>(), buffer, resp);
   }
 }
+
+bool Transport::cycle(const http::request<http::string_body> &req,
+                      http::response<http::string_body> &resp) noexcept {
+  try {
+    write(req);
+    read(resp);
+    return true;
+  } catch (const boost::system::system_error &ec) {
+    std::println("Error on cycled read/write: {}", ec.what());
+    return false;
+  }
+}
+
+bool Transport::is_open() {
+  if (m_guard.is_ssl()) {
+    const auto &tls_socket = m_guard.get<tls_stream>().lowest_layer();
+    return tls_socket.is_open();
+  }
+  const auto &socket = m_guard.get<tcp_stream>().socket();
+  return socket.is_open();
+}
+
+void Transport::shut_down() noexcept { m_guard.shutdown_safely(); }
 
 } // namespace quarry

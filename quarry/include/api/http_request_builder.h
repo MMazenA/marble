@@ -17,6 +17,7 @@ public:
   HttpRequestBuilder &version(int version);
   HttpRequestBuilder &host(std::string_view host_name);
   HttpRequestBuilder &user_agent(std::string_view user_agent);
+  HttpRequestBuilder &keep_alive(bool keep_alive);
   HttpRequestBuilder &
   headers(const std::unordered_map<std::string, std::string> &headers);
   HttpRequestBuilder &body(std::string_view body);
@@ -31,6 +32,7 @@ private:
   std::string m_user_agent{BOOST_BEAST_VERSION_STRING};
   std::unordered_map<std::string, std::string> m_headers;
   std::string m_body;
+  bool m_keep_alive;
 };
 
 } // namespace quarry

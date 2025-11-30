@@ -10,6 +10,7 @@ namespace ssl = net::ssl;
 class SslContextProvider {
 public:
   [[nodiscard]] static ssl::context make_client_ctx();
+  [[nodiscard]] static ssl::context make_insecure_client_ctx();
 };
 
 } // namespace quarry

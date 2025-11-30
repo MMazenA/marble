@@ -28,6 +28,11 @@ HttpRequestBuilder::user_agent(std::string_view user_agent) {
   return *this;
 }
 
+HttpRequestBuilder &HttpRequestBuilder::keep_alive(bool keep_alive) {
+  m_keep_alive = keep_alive;
+  return *this;
+}
+
 HttpRequestBuilder &HttpRequestBuilder::headers(
     const std::unordered_map<std::string, std::string> &headers) {
   m_headers = headers;
@@ -53,6 +58,10 @@ http::request<http::string_body> HttpRequestBuilder::build() const {
   if (!m_body.empty()) {
     req.body() = m_body;
     req.prepare_payload();
+  }
+  if (m_keep_alive) {
+    req.set(http::field::connection, "keep-alive");
+    req.keep_alive(true);
   }
   return req;
 }

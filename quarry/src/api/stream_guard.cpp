@@ -56,6 +56,7 @@ void StreamGuard::shutdown_safely() noexcept {
     beast::error_code error_code;
     // NOLINTNEXTLINE(bugprone-unused-return-value, cert-err33-c)
     stream.shutdown(error_code);
+    beast::get_lowest_layer(stream).close();
   };
 
   visit_stream(tcp_handler, tls_handler);

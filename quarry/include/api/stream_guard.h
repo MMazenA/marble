@@ -15,7 +15,9 @@ public:
   StreamGuard(std::string, net::io_context &, ssl::context &);
   ~StreamGuard() noexcept;
 
-  StreamGuard(StreamGuard &&) noexcept = delete;
+  StreamGuard(StreamGuard &&other) noexcept
+      : m_stream(std::move(other.m_stream)), m_tls_ios(other.m_tls_ios),
+        m_ioc(other.m_ioc), m_host(std::move(other.m_host)) {}
   StreamGuard &operator=(StreamGuard &&) noexcept = delete;
 
   StreamGuard(const StreamGuard &) = delete;
@@ -29,14 +31,13 @@ public:
   }
 
   [[nodiscard]] bool is_ssl() const noexcept;
+  void shutdown_safely() noexcept;
 
 private:
   std::variant<tcp_stream, tls_stream> m_stream;
   ssl::context *m_tls_ios;
   net::io_context &m_ioc;
   std::string m_host;
-
-  void shutdown_safely() noexcept;
 
   template <stream_type_c StreamType>
   [[nodiscard]] constexpr bool holds_stream_type() const {
@@ -53,6 +54,20 @@ private:
             tls_handler(stream);
           } else if constexpr (std::is_same_v<StreamType, tcp_stream>) {
             tcp_handler(stream);
+          }
+        },
+        m_stream);
+  }
+
+  template <typename T, typename TcpHandler, typename TlsHandler>
+  T visit_stream(TcpHandler &tcp_handler, TlsHandler &tls_handler) {
+    return std::visit(
+        [&](auto &stream) -> T {
+          using StreamType = std::decay_t<decltype(stream)>;
+          if constexpr (std::is_same_v<StreamType, tls_stream>) {
+            return tls_handler(stream);
+          } else {
+            return tcp_handler(stream);
           }
         },
         m_stream);

@@ -13,4 +13,14 @@ namespace quarry {
   return ctx;
 }
 
+[[nodiscard]] ssl::context SslContextProvider::make_insecure_client_ctx() {
+  ssl::context ctx{ssl::context::tls_client};
+  ctx.set_verify_mode(ssl::verify_none);
+
+  SSL_CTX_set_session_cache_mode(ctx.native_handle(), SSL_SESS_CACHE_CLIENT);
+  SSL_CTX_sess_set_cache_size(ctx.native_handle(), 128);
+
+  return ctx;
+}
+
 } // namespace quarry

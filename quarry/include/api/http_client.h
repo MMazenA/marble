@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <string>
 #include <string_view>
+#include <sys/_types/_u_int8_t.h>
 #include <unordered_map>
 
 namespace quarry {

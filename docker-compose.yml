@@ -1,4 +1,19 @@
 services:
+  nginx-test:
+    image: nginx:alpine
+    container_name: marble_nginx_test
+    ports:
+      - "18080:80"
+      - "18443:443"
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/nginx/ssl:/etc/nginx/ssl:ro
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:80/health" ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
   postgres:
     image: postgres:latest
     container_name: backtest_postgres
@@ -20,23 +35,23 @@ services:
       - "9092:9092"
       - "9093:9093"
     environment:
-      KAFKA_KRAFT_MODE: "true"  # This enables KRaft mode in Kafka.
-      KAFKA_PROCESS_ROLES: controller,broker  # Kafka acts as both broker and controller.
-      KAFKA_NODE_ID: 1  # A unique ID for this Kafka instance.
-      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@localhost:9093"  # Defines the controller voters.
+      KAFKA_KRAFT_MODE: "true" # This enables KRaft mode in Kafka.
+      KAFKA_PROCESS_ROLES: controller,broker # Kafka acts as both broker and controller.
+      KAFKA_NODE_ID: 1 # A unique ID for this Kafka instance.
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@localhost:9093" # Defines the controller voters.
       KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://:9092
-      KAFKA_LOG_DIRS: /var/lib/kafka/data  # Where Kafka stores its logs.
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"  # Kafka will automatically create topics if needed.
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1  # Since we’re running one broker, one replica is enough.
+      KAFKA_LOG_DIRS: /var/lib/kafka/data # Where Kafka stores its logs.
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true" # Kafka will automatically create topics if needed.
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1 # Since we’re running one broker, one replica is enough.
       # KAFKA_LOG_RETENTION_HOURS: 168  # Keep logs for 7 days.
       KAFKA_LOG_RETENTION_MS: 10000 #keep logs for 10 seconds
       KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS: 5000 #check every 5 seconds on which to delete
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0  # No delay for consumer rebalancing.
-      CLUSTER_ID: "Mk3OEYBSD34fcwNTJENDM2Qk"  # A unique ID for the Kafka cluster.
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0 # No delay for consumer rebalancing.
+      CLUSTER_ID: "Mk3OEYBSD34fcwNTJENDM2Qk" # A unique ID for the Kafka cluster.
     volumes:
       - kafkadata:/var/lib/kafka/data
     depends_on:
@@ -56,4 +71,3 @@ services:
 volumes:
   pgdata:
   kafkadata:
-  

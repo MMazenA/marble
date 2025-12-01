@@ -28,18 +28,6 @@ TransportPool::TransportPool(TransportPool &&other) noexcept
       m_transports(std::move(other.m_transports)),
       m_free_list(std::move(other.m_free_list)) {};
 
-TransportPool &TransportPool::operator=(TransportPool &&other) noexcept {
-  if (this != &other) {
-    m_max_connections = other.m_max_connections;
-    m_transports = std::move(other.m_transports);
-    m_free_list = std::move(other.m_free_list);
-    m_host = std::move(other.m_host);
-    m_ssl_ctx = other.m_ssl_ctx;
-    m_is_tls = other.m_is_tls;
-  }
-  return *this;
-}
-
 void TransportPool::send_and_read(
     const http::request<http::string_body> &request,
     http::response<http::string_body> &response) {
@@ -64,7 +52,6 @@ void TransportPool::send_and_read(
 }
 
 void TransportPool::restore_stream(int idx) {
-  std::println("restoring stream idx: {}", idx);
   auto &transport = *m_transports[idx];
   transport.shut_down();
   if (m_is_tls) {

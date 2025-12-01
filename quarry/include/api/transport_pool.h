@@ -28,15 +28,13 @@ public:
                 const tcp_resolver_results &endpoints);
 
   TransportPool(TransportPool &&other) noexcept;
-  TransportPool &operator=(TransportPool &&other) noexcept;
+  TransportPool &operator=(TransportPool &&other) noexcept = delete;
 
   TransportPool(TransportPool const &other) noexcept = delete;
-  TransportPool &operator=(TransportPool other) = delete;
+  TransportPool &operator=(TransportPool const &other) = delete;
 
   void send_and_read(const http::request<http::string_body> &request,
                      http::response<http::string_body> &response);
-
-  void restore_stream(int idx);
 
 private:
   std::uint16_t m_max_connections;
@@ -51,6 +49,7 @@ private:
   bool m_is_tls;
 
   int acquire_index();
+  void restore_stream(int idx);
 };
 
 } // namespace quarry

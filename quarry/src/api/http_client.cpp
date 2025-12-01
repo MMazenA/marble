@@ -10,6 +10,8 @@
 #include <stdexcept>
 
 namespace quarry {
+// NOLINTNEXTLINE
+constexpr int HTTP_TLS_POOL_SIZE = 3;
 HttpClient::HttpClient(std::string host, port_type port)
     : m_host(std::move(host)), m_port(port),
       m_ssl_ioc(quarry::SslContextProvider::make_client_ctx()) {
@@ -24,7 +26,8 @@ HttpClient::HttpClient(std::string host, port_type port)
       quarry::DnsCache::global_cache()->get(context);
 
   if (context.is_tls) {
-    m_transport_pool_tls.emplace(10, m_host, m_ioc, m_ssl_ioc, endpoints);
+    m_transport_pool_tls.emplace(HTTP_TLS_POOL_SIZE, m_host, m_ioc, m_ssl_ioc,
+                                 endpoints);
   }
 }
 

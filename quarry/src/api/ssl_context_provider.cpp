@@ -13,6 +13,9 @@ namespace quarry {
   return ctx;
 }
 
+/**
+ * @warning Only used for unit testing purposes, do not use on a real request
+ */
 [[nodiscard]] ssl::context SslContextProvider::make_insecure_client_ctx() {
   ssl::context ctx{ssl::context::tls_client};
   ctx.set_verify_mode(ssl::verify_none);

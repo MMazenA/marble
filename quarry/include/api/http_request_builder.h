@@ -32,7 +32,7 @@ private:
   std::string m_user_agent{BOOST_BEAST_VERSION_STRING};
   std::unordered_map<std::string, std::string> m_headers;
   std::string m_body;
-  bool m_keep_alive;
+  bool m_keep_alive{false};
 };
 
 } // namespace quarry

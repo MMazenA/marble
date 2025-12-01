@@ -4,13 +4,17 @@
 
 namespace quarry {
 StreamGuard::StreamGuard(net::io_context &ioc)
-    : m_stream(std::in_place_type<tcp_stream>, ioc), m_tls_ios(nullptr),
+    : m_stream(std::in_place_type<tcp_stream>, ioc), m_tls_ctx(nullptr),
       m_ioc(ioc) {};
 
 StreamGuard::StreamGuard(std::string host, net::io_context &ioc,
-                         ssl::context &tls_ioc)
-    : m_stream(std::in_place_type<tls_stream>, ioc, tls_ioc),
-      m_tls_ios(&tls_ioc), m_ioc(ioc), m_host(std::move(host)) {};
+                         ssl::context &tls_ctx)
+    : m_stream(std::in_place_type<tls_stream>, ioc, tls_ctx),
+      m_tls_ctx(&tls_ctx), m_ioc(ioc), m_host(std::move(host)) {};
+
+StreamGuard::StreamGuard(StreamGuard &&other) noexcept
+    : m_stream(std::move(other.m_stream)), m_tls_ctx(other.m_tls_ctx),
+      m_ioc(other.m_ioc), m_host(std::move(other.m_host)) {};
 
 StreamGuard::~StreamGuard() noexcept { shutdown_safely(); };
 

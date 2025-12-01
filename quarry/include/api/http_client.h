@@ -1,6 +1,7 @@
 #ifndef HTTP_CLIENT_H
 #define HTTP_CLIENT_H
 #include "http_types.h"
+#include "transport_pool.h"
 #include <boost/asio/connect.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/ssl/error.hpp>
@@ -10,9 +11,9 @@
 #include <boost/beast/ssl.hpp>
 #include <boost/beast/version.hpp>
 #include <cstdlib>
+#include <optional>
 #include <string>
 #include <string_view>
-#include <sys/_types/_u_int8_t.h>
 #include <unordered_map>
 
 namespace quarry {
@@ -37,6 +38,8 @@ private:
 
   u_int m_client(const HttpRequestParams &params);
   u_int m_https_client(const HttpRequestParams &params);
+
+  std::optional<TransportPool> m_transport_pool_tls;
 };
 
 } // namespace quarry

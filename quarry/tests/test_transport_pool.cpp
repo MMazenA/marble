@@ -1,4 +1,5 @@
 #include "api/http_request_builder.h"
+#include "api/transport_pool.h"
 #include "dns_cache.h"
 #include "http_types.h"
 #include "ssl_context_provider.h"
@@ -127,7 +128,7 @@ TEST_CASE("TransportPool") {
     for (int i = 0; i < num_requests; ++i) {
       threads.emplace_back([&, i]() {
         pool.send_and_read(req, responses[i]);
-        INFO("Thread {}: status {}" << i + 1 << responses[i].result_int());
+        INFO("Thread " << i + 1 << ": status " << responses[i].result_int());
       });
     }
 

@@ -33,8 +33,13 @@ void Transport::read(http::response<http::string_body> &resp) {
   }
 }
 
-bool Transport::cycle(const http::request<http::string_body> &req,
-                      http::response<http::string_body> &resp) noexcept {
+/// @brief Submit a request and read the response
+/// @param req
+/// @param resp
+/// @return bool: Status of response read/write
+bool Transport::write_and_read(
+    const http::request<http::string_body> &req,
+    http::response<http::string_body> &resp) noexcept {
   try {
     write(req);
     read(resp);

@@ -4,19 +4,29 @@
 #include "dns_cache.h"
 #include "http_types.h"
 #include "ssl_context_provider.h"
+#include "transport_pool.h"
 #include <format>
 #include <iostream>
 #include <stdexcept>
 
 namespace quarry {
-// resolve dns endpoint
-// generate a stream to the endpoint
-// write request to the stream
-// read response from stream
-
 HttpClient::HttpClient(std::string host, port_type port)
     : m_host(std::move(host)), m_port(port),
-      m_ssl_ioc(quarry::SslContextProvider::make_client_ctx()) {}
+      m_ssl_ioc(quarry::SslContextProvider::make_client_ctx()) {
+
+  DnsCacheContext context{
+      .host = m_host,
+      .ioc = m_ioc,
+      .port = m_port,
+      .is_tls = port == 443,
+  };
+  const tcp_resolver_results endpoints =
+      quarry::DnsCache::global_cache()->get(context);
+
+  if (context.is_tls) {
+    m_transport_pool_tls.emplace(10, m_host, m_ioc, m_ssl_ioc, endpoints);
+  }
+}
 
 /// @brief `get` request to v2/endpoint/example and headers
 /// @param endpoint
@@ -77,71 +87,45 @@ u_int HttpClient::m_client(const HttpRequestParams &params) {
     return m_https_client(params);
   }
 
-  try {
-    auto ioc = net::io_context();
+  auto ioc = net::io_context();
 
-    DnsCacheContext context{
-        .host = params.host,
-        .ioc = ioc,
-        .port = params.port,
-        .is_tls = false,
-    };
-    const tcp_resolver_results &endpoints =
-        quarry::DnsCache::global_cache()->get(context);
+  DnsCacheContext context{
+      .host = params.host,
+      .ioc = ioc,
+      .port = params.port,
+      .is_tls = false,
+  };
+  const tcp_resolver_results &endpoints =
+      quarry::DnsCache::global_cache()->get(context);
 
-    Transport transport(ioc);
-    transport.connect(endpoints);
+  Transport transport(ioc);
+  transport.connect(endpoints);
 
-    auto req = HttpRequestBuilder{}
-                   .verb(params.verb)
-                   .target(params.target)
-                   .version(11)
-                   .host(params.host)
-                   .user_agent(BOOST_BEAST_VERSION_STRING)
-                   .headers(params.headers)
-                   .build();
+  auto req = HttpRequestBuilder{}
+                 .verb(params.verb)
+                 .target(params.target)
+                 .version(11)
+                 .host(params.host)
+                 .user_agent(BOOST_BEAST_VERSION_STRING)
+                 .headers(params.headers)
+                 .build();
 
-    transport.write(req);
-    transport.read(params.http_response);
+  transport.write_and_read(req, params.http_response);
 
-    return params.http_response.result_int();
-  } catch (std::exception const &e) {
-    std::cerr << "HTTP error: " << e.what() << '\n';
-    return EXIT_FAILURE;
-  }
+  return params.http_response.result_int();
 }
 
 u_int HttpClient::m_https_client(const HttpRequestParams &params) {
+  auto req = HttpRequestBuilder{}
+                 .verb(params.verb)
+                 .target(params.target)
+                 .version(11)
+                 .host(params.host)
+                 .user_agent(BOOST_BEAST_VERSION_STRING)
+                 .headers(params.headers)
+                 .build();
 
-  try {
-    net::io_context ioc;
-    DnsCacheContext context{
-        .host = params.host,
-        .ioc = ioc,
-        .port = params.port,
-        .is_tls = true,
-    };
-    const tcp_resolver_results endpoints =
-        quarry::DnsCache::global_cache()->get(context);
-    Transport transport(std::string{context.host}, context.ioc, m_ssl_ioc);
-    transport.connect(endpoints);
-
-    auto req = HttpRequestBuilder{}
-                   .verb(params.verb)
-                   .target(params.target)
-                   .version(11)
-                   .host(params.host)
-                   .user_agent(BOOST_BEAST_VERSION_STRING)
-                   .headers(params.headers)
-                   .build();
-
-    transport.write(req);
-    transport.read(params.http_response);
-
-  } catch (std::exception const &e) {
-    std::cerr << "HTTPS error: " << e.what() << '\n';
-    return EXIT_FAILURE;
-  }
+  m_transport_pool_tls->send_and_read(req, params.http_response);
 
   return params.http_response.result_int();
 }

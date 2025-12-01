@@ -27,7 +27,6 @@ using tcp_resolver_results =
     boost::asio::ip::basic_resolver_results<boost::asio::ip::tcp>;
 using tcp = net::ip::tcp;
 using port_type = std::uint16_t;
-
 struct DnsCacheContext {
   const std::string_view host;
   net::io_context &ioc;

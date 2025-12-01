@@ -15,9 +15,7 @@ public:
   StreamGuard(std::string, net::io_context &, ssl::context &);
   ~StreamGuard() noexcept;
 
-  StreamGuard(StreamGuard &&other) noexcept
-      : m_stream(std::move(other.m_stream)), m_tls_ios(other.m_tls_ios),
-        m_ioc(other.m_ioc), m_host(std::move(other.m_host)) {}
+  StreamGuard(StreamGuard &&other) noexcept;
   StreamGuard &operator=(StreamGuard &&) noexcept = delete;
 
   StreamGuard(const StreamGuard &) = delete;
@@ -35,7 +33,7 @@ public:
 
 private:
   std::variant<tcp_stream, tls_stream> m_stream;
-  ssl::context *m_tls_ios;
+  ssl::context *m_tls_ctx;
   net::io_context &m_ioc;
   std::string m_host;
 

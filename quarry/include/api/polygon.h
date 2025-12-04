@@ -2,6 +2,7 @@
 #define POLYGON_H
 
 #include "base_endpoint.h"
+#include "generator.h"
 #include "http_client.h"
 #include <glaze/glaze.hpp>
 #include <iostream>
@@ -47,18 +48,63 @@ public:
     return *parsed_json;
   };
 
+  template <quarry::endpoint_c E>
+  boost_swap_impl::generator<typename E::response_type>
+  execute_with_pagination(const E &ep) {
+    std::string url = m_authenticate_url(ep);
+
+    while (!url.empty()) {
+      http::response<http::string_body> result;
+      if (ep.method() == quarry::method_type::GET) {
+        result = m_http->get(url);
+      } else {
+        result = m_http->post(url);
+      }
+
+      std::string_view body_view = result.body();
+
+      auto parsed_json = glz::read_json<typename E::response_type>(body_view);
+
+      if (!parsed_json) {
+        std::cerr << "JSON parse failed "
+                  << glz::format_error(parsed_json, body_view) << std::endl;
+        throw std::runtime_error("parse failed");
+      }
+
+      co_yield *parsed_json;
+
+      if (parsed_json->next_url) {
+        url = parsed_json->next_url.value_or("");
+        if (!url.empty()) {
+          url = m_authenticate_url(url);
+        }
+      } else {
+        url.clear();
+      }
+    }
+  };
+
 private:
   std::string m_api_key;
 
-  template <quarry::endpoint_c E> std::string m_authenticate_url(const E &ep) {
-    std::string api_key = "&apiKey=" + m_api_key;
-
+  template <quarry::endpoint_c E> std::string m_get_url(const E &ep) {
     const std::optional<std::string> validation = ep.validate();
     if (validation != std::nullopt) {
       throw std::invalid_argument(validation.value());
     }
 
-    std::string full_url = ep.path() + ep.query() + api_key;
+    std::string full_url = ep.path() + ep.query();
+    return full_url;
+  }
+
+  template <quarry::endpoint_c E> std::string m_authenticate_url(const E &ep) {
+    std::string url = m_get_url(ep);
+    return m_authenticate_url(url);
+  };
+
+  std::string m_authenticate_url(const std::string &url) {
+    std::string api_key = "&apiKey=" + m_api_key;
+    std::string full_url = url + api_key;
     return full_url;
   };
 

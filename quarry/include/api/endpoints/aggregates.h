@@ -7,8 +7,7 @@
 #include <string_view>
 #include <utility>
 
-namespace quarry {
-namespace ep {
+namespace quarry::ep {
 
 struct AggregatesR {
   std::string ticker;
@@ -160,6 +159,6 @@ public:
   /// invalidate built objects
 };
 
-} // namespace ep
-} // namespace quarry
+} // namespace quarry::ep
+
 #endif

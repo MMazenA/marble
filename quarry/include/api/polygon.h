@@ -49,7 +49,7 @@ public:
   };
 
   template <quarry::endpoint_c E>
-  boost_swap_impl::generator<typename E::response_type>
+  std::generator<typename E::response_type>
   execute_with_pagination(const E &ep) {
     std::string url = m_authenticate_url(ep);
 

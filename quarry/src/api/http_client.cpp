@@ -7,25 +7,29 @@
 #include "transport_pool.h"
 #include <format>
 #include <iostream>
+#include <optional>
 #include <stdexcept>
+#include <utility>
 
 namespace quarry {
 // NOLINTNEXTLINE
 constexpr int HTTP_TLS_POOL_SIZE = 3;
-HttpClient::HttpClient(std::string host, port_type port)
-    : m_host(std::move(host)), m_port(port),
-      m_ssl_ioc(quarry::SslContextProvider::make_client_ctx()) {
+
+HttpClient::HttpClient(std::string host, port_type port, bool is_tls,
+                       const std::function<ssl::context()> &ctx_provider)
+    : m_host(std::move(host)), m_port(port), m_ssl_ioc(ctx_provider()),
+      m_is_tls(is_tls || port == 443) {
 
   DnsCacheContext context{
       .host = m_host,
       .ioc = m_ioc,
       .port = m_port,
-      .is_tls = port == 443,
+      .is_tls = m_is_tls,
   };
   const tcp_resolver_results endpoints =
       quarry::DnsCache::global_cache()->get(context);
 
-  if (context.is_tls) {
+  if (m_is_tls) {
     m_transport_pool_tls.emplace(HTTP_TLS_POOL_SIZE, m_host, m_ioc, m_ssl_ioc,
                                  endpoints);
   }
@@ -86,7 +90,7 @@ HttpClient::post(const std::string_view endpoint, const std::string_view body,
 /// headers, and response
 /// @return https response code
 u_int HttpClient::m_client(const HttpRequestParams &params) {
-  if (params.port == 443) {
+  if (m_is_tls) {
     return m_https_client(params);
   }
 

@@ -1,3 +1,5 @@
+// clang-format off
+
 #ifndef __STD_GENERATOR_INCLUDED
 #define __STD_GENERATOR_INCLUDED
 // https://github.com/lewissbaker/generator/blob/main/include/__generator.hpp

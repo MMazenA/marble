@@ -1,6 +1,7 @@
 #ifndef HTTP_CLIENT_H
 #define HTTP_CLIENT_H
 #include "http_types.h"
+#include "ssl_context_provider.h"
 #include "transport_pool.h"
 #include <boost/asio/connect.hpp>
 #include <boost/asio/ip/tcp.hpp>
@@ -19,7 +20,9 @@
 namespace quarry {
 class HttpClient {
 public:
-  HttpClient(std::string host, port_type port);
+  HttpClient(std::string host, port_type port, bool is_tls = false,
+             const std::function<ssl::context()> &ctx_provider =
+                 SslContextProvider::make_client_ctx);
 
   http::response<http::string_body>
   get(std::string_view endpoint,
@@ -39,6 +42,7 @@ private:
   u_int m_client(const HttpRequestParams &params);
   u_int m_https_client(const HttpRequestParams &params);
 
+  bool m_is_tls = false;
   std::optional<TransportPool> m_transport_pool_tls;
 };
 

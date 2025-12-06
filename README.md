@@ -27,7 +27,7 @@ Mono-repo for stock ingestion, back testing, and analysis
 | Name    | Command |
 | -------- | ------- |
 | Build Target  |`cmake --build --preset dev --target help`   |
-| Run Tests  |`ctest --test-dir ./build/quarry`   |
+| Run Tests  |`ctest --preset dev`   |
 | Clear Build  |`rm -rf build`   |
 | Install Dependencies  |`cmake --preset dev`   |
 

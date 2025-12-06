@@ -14,3 +14,14 @@ Diagnostics:
       readability-identifier-naming.FunctionCase: lower_case
       readability-identifier-naming.ClassCase: CamelCase
       readability-identifier-naming.StructCase: CamelCase
+
+---
+
+If:
+  PathMatch: .*generator\.h$
+CompileFlags:
+  Add: [-Wno-everything, -ferror-limit=0]
+Diagnostics:
+  Suppress: ['*']
+  ClangTidy:
+    Remove: ['*']

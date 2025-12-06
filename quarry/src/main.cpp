@@ -9,12 +9,14 @@ int main() {
   quarry::Polygon polygon(std::getenv("POLYGON_API_KEY"));
 
   auto aapl_daily_agg = aggregates::with_ticker("AAPL")
-                            .from_date("2024-01-09")
-                            .to_date("2024-01-11");
-  aggregates::response_type res = polygon.execute(aapl_daily_agg);
+                            .from_date("2024-01-01")
+                            .to_date("2025-01-01");
 
-  for (const auto &aggregate_bar : (*res.results)) {
-    std::println("{}", aggregate_bar);
+  for (const auto &aggregate_bar_batch :
+       polygon.execute_with_pagination(aapl_daily_agg)) {
+    for (const auto &aggregate_bar : (*aggregate_bar_batch.results)) {
+      std::println("{}", aggregate_bar);
+    }
   }
 
   /// @todo:

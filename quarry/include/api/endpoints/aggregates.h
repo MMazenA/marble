@@ -9,6 +9,28 @@
 
 namespace quarry::ep {
 
+struct AggBar {
+  double o;
+  double c;
+  double h;
+  double l;
+  std::int64_t n;
+  bool otc;
+  std::int64_t t;
+  double v;
+  double vw;
+
+  [[nodiscard]] auto to_tuple() const {
+    return std::make_tuple(o, c, h, l, n, otc, t, v, vw);
+  }
+
+  constexpr static std::array<std::string, 9> col_names() {
+    return {"o", "c", "h", "l", "n", "otc", "t", "v", "vw"};
+  }
+
+  constexpr static size_t n_cols() { return 9; }
+};
+
 struct AggregatesR {
   std::string ticker;
   bool adjusted;
@@ -17,7 +39,7 @@ struct AggregatesR {
   int resultsCount;
   int count;
   std::string status;
-  std::optional<std::vector<aggBar>> results;
+  std::optional<std::vector<AggBar>> results;
   std::optional<std::string> next_url;
 };
 
@@ -159,6 +181,25 @@ public:
   /// invalidate built objects
 };
 
+static_assert(bulk_uploadable_c<AggBar>);
+
 } // namespace quarry::ep
+
+template <>
+struct std::formatter<quarry::ep::AggBar> : std::formatter<std::string> {
+  auto format(const quarry::ep::AggBar &ab, auto &ctx) const {
+
+    std::string formatted_ab =
+        std::format("[Aggregate Bar {{"
+                    "open:{:<6} close:{:<6} "
+                    "high:{:<6} low:{:<6} transactions_c:{:<6} "
+                    "volume:{:<6} weighted_volume:{:<8} "
+                    "is_otc:{:<5} timestamp:{}}}]",
+                    ab.o, ab.c, ab.h, ab.l, ab.n, ab.v, ab.vw, ab.otc, ab.t);
+
+    // return std::formatter<std::string>::format
+    return std::formatter<std::string>::format(formatted_ab, ctx);
+  }
+};
 
 #endif

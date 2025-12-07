@@ -30,17 +30,17 @@ endif()
 
 # ---- Targets & sources ----
 file(GLOB_RECURSE QUARRY_API_SOURCES       CONFIGURE_DEPENDS "${QUARRY_DIR}/src/api/*.cpp")
-file(GLOB_RECURSE QUARRY_MIGRATION_SOURCES CONFIGURE_DEPENDS "${QUARRY_DIR}/src/migration/*.cpp" )
+file(GLOB_RECURSE QUARRY_DB_SOURCES CONFIGURE_DEPENDS "${QUARRY_DIR}/src/db/*.cpp" )
 
 add_library(quarry_core STATIC
   ${QUARRY_API_SOURCES}
-  ${QUARRY_MIGRATION_SOURCES}
+  ${QUARRY_DB_SOURCES}
 )
 
 target_include_directories(quarry_core
   PUBLIC
     "${QUARRY_DIR}/include"
-    "${QUARRY_DIR}/include/migration"
+    "${QUARRY_DIR}/include/db"
     "${QUARRY_DIR}/include/api"
     "${QUARRY_DIR}/include/api/endpoints"
 )

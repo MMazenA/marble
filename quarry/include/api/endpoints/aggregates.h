@@ -75,7 +75,6 @@ public:
     return ep;
   }
 
-  // concept requirements
   [[nodiscard]] static constexpr quarry::method_type method() noexcept {
     return quarry::method_type::GET;
   }

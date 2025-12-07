@@ -53,6 +53,3 @@ dot -T svg project.dot -o project.svg
 | Consuming | `/usr/bin/kafka-console-consumer --bootstrap-server localhost:9092 --topic test-topic --from-beginning`    |
 | View Topics    | `/usr/bin/kafka-topics --list --bootstrap-server localhost:9092`    |
 | Consume Low Latency    | `/usr/bin/kafka-console-producer --bootstrap-server localhost:9092 --topic test-topic --producer-property linger.ms=0`    |
-
-
-

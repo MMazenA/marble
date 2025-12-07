@@ -56,6 +56,7 @@ HttpClient::get(const std::string_view endpoint,
   u_int response_code = m_client(params);
 
   if (response_code != 200) {
+    std::cout << response << '\n';
     throw std::runtime_error(std::format("HTTP Error code: {}", response_code));
   }
 

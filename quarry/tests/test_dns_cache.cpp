@@ -1,7 +1,7 @@
 #include "dns_cache.h"
 #include "http_types.h"
-#include "print"
 #include <catch2/catch_test_macros.hpp>
+#include <print>
 
 TEST_CASE("DnsCache") {
   SECTION("Cached results are faster") {

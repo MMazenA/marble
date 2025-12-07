@@ -1,13 +1,13 @@
 #ifndef BASE_ENDPOINT_H
 #define BASE_ENDPOINT_H
 
+#include <array>
 #include <concepts>
 #include <cstdint>
 #include <format>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <unordered_map>
 #include <vector>
 
 namespace quarry {
@@ -25,13 +25,6 @@ enum class timespan_options : uint8_t {
   MONTH,
   QUARTER,
   YEAR
-};
-
-struct polygonRequest {
-  method_type method;
-  std::string path;
-  std::string query;
-  headers hdrs;
 };
 
 constexpr uint8_t ticker_size = 6;
@@ -80,35 +73,13 @@ concept endpoint_c = requires(const T &ep) {
   typename T::response_type;
 };
 
-struct aggBar {
-  double o;
-  double c;
-  double h;
-  double l;
-  std::int64_t n;
-  bool otc;
-  std::int64_t t;
-  double v;
-  double vw;
+template <class T>
+concept bulk_uploadable_c = requires(const T &t) {
+  t.to_tuple();
+  { t.n_cols() } -> std::same_as<std::size_t>;
+  { T::col_names() } -> std::same_as<std::array<std::string, T::n_cols()>>;
 };
 
 } // namespace quarry
-
-template <>
-struct std::formatter<quarry::aggBar> : std::formatter<std::string> {
-  auto format(const quarry::aggBar &ab, auto &ctx) const {
-
-    std::string formatted_ab =
-        std::format("[Aggregate Bar {{"
-                    "open:{:<6} close:{:<6} "
-                    "high:{:<6} low:{:<6} transactions_c:{:<6} "
-                    "volume:{:<6} weighted_volume:{:<8} "
-                    "is_otc:{:<5} timestamp:{}}}]",
-                    ab.o, ab.c, ab.h, ab.l, ab.n, ab.v, ab.vw, ab.otc, ab.t);
-
-    // return std::formatter<std::string>::format
-    return std::formatter<std::string>::format(formatted_ab, ctx);
-  }
-};
 
 #endif

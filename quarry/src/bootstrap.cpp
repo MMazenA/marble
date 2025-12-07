@@ -1,10 +1,8 @@
-// this should create my initial schema_migrations table
-
-#include "migration_runner.h"
+#include "migration.h"
 #include <pqxx/pqxx>
+#include <print>
 
 void print_sql_response(const pqxx::result &r) {
-  // print column names
   constexpr auto row_format = "{0:20}";
 
   for (const auto &row : r) {
@@ -16,9 +14,10 @@ void print_sql_response(const pqxx::result &r) {
 
 int main() {
 
-  std::unique_ptr<quarry::IMigration> migrator =
-      std::make_unique<quarry::Migration>();
-  quarry::run_migrations(*migrator);
+  quarry::Migration migrator;
+
+  int latest_version = migrator.get_last_applied_version();
+  migrator.apply_migrations(latest_version);
 
   return 0;
 }

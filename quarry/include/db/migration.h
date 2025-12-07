@@ -27,7 +27,6 @@ public:
   int get_last_applied_version();
   static file_map get_files_to_apply(int lower_bound);
   void apply_migrations(int last_applied_version);
-  std::unordered_set<std::string> &m_resolve_migrations();
   pqxx::result execute(std::string_view mig_script, const pqxx::params &p = {});
   void execute_script(std::string_view sql_script);
 

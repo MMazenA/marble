@@ -7,6 +7,7 @@
 #include <print>
 #include <regex>
 #include <sstream>
+#include <string>
 
 namespace quarry {
 
@@ -65,7 +66,7 @@ int Migration::get_last_applied_version() {
   int latest_resolved = 0;
   for (const pqxx::row &row : select) {
     latest_resolved =
-        std::max(latest_resolved, static_cast<int>(*row.at(0).c_str()));
+        std::max(latest_resolved, std::stoi(std::string{*row.at(0).c_str()}));
   }
 
   return latest_resolved;

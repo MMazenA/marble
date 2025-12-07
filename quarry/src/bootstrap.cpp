@@ -1,10 +1,8 @@
 #include "migration.h"
-// #include "migration_runner.h"
-#include "print"
 #include <pqxx/pqxx>
+#include <print>
 
 void print_sql_response(const pqxx::result &r) {
-  // print column names
   constexpr auto row_format = "{0:20}";
 
   for (const auto &row : r) {

@@ -78,6 +78,8 @@ public:
         if (!url.empty()) {
           url = m_authenticate_url(url);
         }
+      } else {
+        url.clear();
       }
     }
   };

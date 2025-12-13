@@ -13,7 +13,7 @@ namespace quarry {
 
 Migration::Migration() {
   m_conn = std::make_unique<pqxx::connection>(
-      "host=localhost port=5432 dbname=postgres user=user password=password");
+      "host=localhost port=5432 dbname=marble user=user password=password");
   setup_migration_table();
 };
 

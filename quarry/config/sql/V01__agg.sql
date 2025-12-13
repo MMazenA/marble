@@ -1,6 +1,8 @@
 CREATE TABLE stg_aggregates_meta (
   ticker_id VARCHAR(20) NOT NULL,
-  request_id VARCHAR(100) NOT NULL
+  request_id VARCHAR(100) NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE stg_aggregates_results (

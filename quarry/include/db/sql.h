@@ -3,8 +3,9 @@
 #include "aggregates.h"
 #include <cstddef>
 #include <memory>
-#include <numeric>
+#include <optional>
 #include <pqxx/pqxx>
+#include <string_view>
 #include <tuple>
 #include <vector>
 namespace quarry {
@@ -15,6 +16,11 @@ private:
 
 public:
   static pqxx::result execute(std::string_view query);
+  static void normalize_staged_aggregates(
+      std::string_view ticker,
+      std::optional<std::string_view> request_id = std::nullopt,
+      std::optional<std::string_view> display_name = std::nullopt,
+      std::optional<std::string_view> source = std::nullopt);
 
   /**
    * Bulk insert of raw structured data into a staging table.

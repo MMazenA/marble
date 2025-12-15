@@ -1,5 +1,7 @@
-# docker setup
+#vcpkg 
+git submodule update --init --recursive
 
+# docker setup
 # http tests nginx cert
 if [ ! -f config/nginx/ssl/server.crt ]; then
   mkdir -p config/nginx/ssl

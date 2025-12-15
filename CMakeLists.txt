@@ -13,4 +13,6 @@ if(BUILD_TESTING)
 endif()
 
 
+add_subdirectory(proto)
 add_subdirectory(quarry)
+add_subdirectory(chisel)

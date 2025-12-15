@@ -22,8 +22,7 @@ TEST_CASE("DnsCache") {
       auto start = high_resolution_clock::now();
       const auto &endpoints_first = cache.get(context);
       auto stop = high_resolution_clock::now();
-      REQUIRE(endpoints_first.begin() !=
-              endpoints_first.end()); // ensure not empty
+      REQUIRE(endpoints_first.begin() != endpoints_first.end());
       non_cached_duration = duration_cast<microseconds>(stop - start);
     }
     {

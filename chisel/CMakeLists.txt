@@ -8,12 +8,12 @@ find_package(gRPC CONFIG REQUIRED)
 add_executable(chisel_client "${CHISEL_DIR}/src/main.cpp")
 
 target_link_libraries(chisel_client
-	PRIVATE
-		marble_protos
-		gRPC::grpc++
+  PRIVATE
+    marble_protos
+    gRPC::grpc++
 )
 
 target_include_directories(chisel_client
-	PRIVATE
-		"${CHISEL_DIR}/include"
+  PRIVATE
+    "${CHISEL_DIR}/include"
 )

@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package marble;
+// large chunk of heap managed by proto
+option cc_enable_arenas = true;
+
+message AggregatesRequest {
+  string name = 1;
+  int32 id = 2;
+}
+
+message AggregatesResponse {
+  int32 id = 1;
+  string name = 2;
+  string status = 3;
+}
+
+message AggregatesStreamRequest { string filter = 1; }
+
+message AggregatesUpdate {
+  int32 id = 1;
+  string name = 2;
+  string note = 3;
+}
+
+message StreamMessage {
+  int32 id = 1;
+  string payload = 2;
+}
+
+service AggregatesService {
+  // request
+  rpc GetAggregate(AggregatesRequest) returns (AggregatesResponse);
+  // unary stream
+  rpc WatchAggregates(AggregatesStreamRequest)
+      returns (stream AggregatesUpdate);
+  // bidi stream
+  rpc Chat(stream StreamMessage) returns (stream StreamMessage);
+}

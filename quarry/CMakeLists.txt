@@ -8,6 +8,8 @@ find_package(PostgreSQL REQUIRED)
 find_package(glaze REQUIRED)
 find_package(OpenSSL REQUIRED COMPONENTS SSL Crypto)
 find_package(Threads REQUIRED)
+find_package(Protobuf CONFIG REQUIRED)
+find_package(gRPC CONFIG REQUIRED)
 
 
 set(_boost_components system)
@@ -78,12 +80,22 @@ target_link_libraries(quarry_main PRIVATE quarry_core)
 add_executable(quarry_bootstrap "${QUARRY_DIR}/src/bootstrap.cpp")
 target_link_libraries(quarry_bootstrap PRIVATE quarry_core)
 
+add_executable(quarry_grpc_server "${QUARRY_DIR}/src/grpc_server.cpp")
+target_link_libraries(quarry_grpc_server
+  PRIVATE
+    quarry_core
+    marble_protos
+    gRPC::grpc++
+    gRPC::grpc++_reflection
+)
+
 
 # -Wl,-ld_classic for https://stackoverflow.com/a/77190575/20313250
 if(APPLE)
   target_link_options(quarry_core PRIVATE "-Wl,-no_warn_duplicate_libraries")
   target_link_options(quarry_main PRIVATE "-Wl,-no_warn_duplicate_libraries")
   target_link_options(quarry_bootstrap PRIVATE "-Wl,-no_warn_duplicate_libraries")
+  target_link_options(quarry_grpc_server PRIVATE "-Wl,-no_warn_duplicate_libraries")
 endif()
 
 # ---- Tests ----

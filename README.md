@@ -23,14 +23,14 @@ Mono-repo for stock ingestion, back testing, and analysis
 ## Dev
 
 
-### Common CMake Commands
+### Common Commands
 | Name    | Command |
 | -------- | ------- |
 | Build Target  |`cmake --build --preset dev --target help`   |
 | Run Tests  |`ctest --preset dev`   |
 | Clear Build  |`rm -rf build`   |
 | Install Dependencies  |`cmake --preset dev`   |
-
+| GrpcUI | `grpcui -plaintext localhost:50051` |
 ### Generate Dependency Graphs
 ```bash
 cd build
@@ -43,7 +43,6 @@ dot -T svg project.dot -o project.svg
 
 
 ### Kafka Commands
-
 
 | Name    | Command |
 | -------- | ------- |

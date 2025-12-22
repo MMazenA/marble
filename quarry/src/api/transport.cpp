@@ -47,6 +47,9 @@ bool Transport::write_and_read(
   } catch (const boost::system::system_error &ec) {
     std::println("Error on cycled read/write: {}", ec.what());
     return false;
+  } catch (...) {
+    std::println("Unknown Error on cycled read/write");
+    return false;
   }
 }
 

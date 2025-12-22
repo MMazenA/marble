@@ -1,33 +1,67 @@
 syntax = "proto3";
 
 package marble;
+
 // large chunk of heap managed by proto
 option cc_enable_arenas = true;
 
+enum timespan_options {
+  SECOND = 0;
+  MINUTE = 1;
+  HOUR = 2;
+  DAY = 3;
+  WEEK = 4;
+  MONTH = 5;
+  QUARTER = 6;
+  YEAR = 7;
+}
+
 message AggregatesRequest {
-  string name = 1;
-  int32 id = 2;
+  string ticker = 1;
+  string from_date = 2;
+  string to_date = 3;
+  timespan_options time_span = 4;
 }
 
 message AggregatesResponse {
-  int32 id = 1;
-  string name = 2;
-  string status = 3;
+  string ticker = 1;
+  int32 query_count = 2;
+  string request_id = 3;
+  int32 results_count = 4;
+  int32 count = 5;
+  string status = 6;
+  repeated AggregateBar aggregate_bars = 7;
 }
 
+message AggregateBar {
+  double open = 1;
+  double close = 2;
+  double high = 3;
+  double low = 4;
+  sint64 n = 5;
+  bool otc = 6;
+  sint64 t = 7;
+  double volume = 8;
+  double volume_weighted = 9;
+}
+
+// example
 message AggregatesStreamRequest { string filter = 1; }
 
+// example
 message AggregatesUpdate {
   int32 id = 1;
   string name = 2;
   string note = 3;
 }
 
+// example
 message StreamMessage {
   int32 id = 1;
   string payload = 2;
 }
 
+// example
 service AggregatesService {
   // request
   rpc GetAggregate(AggregatesRequest) returns (AggregatesResponse);
@@ -37,3 +71,16 @@ service AggregatesService {
   // bidi stream
   rpc Chat(stream StreamMessage) returns (stream StreamMessage);
 }
+
+//*
+// Treat field numbers as immutable; never reuse deleted numbers.
+// Prefer additive evolution: new optional fields with defaults; avoid changing
+// types or required-ness. Keep defaults stable; clients might rely on them. Use
+// enums carefully: only add values; never renumber. For large/streamed data,
+// consider bytes or chunking; avoid huge repeated fields. Use oneof to model
+// mutually exclusive variants. Set a package name; avoid option
+// java_package/csharp_namespace collisions if multi-language. Keep RPCs
+// narrowly scoped; prefer smaller messages over monoliths. For perf-sensitive
+// C++, arenas can cut allocation cost; otherwise regular usage is fine. For
+// security: validate untrusted input sizes; set reasonable gRPC/max message
+// limits if needed.

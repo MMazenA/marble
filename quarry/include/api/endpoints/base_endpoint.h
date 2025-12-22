@@ -52,6 +52,29 @@ timespan_resolver(timespan_options timespan) noexcept {
   return "day";
 }
 
+constexpr timespan_options timespan_resolver(uint8_t value) noexcept {
+  switch (value) {
+  case 1:
+    return timespan_options::SECOND;
+  case 2:
+    return timespan_options::MINUTE;
+  case 3:
+    return timespan_options::HOUR;
+  case 4:
+    return timespan_options::DAY;
+  case 5:
+    return timespan_options::WEEK;
+  case 6:
+    return timespan_options::MONTH;
+  case 7:
+    return timespan_options::QUARTER;
+  case 8:
+    return timespan_options::YEAR;
+  default:
+    return timespan_options::DAY;
+  }
+}
+
 [[nodiscard]] inline bool is_iso_date(std::string_view s) noexcept {
   if (s[4] != '-' || s[7] != '-') {
     return false;

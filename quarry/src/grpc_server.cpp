@@ -1,6 +1,14 @@
+#include "aggregates.h"
+#include "base_endpoint.h"
+#include "polygon.h"
+#include "sql.h"
+#include "utils.h"
 #include <chrono>
+#include <future>
 #include <iostream>
+#include <optional>
 #include <string>
+#include <string_view>
 #include <thread>
 #include <vector>
 
@@ -10,60 +18,75 @@
 #include "aggregates.grpc.pb.h"
 
 namespace {
+using Aggregates = quarry::ep::Aggregates;
+using AggBar = quarry::ep::AggBar;
 
 class AggregatesServiceImpl final : public marble::AggregatesService::Service {
+
 public:
   grpc::Status GetAggregate(grpc::ServerContext *context,
                             const marble::AggregatesRequest *request,
                             marble::AggregatesResponse *response) override {
-    response->set_id(request->id());
-    response->set_name(request->name().empty() ? "demo" : request->name());
+
+    auto aggregate_ep =
+        Aggregates::with_ticker(request->ticker())
+            .time_span(quarry::timespan_resolver(request->time_span()))
+            .from_date(request->from_date())
+            .to_date(request->to_date());
+
+    std::vector<AggBar> agg_bars;
+    std::string last_request_id;
+    std::string last_ticker;
+
+    for (const auto &aggregate_bar_batch :
+         m_polygon.execute_with_pagination(aggregate_ep)) {
+
+      if (!aggregate_bar_batch.results.has_value() ||
+          aggregate_bar_batch.results->empty()) {
+        continue;
+      }
+
+      const auto &bar_batch = *aggregate_bar_batch.results;
+      for (const auto &bar : bar_batch) {
+        auto *proto_bar = response->add_aggregate_bars();
+        proto_bar->set_open(bar.o);
+        proto_bar->set_close(bar.c);
+        proto_bar->set_high(bar.h);
+        proto_bar->set_low(bar.l);
+        proto_bar->set_n(bar.n);
+        proto_bar->set_otc(bar.otc);
+        proto_bar->set_t(bar.t);
+        proto_bar->set_volume(bar.v);
+        proto_bar->set_volume_weighted(bar.vw);
+      }
+
+      last_ticker = aggregate_bar_batch.ticker;
+      last_request_id = aggregate_bar_batch.request_id;
+    }
+
+    response->set_ticker(last_ticker);
+    response->set_query_count(-1); //@todo
+    response->set_request_id(last_request_id);
+    response->set_results_count(-1);
+    response->set_count(-1);
     response->set_status("ok");
     return grpc::Status::OK;
   }
+  AggregatesServiceImpl(quarry::Polygon &polygon) : m_polygon(polygon) {}
 
-  grpc::Status WatchAggregates(
-      grpc::ServerContext *context,
-      const marble::AggregatesStreamRequest *request,
-      grpc::ServerWriter<marble::AggregatesUpdate> *writer) override {
-    const std::string filter =
-        request->filter().empty() ? "all" : request->filter();
-
-    std::vector<marble::AggregatesUpdate> updates;
-    for (int i = 0; i < 3; ++i) {
-      marble::AggregatesUpdate update;
-      update.set_id(i + 1);
-      update.set_name("aggregate-" + std::to_string(i + 1));
-      update.set_note("filter=" + filter + " seq=" + std::to_string(i + 1));
-      updates.push_back(update);
-    }
-
-    for (const auto &update : updates) {
-      writer->Write(update);
-      std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-    }
-
-    return grpc::Status::OK;
-  }
-
-  grpc::Status
-  Chat(grpc::ServerContext *context,
-       grpc::ServerReaderWriter<marble::StreamMessage, marble::StreamMessage>
-           *stream) override {
-    marble::StreamMessage incoming;
-    while (stream->Read(&incoming)) {
-      marble::StreamMessage reply;
-      reply.set_id(incoming.id());
-      reply.set_payload("echo: " + incoming.payload());
-      stream->Write(reply);
-    }
-    return grpc::Status::OK;
-  }
+private:
+  quarry::Polygon &m_polygon;
 };
 
 } // namespace
 
 int main(int argc, char **argv) {
+  // polygon setup
+
+  quarry::load_dotenv("./quarry/.env");
+  quarry::Polygon polygon(std::getenv("POLYGON_API_KEY"));
+
+  // grpc setup
   std::string server_address = "0.0.0.0:50051";
   if (argc > 1) {
     server_address = argv[1];
@@ -71,7 +94,7 @@ int main(int argc, char **argv) {
 
   grpc::reflection::InitProtoReflectionServerBuilderPlugin();
 
-  AggregatesServiceImpl service;
+  AggregatesServiceImpl service{polygon};
   grpc::ServerBuilder builder;
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
   builder.RegisterService(&service);

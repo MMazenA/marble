@@ -23,8 +23,9 @@ TransportPool::TransportPool(std::uint16_t max_connections,
 
 TransportPool::TransportPool(TransportPool &&other) noexcept
     : m_max_connections(other.m_max_connections),
-      m_endpoints(other.m_endpoints), m_host(std::move(other.m_host)),
-      m_ioc(other.m_ioc), m_ssl_ctx(other.m_ssl_ctx), m_is_tls(other.m_is_tls),
+      m_endpoints(std::move(other.m_endpoints)),
+      m_host(std::move(other.m_host)), m_ioc(other.m_ioc),
+      m_ssl_ctx(other.m_ssl_ctx), m_is_tls(other.m_is_tls),
       m_transports(std::move(other.m_transports)),
       m_free_list(std::move(other.m_free_list)) {};
 

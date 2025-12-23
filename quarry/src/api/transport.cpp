@@ -47,6 +47,34 @@ bool Transport::write_and_read(
   } catch (const boost::system::system_error &ec) {
     std::println("Error on cycled read/write: {}", ec.what());
     return false;
+  } catch (...) {
+    /**
+      This can't stay like this, getting bus error for a dead tls stream while
+      trying to write to it
+
+
+
+      /Users/mazen/Documents/marble [protobuf-cleanup]$
+        ./build/quarry/quarry_grpc_server gRPC server listening on 0.0.0.0:50051
+
+          Error
+          on cycled read/write: end of stream [beast.http:1 at
+          /Users/mazen/Documents/marble/build/vcpkg_installed/arm64-osx/include/boost/beast/http/impl/read.hpp:383:59
+          in function 'std::size_t
+        boost::beast::http::detail::read_some(SyncReadStream &, DynamicBuffer &,
+        basic_parser<isRequest> &, error_code &) [SyncReadStream =
+          boost::beast::ssl_stream<boost::beast::basic_stream<boost::asio::ip::tcp>>,
+          DynamicBuffer = boost::beast::basic_flat_buffer<std::allocator<char>>,
+        isRequest = false]'] zsh: bus error  ./build/quarry/quarry_grpc_server
+
+
+        before i even write to a stream I should check the status immediatly
+      before with a quick ping? void Transport:write_and_read should control
+      stream revival not the caller
+
+    */
+    std::println("Unknown Error on cycled read/write");
+    return false;
   }
 }
 

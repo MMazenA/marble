@@ -42,7 +42,7 @@ private:
   std::vector<int> m_free_list;
   std::mutex m_free_mutex;
   std::condition_variable m_free_cv;
-  const tcp_resolver_results &m_endpoints;
+  tcp_resolver_results m_endpoints;
   std::string m_host;
   net::io_context &m_ioc;
   ssl::context *m_ssl_ctx;

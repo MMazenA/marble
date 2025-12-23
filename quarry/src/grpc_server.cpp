@@ -6,6 +6,7 @@
 #include <chrono>
 #include <future>
 #include <iostream>
+#include <memory>
 #include <mutex>
 #include <optional>
 #include <stdexcept>
@@ -50,7 +51,7 @@ public:
 
       std::lock_guard<std::mutex> guard(m_polygon_mutex);
       for (const auto &aggregate_bar_batch :
-           m_polygon.execute_with_pagination(aggregate_ep)) {
+           m_polygon->execute_with_pagination(aggregate_ep)) {
 
         if (!aggregate_bar_batch.results.has_value() ||
             aggregate_bar_batch.results->empty()) {
@@ -88,10 +89,11 @@ public:
       return {grpc::StatusCode::INTERNAL, ex.what()};
     }
   }
-  AggregatesServiceImpl(quarry::Polygon &polygon) : m_polygon(polygon) {}
+  AggregatesServiceImpl(const std::shared_ptr<quarry::Polygon> polygon)
+      : m_polygon(polygon) {}
 
 private:
-  quarry::Polygon &m_polygon;
+  std::shared_ptr<quarry::Polygon> m_polygon;
   std::mutex m_polygon_mutex;
 };
 
@@ -102,12 +104,14 @@ int main(int argc, char **argv) {
 
   quarry::load_dotenv("./quarry/.env");
   const char *api_key = std::getenv("POLYGON_API_KEY");
-  if (api_key == nullptr || std::string_view(api_key).empty()) {
+  if (api_key == nullptr || std::string(api_key).empty()) {
     std::cerr << "POLYGON_API_KEY missing; refusing to start server"
               << std::endl;
     return 1;
   }
-  quarry::Polygon polygon(api_key);
+  // quarry::Polygon polygon(api_key);
+
+  auto polygon = std::make_shared<quarry::Polygon>(api_key);
 
   // grpc setup
   std::string server_address = "0.0.0.0:50051";
@@ -120,6 +124,7 @@ int main(int argc, char **argv) {
   AggregatesServiceImpl service{polygon};
   grpc::ServerBuilder builder;
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+
   builder.RegisterService(&service);
 
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());

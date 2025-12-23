@@ -133,8 +133,6 @@ u_int HttpClient::m_https_client(const HttpRequestParams &params) {
                  .headers(params.headers)
                  .build();
 
-  // somehow this is producing dead streams that arent being reused, leading to
-  // bus errors
   m_transport_pool_tls->send_and_read(req, params.http_response);
 
   return params.http_response.result_int();

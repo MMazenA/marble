@@ -49,7 +49,6 @@ public:
       std::string last_request_id;
       std::string last_ticker;
 
-      std::lock_guard<std::mutex> guard(m_polygon_mutex);
       for (const auto &aggregate_bar_batch :
            m_polygon->execute_with_pagination(aggregate_ep)) {
 
@@ -89,12 +88,12 @@ public:
       return {grpc::StatusCode::INTERNAL, ex.what()};
     }
   }
-  AggregatesServiceImpl(const std::shared_ptr<quarry::Polygon> polygon)
+  explicit AggregatesServiceImpl(
+      const std::shared_ptr<quarry::Polygon> &polygon)
       : m_polygon(polygon) {}
 
 private:
   std::shared_ptr<quarry::Polygon> m_polygon;
-  std::mutex m_polygon_mutex;
 };
 
 } // namespace
@@ -109,7 +108,6 @@ int main(int argc, char **argv) {
               << std::endl;
     return 1;
   }
-  // quarry::Polygon polygon(api_key);
 
   auto polygon = std::make_shared<quarry::Polygon>(api_key);
 
@@ -128,7 +126,7 @@ int main(int argc, char **argv) {
   builder.RegisterService(&service);
 
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-  std::cout << "gRPC server listening on " << server_address << std::endl;
+  std::println("gRPC server listening on {}", server_address);
   server->Wait();
   return 0;
 }

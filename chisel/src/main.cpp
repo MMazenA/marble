@@ -13,9 +13,10 @@ public:
   explicit AggregatesClient(std::shared_ptr<grpc::Channel> channel)
       : stub_(marble::AggregatesService::NewStub(std::move(channel))) {}
 
-  void do_unary(marble::AggregatesResponse &response, const std::string &ticker,
-                const std::string &from_date, const std::string &to_date,
-                marble::timespan_options time_span) {
+  void do_aggregate(marble::AggregatesResponse &response,
+                    const std::string &ticker, const std::string &from_date,
+                    const std::string &to_date,
+                    marble::timespan_options time_span) {
     marble::AggregatesRequest request;
 
     // request args
@@ -54,8 +55,8 @@ int main(int argc, char **argv) {
       grpc::CreateChannel(target, grpc::InsecureChannelCredentials()));
 
   marble::AggregatesResponse response;
-  client.do_unary(response, "AAPL", "2024-01-01", "2024-01-09",
-                  marble::timespan_options::DAY);
+  client.do_aggregate(response, "AAPL", "2024-01-01", "2024-01-09",
+                      marble::timespan_options::DAY);
 
   return 0;
 }

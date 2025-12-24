@@ -1,3 +1,5 @@
+#include <chrono>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -34,13 +36,13 @@ public:
       return;
     }
 
-    std::cout << "response ticker=" << response.ticker()
-              << " request id=" << response.request_id()
-              << " status= " << response.status() << std::endl;
+    // std::cout << "response ticker=" << response.ticker()
+    //           << " request id=" << response.request_id()
+    //           << " status= " << response.status() << std::endl;
 
-    for (const auto &x : response.aggregate_bars()) {
-      std::cout << "does it work: " << x.open() << std::endl;
-    }
+    // for (const auto &x : response.aggregate_bars()) {
+    //   std::cout << "does it work: " << x.open() << std::endl;
+    // }
   }
 
 private:
@@ -50,13 +52,40 @@ private:
 } // namespace
 
 int main(int argc, char **argv) {
+  using namespace std::chrono;
   std::string target = "localhost:50051";
-  AggregatesClient client(
-      grpc::CreateChannel(target, grpc::InsecureChannelCredentials()));
+  int iterations = 1;
+  if (argc > 1) {
+    iterations = std::max(1, std::atoi(argv[1]));
+  }
 
-  marble::AggregatesResponse response;
-  client.do_aggregate(response, "AAPL", "2024-01-01", "2024-01-09",
-                      marble::timespan_options::DAY);
+  const auto channel_start = steady_clock::now();
+  auto channel =
+      grpc::CreateChannel(target, grpc::InsecureChannelCredentials());
+  const auto channel_ready = steady_clock::now();
+
+  AggregatesClient client(channel);
+  const auto client_ready = steady_clock::now();
+
+  auto print_ms = [](auto start, auto end, const char *label) {
+    const auto ms = duration_cast<microseconds>(end - start).count() / 1000.0;
+    std::cout << label << ": " << ms << " ms" << std::endl;
+  };
+
+  print_ms(channel_start, channel_ready, "channel setup");
+  print_ms(channel_ready, client_ready, "stub setup");
+
+  for (int i = 0; i < iterations; ++i) {
+    marble::AggregatesResponse response;
+    const auto rpc_start = steady_clock::now();
+    client.do_aggregate(response, "AAPL", "2024-01-01", "2024-01-09",
+                        marble::timespan_options::DAY);
+    const auto rpc_end = steady_clock::now();
+    std::cout << "rpc[" << i << "] duration: "
+              << duration_cast<microseconds>(rpc_end - rpc_start).count() /
+                     1000.0
+              << " ms" << std::endl;
+  }
 
   return 0;
 }

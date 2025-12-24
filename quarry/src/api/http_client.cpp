@@ -115,6 +115,7 @@ u_int HttpClient::m_client(const HttpRequestParams &params) {
                  .version(11)
                  .host(params.host)
                  .user_agent(BOOST_BEAST_VERSION_STRING)
+                 .keep_alive(true)
                  .headers(params.headers)
                  .build();
 
@@ -130,6 +131,7 @@ u_int HttpClient::m_https_client(const HttpRequestParams &params) {
                  .version(11)
                  .host(params.host)
                  .user_agent(BOOST_BEAST_VERSION_STRING)
+                 .keep_alive(true)
                  .headers(params.headers)
                  .build();
 

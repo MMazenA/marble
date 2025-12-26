@@ -4,8 +4,8 @@
 
 namespace quarry {
 
-std::shared_ptr<DnsCache> DnsCache::global_cache() {
-  static std::shared_ptr<DnsCache> singleton{std::make_shared<DnsCache>()};
+DnsCache &DnsCache::global_cache() {
+  static DnsCache singleton{};
   return singleton;
 };
 

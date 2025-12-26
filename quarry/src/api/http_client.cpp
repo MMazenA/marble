@@ -27,7 +27,7 @@ HttpClient::HttpClient(std::string host, port_type port, bool is_tls,
       .is_tls = m_is_tls,
   };
   const tcp_resolver_results endpoints =
-      quarry::DnsCache::global_cache()->get(context);
+      quarry::DnsCache::global_cache().get(context);
 
   if (m_is_tls) {
     m_transport_pool_tls.emplace(HTTP_TLS_POOL_SIZE, m_host, m_ioc, m_ssl_ioc,
@@ -104,7 +104,7 @@ u_int HttpClient::m_client(const HttpRequestParams &params) {
       .is_tls = false,
   };
   const tcp_resolver_results &endpoints =
-      quarry::DnsCache::global_cache()->get(context);
+      quarry::DnsCache::global_cache().get(context);
 
   Transport transport(ioc);
   transport.connect(endpoints);

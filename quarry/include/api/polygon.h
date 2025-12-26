@@ -22,7 +22,7 @@ public:
    * @param api_key Polygon API Key
    *
    */
-  Polygon(std::string api_key);
+  explicit Polygon(std::string api_key);
 
   template <quarry::endpoint_c E> E::response_type execute(const E &ep) {
     std::string url = m_authenticate_url(ep);

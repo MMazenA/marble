@@ -21,7 +21,6 @@ public:
                     marble::timespan_options time_span) {
     marble::AggregatesRequest request;
 
-    // request args
     request.set_ticker(ticker);
     request.set_from_date(from_date);
     request.set_to_date(to_date);
@@ -35,14 +34,6 @@ public:
       std::cerr << "Unary RPC failed: " << status.error_message() << std::endl;
       return;
     }
-
-    // std::cout << "response ticker=" << response.ticker()
-    //           << " request id=" << response.request_id()
-    //           << " status= " << response.status() << std::endl;
-
-    // for (const auto &x : response.aggregate_bars()) {
-    //   std::cout << "does it work: " << x.open() << std::endl;
-    // }
   }
 
 private:

@@ -8,7 +8,7 @@
 namespace quarry {
 class DnsCache {
 public:
-  static std::shared_ptr<DnsCache> global_cache();
+  static DnsCache &global_cache();
 
   DnsCache() = default;
 

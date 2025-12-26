@@ -50,7 +50,7 @@ public:
       std::string last_ticker;
 
       for (const auto &aggregate_bar_batch :
-           m_polygon->execute_with_pagination(aggregate_ep)) {
+           m_polygon.execute_with_pagination(aggregate_ep)) {
 
         if (!aggregate_bar_batch.results.has_value() ||
             aggregate_bar_batch.results->empty()) {
@@ -88,12 +88,11 @@ public:
       return {grpc::StatusCode::INTERNAL, ex.what()};
     }
   }
-  explicit AggregatesServiceImpl(
-      const std::shared_ptr<quarry::Polygon> &polygon)
+  explicit AggregatesServiceImpl(quarry::Polygon &polygon)
       : m_polygon(polygon) {}
 
 private:
-  std::shared_ptr<quarry::Polygon> m_polygon;
+  quarry::Polygon &m_polygon;
 };
 
 } // namespace
@@ -109,7 +108,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  auto polygon = std::make_shared<quarry::Polygon>(api_key);
+  quarry::Polygon polygon{api_key};
 
   // grpc setup
   std::string server_address = "0.0.0.0:50051";

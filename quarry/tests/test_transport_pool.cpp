@@ -32,7 +32,7 @@ TEST_CASE("TransportPool") {
         .port = test_port_https,
         .is_tls = true,
     };
-    const auto endpoints = quarry::DnsCache::global_cache()->get(context);
+    const auto endpoints = quarry::DnsCache::global_cache().get(context);
     auto ssl_ctx = quarry::SslContextProvider::make_insecure_client_ctx();
 
     quarry::TransportPool pool{max_conn, std::string{context.host}, ioc,
@@ -104,7 +104,7 @@ TEST_CASE("TransportPool") {
         .port = test_port_https,
         .is_tls = true,
     };
-    const auto endpoints = quarry::DnsCache::global_cache()->get(context);
+    const auto endpoints = quarry::DnsCache::global_cache().get(context);
     auto ssl_ctx = quarry::SslContextProvider::make_insecure_client_ctx();
 
     quarry::TransportPool pool{1, std::string{context.host}, ioc, ssl_ctx,
@@ -150,7 +150,7 @@ TEST_CASE("TransportPool") {
         .port = test_port_https,
         .is_tls = true,
     };
-    const auto endpoints = quarry::DnsCache::global_cache()->get(context);
+    const auto endpoints = quarry::DnsCache::global_cache().get(context);
     auto ssl_ctx = quarry::SslContextProvider::make_insecure_client_ctx();
 
     auto req = quarry::HttpRequestBuilder{}

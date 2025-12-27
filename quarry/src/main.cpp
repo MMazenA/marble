@@ -19,7 +19,7 @@ int main() {
                             .from_date("2024-01-01")
                             .to_date("2025-01-05");
 
-  constexpr std::string table_name = "stg_aggregates_results";
+  const std::string table_name = "stg_aggregates_results";
 
   std::vector<std::future<void>> futures;
   std::optional<std::string> last_request_id;

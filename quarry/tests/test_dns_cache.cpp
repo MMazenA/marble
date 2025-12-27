@@ -1,7 +1,7 @@
 #include "dns_cache.h"
 #include "http_types.h"
+#include <format>
 #include <catch2/catch_test_macros.hpp>
-#include <print>
 
 TEST_CASE("DnsCache") {
   SECTION("Cached results are faster") {
@@ -33,8 +33,8 @@ TEST_CASE("DnsCache") {
       cached_duration = duration_cast<microseconds>(stop - start);
     }
 
-    std::println("Non-cached {}", non_cached_duration);
-    std::println("Cached {}", cached_duration);
+    INFO(std::format("Non-cached {}", non_cached_duration));
+    INFO(std::format("Cached {}", cached_duration));
 
     REQUIRE(non_cached_duration > cached_duration);
   }

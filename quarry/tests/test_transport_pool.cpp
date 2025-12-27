@@ -3,7 +3,7 @@
 #include "dns_cache.h"
 #include "http_types.h"
 #include "ssl_context_provider.h"
-
+#include <format>
 #include "transport.h"
 #include <boost/asio/io_context.hpp>
 #include <boost/beast/http/verb.hpp>
@@ -90,8 +90,8 @@ TEST_CASE("TransportPool") {
       }
     }
 
-    std::println("single (3 fresh connects): {}", single_duration);
-    std::println("pool (3 threaded, pre-connected): {}", pool_duration);
+    INFO(std::format("single (3 fresh connects): {}", single_duration));
+    INFO(std::format("pool (3 threaded, pre-connected): {}", pool_duration));
 
     REQUIRE(single_duration > pool_duration);
   }
@@ -128,7 +128,7 @@ TEST_CASE("TransportPool") {
     for (int i = 0; i < num_requests; ++i) {
       threads.emplace_back([&, i]() {
         pool.send_and_read(req, responses[i]);
-        INFO("Thread " << i + 1 << ": status " << responses[i].result_int());
+        INFO(std::format("Thread {}: status {}", i + 1, responses[i].result_int()));
       });
     }
 
@@ -199,8 +199,8 @@ TEST_CASE("TransportPool") {
       REQUIRE(resp2.result_int() == 200);
     }
 
-    std::println("single (connect+handshake+1req): {}", single_duration);
-    std::println("pool (2 reqs, no handshake): {}", pool_duration);
+    INFO(std::format("single (connect+handshake+1req): {}", single_duration));
+    INFO(std::format("pool (2 reqs, no handshake): {}", pool_duration));
 
     REQUIRE(single_duration > pool_duration);
   }

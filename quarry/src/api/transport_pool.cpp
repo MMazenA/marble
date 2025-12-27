@@ -1,5 +1,4 @@
 #include "api/transport_pool.h"
-#include <print>
 
 namespace quarry {
 // NOLINTNEXTLINE

@@ -4,7 +4,7 @@
 #include <fstream>
 #include <memory>
 #include <pqxx/pqxx>
-#include <print>
+#include "logging.h"
 #include <regex>
 #include <sstream>
 #include <string>
@@ -23,7 +23,8 @@ void Migration::apply_migrations(int last_applied_version) {
   for (const auto &[version, path] : files_to_apply) {
     std::ifstream sql_file(path);
     if (!sql_file.is_open()) {
-      std::println("Failed to open migration file: {}", path.string());
+      auto *logger = quarry::logging::get_logger();
+      LOG_ERROR(logger, "Failed to open migration file: {}", path.string());
       continue;
     }
 
@@ -33,7 +34,8 @@ void Migration::apply_migrations(int last_applied_version) {
 
     execute_script(sql_content);
     execute("INSERT INTO schema_migrations (version) VALUES ($1)", version);
-    std::println("Applied Migration {}", version);
+    auto *logger = quarry::logging::get_logger();
+    LOG_INFO(logger, "Applied Migration {}", version);
   }
 }
 

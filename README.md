@@ -33,6 +33,7 @@ Mono-repo for stock ingestion, back testing, and analysis
 | Clear Build  |`rm -rf build`   |
 | Install Dependencies  |`cmake --preset dev`   |
 | GrpcUI | `grpcui -plaintext localhost:50051` |
+| Profiling | `codesign --force --sign - --timestamp=none --entitlements debug.plist ./build/executable` |
 ### Generate Dependency Graphs
 ```bash
 cd build

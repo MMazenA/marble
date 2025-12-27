@@ -4,9 +4,11 @@
 #include "base_endpoint.h"
 #include "generator.h"
 #include "http_client.h"
+#include "logging.h"
 #include <glaze/glaze.hpp>
 #include <iostream>
 #include <memory>
+#include <quill/LogMacros.h>
 #include <string>
 
 namespace quarry {
@@ -39,8 +41,9 @@ public:
     auto parsed_json = glz::read_json<typename E::response_type>(body_view);
 
     if (!parsed_json) {
-      std::cerr << "JSON parse failed "
-                << glz::format_error(parsed_json, body_view) << std::endl;
+      auto *logger = quarry::logging::get_logger();
+      LOG_ERROR(logger, "JSON parse failed {}",
+                glz::format_error(parsed_json, body_view));
 
       throw std::runtime_error("parse failed");
     }
@@ -66,8 +69,9 @@ public:
       auto parsed_json = glz::read_json<typename E::response_type>(body_view);
 
       if (!parsed_json) {
-        std::cerr << "JSON parse failed "
-                  << glz::format_error(parsed_json, body_view) << std::endl;
+        auto *logger = quarry::logging::get_logger();
+        LOG_ERROR(logger, "JSON parse failed {}",
+                  glz::format_error(parsed_json, body_view));
         throw std::runtime_error("parse failed");
       }
 

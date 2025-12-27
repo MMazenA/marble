@@ -1,8 +1,9 @@
 #include "api/transport.h"
 #include "http_types.h"
+#include "logging.h"
 #include <boost/beast/core/flat_buffer.hpp>
 #include <boost/beast/http.hpp>
-#include <print>
+#include <quill/LogMacros.h>
 
 namespace quarry {
 
@@ -45,14 +46,12 @@ bool Transport::write_and_read(
     read(resp);
     return true;
   } catch (const boost::system::system_error &ec) {
-    std::println("Error on cycled read/write: {}", ec.what());
+    auto *logger = quarry::logging::get_logger();
+    LOG_INFO(logger, "Cycled read/write, eof dead stream");
     return false;
   } catch (...) {
-    /**
-      This can't stay like this, getting bus error for a dead tls stream while
-      trying to write to it
-    */
-    std::println("Unknown Error on cycled read/write");
+    auto *logger = quarry::logging::get_logger();
+    LOG_ERROR(logger, "Unknown error on cycled read/write");
     return false;
   }
 }

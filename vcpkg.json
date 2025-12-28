@@ -11,6 +11,7 @@
     "boost-asio",
     "boost-beast",
     "catch2",
-    "glaze"
+    "glaze",
+    "quill"
   ]
 }

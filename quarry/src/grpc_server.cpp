@@ -1,14 +1,15 @@
 #include "aggregates.h"
 #include "base_endpoint.h"
+#include "logging.h"
 #include "polygon.h"
 #include "sql.h"
 #include "utils.h"
 #include <chrono>
 #include <future>
-#include <iostream>
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <quill/LogMacros.h>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -98,13 +99,14 @@ private:
 } // namespace
 
 int main(int argc, char **argv) {
+  auto *logger = quarry::logging::init();
+
   // polygon setup
 
   quarry::load_dotenv("./quarry/.env");
   const char *api_key = std::getenv("POLYGON_API_KEY");
   if (api_key == nullptr || std::string(api_key).empty()) {
-    std::cerr << "POLYGON_API_KEY missing; refusing to start server"
-              << std::endl;
+    LOG_ERROR(logger, "POLYGON_API_KEY missing; refusing to start server");
     return 1;
   }
 
@@ -125,7 +127,7 @@ int main(int argc, char **argv) {
   builder.RegisterService(&service);
 
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-  std::println("gRPC server listening on {}", server_address);
+  LOG_INFO(logger, "gRPC server listening on {}", server_address);
   server->Wait();
   return 0;
 }

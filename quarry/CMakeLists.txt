@@ -10,6 +10,7 @@ find_package(OpenSSL REQUIRED COMPONENTS SSL Crypto)
 find_package(Threads REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
+find_package(quill CONFIG REQUIRED)
 
 
 set(_boost_components system)
@@ -55,6 +56,7 @@ target_link_libraries(quarry_core
     OpenSSL::SSL
     OpenSSL::Crypto
     Threads::Threads
+    quill::quill
 )
 
 if(QUARRY_BOOST_USE_IMPORT_TARGETS)

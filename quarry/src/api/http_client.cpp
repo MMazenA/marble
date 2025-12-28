@@ -3,11 +3,13 @@
 #include "api/transport.h"
 #include "dns_cache.h"
 #include "http_types.h"
+#include "logging.h"
 #include "ssl_context_provider.h"
 #include "transport_pool.h"
 #include <format>
 #include <iostream>
 #include <optional>
+#include <quill/LogMacros.h>
 #include <stdexcept>
 #include <utility>
 
@@ -56,7 +58,12 @@ HttpClient::get(const std::string_view endpoint,
   u_int response_code = m_client(params);
 
   if (response_code != 200) {
-    std::cout << response << '\n';
+    // @todo refactor this class and callers to use std::expected, i dont want
+    // to throw runtime errors and kill threads
+    auto *logger = quarry::logging::get_logger();
+    LOG_ERROR(logger, "HTTP {} for {}: {}", response_code, endpoint,
+              response.body());
+
     throw std::runtime_error(std::format("HTTP Error code: {}", response_code));
   }
 

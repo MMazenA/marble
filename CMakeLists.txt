@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.29)
 project(marble VERSION 0.1.0 LANGUAGES CXX)
 
+if(APPLE)
+  add_link_options("-Wl,-no_warn_duplicate_libraries")
+endif()
+
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

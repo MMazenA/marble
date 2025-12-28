@@ -1,9 +1,11 @@
 #ifndef UTILS_H
 #define UTILS_H
+#include "logging.h"
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <quill/LogMacros.h>
 #include <sstream>
 #include <string>
 
@@ -12,8 +14,11 @@ void load_dotenv(const std::string &path = ".env") {
   namespace fs = std::filesystem;
   std::ifstream env_file(path);
   if (!env_file.is_open()) {
-    std::cerr << "Could not open .env file: " << path << '\n';
-    std::cout << "Current path is " << fs::current_path() << '\n';
+    auto *logger = quarry::logging::get_logger();
+
+    LOG_DEBUG(logger, "Current path is {}", fs::current_path().string());
+    LOG_ERROR(logger, "Could not open .env file: {}", path);
+
     return;
   }
 

@@ -4,18 +4,18 @@
 #include <array>
 #include <concepts>
 #include <cstdint>
-#include <format>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace quarry {
 
 using headers = std::vector<std::pair<std::string, std::string>>;
 
-enum class sort_options { ASC, DSC };
-enum class method_type { GET, POST };
+enum class sort_options : uint8_t { ASC, DSC };
+enum class method_type : uint8_t { GET, POST };
 enum class timespan_options : uint8_t {
   SECOND,
   MINUTE,
@@ -49,10 +49,11 @@ timespan_resolver(timespan_options timespan) noexcept {
   case timespan_options::YEAR:
     return "year";
   }
-  return "day";
+  std::unreachable();
 }
 
 constexpr timespan_options timespan_resolver(uint8_t value) noexcept {
+  // NOLINTNEXTLINE(bugprone-switch-missing-default-case)
   switch (value) {
   case 0:
     return timespan_options::SECOND;
@@ -70,9 +71,8 @@ constexpr timespan_options timespan_resolver(uint8_t value) noexcept {
     return timespan_options::QUARTER;
   case 7:
     return timespan_options::YEAR;
-  default:
-    return timespan_options::DAY;
   }
+  std::unreachable();
 }
 
 [[nodiscard]] inline bool is_iso_date(std::string_view s) noexcept {

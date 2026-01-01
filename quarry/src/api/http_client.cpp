@@ -4,10 +4,8 @@
 #include "dns_cache.h"
 #include "http_types.h"
 #include "logging.h"
-#include "ssl_context_provider.h"
 #include "transport_pool.h"
 #include <format>
-#include <iostream>
 #include <optional>
 #include <quill/LogMacros.h>
 #include <stdexcept>
@@ -15,7 +13,7 @@
 
 namespace quarry {
 // NOLINTNEXTLINE
-constexpr int HTTP_TLS_POOL_SIZE = 3;
+constexpr int HTTP_TLS_POOL_SIZE = 5;
 
 HttpClient::HttpClient(std::string host, port_type port, bool is_tls,
                        const std::function<ssl::context()> &ctx_provider)

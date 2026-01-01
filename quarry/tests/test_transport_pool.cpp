@@ -3,12 +3,11 @@
 #include "dns_cache.h"
 #include "http_types.h"
 #include "ssl_context_provider.h"
-#include <format>
 #include "transport.h"
 #include <boost/asio/io_context.hpp>
 #include <boost/beast/http/verb.hpp>
 #include <catch2/catch_test_macros.hpp>
-#include <iostream>
+#include <format>
 #include <thread>
 #include <vector>
 
@@ -128,7 +127,8 @@ TEST_CASE("TransportPool") {
     for (int i = 0; i < num_requests; ++i) {
       threads.emplace_back([&, i]() {
         pool.send_and_read(req, responses[i]);
-        INFO(std::format("Thread {}: status {}", i + 1, responses[i].result_int()));
+        INFO(std::format("Thread {}: status {}", i + 1,
+                         responses[i].result_int()));
       });
     }
 

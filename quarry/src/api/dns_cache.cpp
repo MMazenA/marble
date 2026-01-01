@@ -1,5 +1,4 @@
 #include "dns_cache.h"
-#include <memory>
 #include <shared_mutex>
 
 namespace quarry {
@@ -38,14 +37,19 @@ DnsCache::get(const DnsCacheContext &context) const {
     }
   }
 
-  net::io_context &ioc = context.ioc;
-  tcp::resolver resolver(ioc);
-  auto const resolved_results =
-      resolver.resolve(context.host, std::to_string(context.port));
-
   // scoped write access
   {
     std::unique_lock<std::shared_mutex> wlock(m_cache_lock);
+    if (auto it = m_cached_resolutions.find(key);
+        it != m_cached_resolutions.end()) {
+      return it->second;
+    }
+
+    net::io_context &ioc = context.ioc;
+    tcp::resolver resolver(ioc);
+    auto const resolved_results =
+        resolver.resolve(context.host, std::to_string(context.port));
+
     auto [it, is_inserted] =
         m_cached_resolutions.try_emplace(key, resolved_results);
     return it->second;

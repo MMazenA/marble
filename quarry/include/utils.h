@@ -4,7 +4,6 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 #include <quill/LogMacros.h>
 #include <sstream>
 #include <string>

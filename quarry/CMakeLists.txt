@@ -31,7 +31,18 @@ if(NOT HAVE_UNOFFICIAL_LIBPQXX)
   pkg_check_modules(PQXX IMPORTED_TARGET REQUIRED libpqxx)
 endif()
 
-# ---- Targets & sources ----
+add_library(quarry_logging INTERFACE)
+
+target_include_directories(quarry_logging
+  INTERFACE
+    "${QUARRY_DIR}/include"
+)
+
+target_link_libraries(quarry_logging
+  INTERFACE
+    quill::quill
+)
+
 file(GLOB_RECURSE QUARRY_API_SOURCES       CONFIGURE_DEPENDS "${QUARRY_DIR}/src/api/*.cpp")
 file(GLOB_RECURSE QUARRY_DB_SOURCES CONFIGURE_DEPENDS "${QUARRY_DIR}/src/db/*.cpp" )
 
@@ -51,12 +62,12 @@ target_include_directories(quarry_core
 # linking core to previously imported targets
 target_link_libraries(quarry_core
   PUBLIC
+    quarry_logging
     PostgreSQL::PostgreSQL
     glaze::glaze
     OpenSSL::SSL
     OpenSSL::Crypto
     Threads::Threads
-    quill::quill
 )
 
 if(QUARRY_BOOST_USE_IMPORT_TARGETS)

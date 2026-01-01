@@ -2,7 +2,6 @@
 #define QUARRY_DNS_CACHE_H
 
 #include "http_types.h"
-#include <memory>
 #include <shared_mutex>
 
 namespace quarry {

@@ -2,6 +2,7 @@
 #define AGGREGATES_DAILY_H
 
 #include "base_endpoint.h"
+#include <format>
 #include <stdexcept>
 #include <string>
 #include <string_view>

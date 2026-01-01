@@ -2,18 +2,12 @@
 #include "base_endpoint.h"
 #include "logging.h"
 #include "polygon.h"
-#include "sql.h"
 #include "utils.h"
-#include <chrono>
-#include <future>
 #include <memory>
-#include <mutex>
 #include <optional>
 #include <quill/LogMacros.h>
 #include <stdexcept>
 #include <string>
-#include <string_view>
-#include <thread>
 #include <vector>
 
 #include <grpcpp/ext/proto_server_reflection_plugin.h>
@@ -100,8 +94,6 @@ private:
 
 int main(int argc, char **argv) {
   auto *logger = quarry::logging::init();
-
-  // polygon setup
 
   quarry::load_dotenv("./quarry/.env");
   const char *api_key = std::getenv("POLYGON_API_KEY");

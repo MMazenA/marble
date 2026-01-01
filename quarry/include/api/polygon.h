@@ -1,12 +1,10 @@
 #ifndef POLYGON_H
 #define POLYGON_H
-
 #include "base_endpoint.h"
-#include "generator.h"
+#include "generator.h" // IWYU pragma: keep
 #include "http_client.h"
 #include "logging.h"
 #include <glaze/glaze.hpp>
-#include <iostream>
 #include <memory>
 #include <quill/LogMacros.h>
 #include <string>

@@ -1,8 +1,8 @@
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
+#include <logging.h>
 #include <string>
-#include <vector>
 
 #include <grpcpp/grpcpp.h>
 
@@ -31,7 +31,9 @@ public:
         stub_->GetAggregate(&context, request, &response);
 
     if (!status.ok()) {
-      std::cerr << "Unary RPC failed: " << status.error_message() << std::endl;
+      auto *logger = quarry::logging::init();
+      LOG_ERROR(logger, "Unary RPC failed: {}", status.error_message());
+
       return;
     }
   }
@@ -46,6 +48,7 @@ int main(int argc, char **argv) {
   using namespace std::chrono;
   std::string target = "localhost:50051";
   int iterations = 1;
+
   if (argc > 1) {
     iterations = std::max(1, std::atoi(argv[1]));
   }
@@ -72,10 +75,9 @@ int main(int argc, char **argv) {
     client.do_aggregate(response, "AAPL", "2024-01-01", "2024-01-09",
                         marble::timespan_options::DAY);
     const auto rpc_end = steady_clock::now();
-    std::cout << "rpc[" << i << "] duration: "
-              << duration_cast<microseconds>(rpc_end - rpc_start).count() /
-                     1000.0
-              << " ms" << std::endl;
+    std::println("rpc[{}] duration {}ms", i,
+                 duration_cast<microseconds>(rpc_end - rpc_start).count() /
+                     1000.0);
   }
 
   return 0;

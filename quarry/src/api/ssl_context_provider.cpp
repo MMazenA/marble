@@ -1,5 +1,4 @@
 #include "api/ssl_context_provider.h"
-#include <iostream>
 
 namespace quarry {
 

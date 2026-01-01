@@ -1,8 +1,6 @@
 #ifndef QUARRY_API_TRANSPORT_H
 #define QUARRY_API_TRANSPORT_H
 
-#include "base_endpoint.h"
-#include "dns_cache.h"
 #include "http_types.h"
 #include "stream_guard.h"
 #include <boost/asio/io_context.hpp>

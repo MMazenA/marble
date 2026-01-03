@@ -71,6 +71,8 @@ constexpr timespan_options timespan_resolver(uint8_t value) noexcept {
     return timespan_options::QUARTER;
   case 7:
     return timespan_options::YEAR;
+  default:
+    return timespan_options::MONTH;
   }
   std::unreachable();
 }

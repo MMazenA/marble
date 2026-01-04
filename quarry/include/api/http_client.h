@@ -20,6 +20,18 @@
 namespace quarry {
 class HttpClient {
 public:
+  /**
+  todo:
+    - template the ssl provider, doesnt need function call overhead
+    - pass in pool size
+    - pass in retry policy
+      - retry policy can be its own class
+      - includes base retries
+      - retries on certain errors
+      - jitter policy
+      - refactor with std::expected as well
+
+  */
   HttpClient(std::string host, port_type port, bool is_tls = false,
              const std::function<ssl::context()> &ctx_provider =
                  SslContextProvider::make_client_ctx);

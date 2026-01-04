@@ -11,34 +11,22 @@ find_package(Threads REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 find_package(quill CONFIG REQUIRED)
+find_package(Boost 1.82 CONFIG REQUIRED COMPONENTS system)
+find_package(unofficial-libpqxx CONFIG REQUIRED)
 
+add_library(quarry_logging INTERFACE)
 
-set(_boost_components system)
-find_package(Boost 1.82 CONFIG QUIET COMPONENTS ${_boost_components})
-if(NOT Boost_FOUND)
-  cmake_policy(SET CMP0167 OLD)
-  find_package(Boost REQUIRED COMPONENTS ${_boost_components})
-  set(QUARRY_BOOST_USE_IMPORT_TARGETS OFF)
-else()
-  set(QUARRY_BOOST_USE_IMPORT_TARGETS ON)
-endif()
-
-find_package(unofficial-libpqxx CONFIG QUIET)
-set(HAVE_UNOFFICIAL_LIBPQXX ${unofficial-libpqxx_FOUND})
-
-if(NOT HAVE_UNOFFICIAL_LIBPQXX)
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(PQXX IMPORTED_TARGET REQUIRED libpqxx)
-endif()
-
-# ---- Targets & sources ----
-file(GLOB_RECURSE QUARRY_API_SOURCES       CONFIGURE_DEPENDS "${QUARRY_DIR}/src/api/*.cpp")
-file(GLOB_RECURSE QUARRY_DB_SOURCES CONFIGURE_DEPENDS "${QUARRY_DIR}/src/db/*.cpp" )
-
-add_library(quarry_core STATIC
-  ${QUARRY_API_SOURCES}
-  ${QUARRY_DB_SOURCES}
+target_include_directories(quarry_logging
+  INTERFACE
+    "${QUARRY_DIR}/include"
 )
+
+target_link_libraries(quarry_logging
+  INTERFACE
+    quill::quill
+)
+
+add_library(quarry_core STATIC)
 
 target_include_directories(quarry_core
   PUBLIC
@@ -48,30 +36,21 @@ target_include_directories(quarry_core
     "${QUARRY_DIR}/include/api/endpoints"
 )
 
+add_subdirectory(src)
+
 # linking core to previously imported targets
 target_link_libraries(quarry_core
   PUBLIC
+    quarry_logging
     PostgreSQL::PostgreSQL
     glaze::glaze
     OpenSSL::SSL
     OpenSSL::Crypto
     Threads::Threads
-    quill::quill
+    Boost::headers
+    Boost::system
+    unofficial::libpqxx::pqxx
 )
-
-if(QUARRY_BOOST_USE_IMPORT_TARGETS)
-  target_link_libraries(quarry_core PUBLIC Boost::headers Boost::system)
-else()
-  # Legacy FindBoost variables
-  target_include_directories(quarry_core PUBLIC ${Boost_INCLUDE_DIRS})
-  target_link_libraries(quarry_core PUBLIC ${Boost_LIBRARIES})
-endif()
-
-if(HAVE_UNOFFICIAL_LIBPQXX)
-  target_link_libraries(quarry_core PUBLIC unofficial::libpqxx::pqxx)
-else()
-  target_link_libraries(quarry_core PUBLIC PkgConfig::PQXX)
-endif()
 
 target_link_libraries(quarry_core INTERFACE)
 
@@ -102,21 +81,5 @@ endif()
 
 # ---- Tests ----
 if(BUILD_TESTING)
-  file(GLOB TEST_SOURCES CONFIGURE_DEPENDS "${QUARRY_DIR}/tests/test_*.cpp")
-
-  foreach(TEST_SRC IN LISTS TEST_SOURCES)
-    get_filename_component(TEST_NAME "${TEST_SRC}" NAME_WE)
-
-    add_executable(${TEST_NAME} "${TEST_SRC}")
-    target_link_libraries(${TEST_NAME}
-      PRIVATE
-        quarry_core
-        Catch2::Catch2WithMain
-    )
-
-    catch_discover_tests(${TEST_NAME}
-      TEST_PREFIX "[quarry] "
-      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    )
-  endforeach()
+  add_subdirectory(tests)
 endif()

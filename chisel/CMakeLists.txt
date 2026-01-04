@@ -9,6 +9,7 @@ add_executable(chisel_client "${CHISEL_DIR}/src/main.cpp")
 
 target_link_libraries(chisel_client
   PRIVATE
+    quarry_logging
     marble_protos
     gRPC::grpc++
 )

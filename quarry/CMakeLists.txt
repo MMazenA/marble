@@ -23,12 +23,18 @@ else()
   set(QUARRY_BOOST_USE_IMPORT_TARGETS ON)
 endif()
 
-find_package(unofficial-libpqxx CONFIG QUIET)
-set(HAVE_UNOFFICIAL_LIBPQXX ${unofficial-libpqxx_FOUND})
-
-if(NOT HAVE_UNOFFICIAL_LIBPQXX)
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(PQXX IMPORTED_TARGET REQUIRED libpqxx)
+find_package(libpqxx CONFIG QUIET)
+if(libpqxx_FOUND)
+  set(LIBPQXX_TARGET libpqxx::pqxx)
+else()
+  find_package(unofficial-libpqxx CONFIG QUIET)
+  if(unofficial-libpqxx_FOUND)
+    set(LIBPQXX_TARGET unofficial::libpqxx::pqxx)
+  else()
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(PQXX IMPORTED_TARGET REQUIRED libpqxx)
+    set(LIBPQXX_TARGET PkgConfig::PQXX)
+  endif()
 endif()
 
 # ---- Targets & sources ----
@@ -67,11 +73,7 @@ else()
   target_link_libraries(quarry_core PUBLIC ${Boost_LIBRARIES})
 endif()
 
-if(HAVE_UNOFFICIAL_LIBPQXX)
-  target_link_libraries(quarry_core PUBLIC unofficial::libpqxx::pqxx)
-else()
-  target_link_libraries(quarry_core PUBLIC PkgConfig::PQXX)
-endif()
+target_link_libraries(quarry_core PUBLIC ${LIBPQXX_TARGET})
 
 target_link_libraries(quarry_core INTERFACE)
 

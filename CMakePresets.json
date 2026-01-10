@@ -35,10 +35,10 @@
       }
     },
     {
-      "name": "prod",
-      "displayName": "Prod",
+      "name": "release",
+      "displayName": "Release (O3 + LTO)",
       "generator": "Ninja",
-      "binaryDir": "build-prod",
+      "binaryDir": "build-release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_CXX_STANDARD": "23",
@@ -47,6 +47,56 @@
         "CMAKE_CXX_FLAGS": "-O3 -DNDEBUG -march=native -flto",
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/external/vcpkg/scripts/buildsystems/vcpkg.cmake"
+      }
+    },
+    {
+      "name": "win-dev",
+      "displayName": "Windows Dev (Ninja + MSVC)",
+      "generator": "Ninja",
+      "binaryDir": "build",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_COMPILER": "cl.exe",
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_STANDARD": "23",
+        "BUILD_TESTING": "ON",
+        "CMAKE_FIND_PACKAGE_PREFER_CONFIG": "ON",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/external/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_TARGET_TRIPLET": "x64-windows"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "win-release",
+      "displayName": "Windows Release (Ninja + MSVC)",
+      "generator": "Ninja",
+      "binaryDir": "build-release",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_COMPILER": "cl.exe",
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_STANDARD": "23",
+        "BUILD_TESTING": "OFF",
+        "CMAKE_FIND_PACKAGE_PREFER_CONFIG": "ON",
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/external/vcpkg/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_TARGET_TRIPLET": "x64-windows"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
       }
     }
   ],
@@ -60,8 +110,16 @@
       "configurePreset": "debug"
     },
     {
-      "name": "prod",
-      "configurePreset": "prod"
+      "name": "release",
+      "configurePreset": "release"
+    },
+    {
+      "name": "win-dev",
+      "configurePreset": "win-dev"
+    },
+    {
+      "name": "win-release",
+      "configurePreset": "win-release"
     }
   ],
   "testPresets": [
@@ -75,6 +133,13 @@
     {
       "name": "debug",
       "configurePreset": "debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "win-dev",
+      "configurePreset": "win-dev",
       "output": {
         "outputOnFailure": true
       }

@@ -2,6 +2,12 @@
 
 #ifndef __STD_GENERATOR_INCLUDED
 #define __STD_GENERATOR_INCLUDED
+
+// Use the standard library's std::generator when available (C++23)
+#if __has_include(<generator>) && defined(__cpp_lib_generator)
+#include <generator>
+#else
+
 // https://github.com/lewissbaker/generator/blob/main/include/__generator.hpp
 ///////////////////////////////////////////////////////////////////////////////
 // Reference implementation of std::generator proposal P2168.
@@ -769,5 +775,7 @@ constexpr inline bool enable_view<generator<_T, _U, _Alloc>> = true;
 #endif
 
 } // namespace std
+
+#endif // !defined(__cpp_lib_generator)
 
 #endif // __STD_GENERATOR_INCLUDED

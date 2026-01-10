@@ -12,7 +12,7 @@ find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 find_package(quill CONFIG REQUIRED)
 find_package(Boost 1.82 CONFIG REQUIRED COMPONENTS system)
-find_package(unofficial-libpqxx CONFIG REQUIRED)
+find_package(libpqxx CONFIG REQUIRED)
 
 add_library(quarry_logging INTERFACE)
 
@@ -49,7 +49,7 @@ target_link_libraries(quarry_core
     Threads::Threads
     Boost::headers
     Boost::system
-    unofficial::libpqxx::pqxx
+    libpqxx::pqxx
 )
 
 target_link_libraries(quarry_core INTERFACE)

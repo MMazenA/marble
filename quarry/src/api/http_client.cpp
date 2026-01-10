@@ -13,10 +13,11 @@
 
 namespace quarry {
 // NOLINTNEXTLINE
-constexpr int HTTP_TLS_POOL_SIZE = 5;
+constexpr int DEFAULT_HTTP_TLS_POOL_SIZE = 5;
 
 HttpClient::HttpClient(std::string host, port_type port, bool is_tls,
-                       const std::function<ssl::context()> &ctx_provider)
+                       const std::function<ssl::context()> &ctx_provider,
+                       std::optional<int> http_pool_size)
     : m_host(std::move(host)), m_port(port), m_ssl_ioc(ctx_provider()),
       m_is_tls(is_tls || port == 443) {
 
@@ -30,8 +31,9 @@ HttpClient::HttpClient(std::string host, port_type port, bool is_tls,
       quarry::DnsCache::global_cache().get(context);
 
   if (m_is_tls) {
-    m_transport_pool_tls.emplace(HTTP_TLS_POOL_SIZE, m_host, m_ioc, m_ssl_ioc,
-                                 endpoints);
+    m_transport_pool_tls.emplace(
+        http_pool_size.value_or(DEFAULT_HTTP_TLS_POOL_SIZE), m_host, m_ioc,
+        m_ssl_ioc, endpoints);
   }
 }
 

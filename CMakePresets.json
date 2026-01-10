@@ -16,7 +16,7 @@
         "BUILD_TESTING": "ON",
         "CMAKE_FIND_PACKAGE_PREFER_CONFIG": "ON",
         "CMAKE_EXE_LINKER_FLAGS": "-Wl",
-        "CMAKE_CXX_FLAGS": "-O0",
+        "CMAKE_CXX_FLAGS": "-O0 -Wreorder",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/external/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
     },

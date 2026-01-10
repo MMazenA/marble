@@ -11,8 +11,31 @@ find_package(Threads REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
 find_package(quill CONFIG REQUIRED)
-find_package(Boost 1.82 CONFIG REQUIRED COMPONENTS system)
-find_package(libpqxx CONFIG REQUIRED)
+
+
+set(_boost_components system)
+find_package(Boost 1.82 CONFIG QUIET COMPONENTS ${_boost_components})
+if(NOT Boost_FOUND)
+  cmake_policy(SET CMP0167 OLD)
+  find_package(Boost REQUIRED COMPONENTS ${_boost_components})
+  set(QUARRY_BOOST_USE_IMPORT_TARGETS OFF)
+else()
+  set(QUARRY_BOOST_USE_IMPORT_TARGETS ON)
+endif()
+
+find_package(libpqxx CONFIG QUIET)
+if(libpqxx_FOUND)
+  set(LIBPQXX_TARGET libpqxx::pqxx)
+else()
+  find_package(unofficial-libpqxx CONFIG QUIET)
+  if(unofficial-libpqxx_FOUND)
+    set(LIBPQXX_TARGET unofficial::libpqxx::pqxx)
+  else()
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(PQXX IMPORTED_TARGET REQUIRED libpqxx)
+    set(LIBPQXX_TARGET PkgConfig::PQXX)
+  endif()
+endif()
 
 add_library(quarry_logging INTERFACE)
 
@@ -26,7 +49,14 @@ target_link_libraries(quarry_logging
     quill::quill
 )
 
-add_library(quarry_core STATIC)
+# ---- Targets & sources ----
+file(GLOB_RECURSE QUARRY_API_SOURCES       CONFIGURE_DEPENDS "${QUARRY_DIR}/src/api/*.cpp")
+file(GLOB_RECURSE QUARRY_DB_SOURCES CONFIGURE_DEPENDS "${QUARRY_DIR}/src/db/*.cpp" )
+
+add_library(quarry_core STATIC
+  ${QUARRY_API_SOURCES}
+  ${QUARRY_DB_SOURCES}
+)
 
 target_include_directories(quarry_core
   PUBLIC
@@ -35,8 +65,6 @@ target_include_directories(quarry_core
     "${QUARRY_DIR}/include/api"
     "${QUARRY_DIR}/include/api/endpoints"
 )
-
-add_subdirectory(src)
 
 # linking core to previously imported targets
 target_link_libraries(quarry_core
@@ -47,10 +75,17 @@ target_link_libraries(quarry_core
     OpenSSL::SSL
     OpenSSL::Crypto
     Threads::Threads
-    Boost::headers
-    Boost::system
-    libpqxx::pqxx
 )
+
+if(QUARRY_BOOST_USE_IMPORT_TARGETS)
+  target_link_libraries(quarry_core PUBLIC Boost::headers Boost::system)
+else()
+  # Legacy FindBoost variables
+  target_include_directories(quarry_core PUBLIC ${Boost_INCLUDE_DIRS})
+  target_link_libraries(quarry_core PUBLIC ${Boost_LIBRARIES})
+endif()
+
+target_link_libraries(quarry_core PUBLIC ${LIBPQXX_TARGET})
 
 target_link_libraries(quarry_core INTERFACE)
 
@@ -81,5 +116,21 @@ endif()
 
 # ---- Tests ----
 if(BUILD_TESTING)
-  add_subdirectory(tests)
+  file(GLOB TEST_SOURCES CONFIGURE_DEPENDS "${QUARRY_DIR}/tests/test_*.cpp")
+
+  foreach(TEST_SRC IN LISTS TEST_SOURCES)
+    get_filename_component(TEST_NAME "${TEST_SRC}" NAME_WE)
+
+    add_executable(${TEST_NAME} "${TEST_SRC}")
+    target_link_libraries(${TEST_NAME}
+      PRIVATE
+        quarry_core
+        Catch2::Catch2WithMain
+    )
+
+    catch_discover_tests(${TEST_NAME}
+      TEST_PREFIX "[quarry] "
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    )
+  endforeach()
 endif()

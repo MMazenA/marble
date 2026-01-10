@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
   for (int i = 0; i < iterations; ++i) {
     marble::AggregatesResponse response;
     const auto rpc_start = steady_clock::now();
-    client.do_aggregate(response, "AAPL", "2024-01-01", "2024-01-09",
+    client.do_aggregate(response, "AAPL", "2025-01-01", "2025-01-09",
                         marble::timespan_options::DAY);
     const auto rpc_end = steady_clock::now();
     std::println("rpc[{}] duration {}ms", i,

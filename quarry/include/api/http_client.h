@@ -34,7 +34,8 @@ public:
   */
   HttpClient(std::string host, port_type port, bool is_tls = false,
              const std::function<ssl::context()> &ctx_provider =
-                 SslContextProvider::make_client_ctx);
+                 SslContextProvider::make_client_ctx,
+             std::optional<int> http_pool_size = std::nullopt);
 
   http::response<http::string_body>
   get(std::string_view endpoint,

@@ -7,7 +7,7 @@
   "configurePresets": [
     {
       "name": "dev",
-      "displayName": "Dev (Ninja + vcpkg)",
+      "displayName": "Dev (Mac)",
       "generator": "Ninja",
       "binaryDir": "build",
       "cacheVariables": {
@@ -22,7 +22,7 @@
     },
     {
       "name": "debug",
-      "displayName": "Debug (symbols + frame pointers)",
+      "displayName": "Debug (mac, symbols + frame pointers)",
       "generator": "Ninja",
       "binaryDir": "build-debug",
       "cacheVariables": {
@@ -36,7 +36,7 @@
     },
     {
       "name": "release",
-      "displayName": "Release (O3 + LTO)",
+      "displayName": "Release (mac, O3 + LTO)",
       "generator": "Ninja",
       "binaryDir": "build-release",
       "cacheVariables": {

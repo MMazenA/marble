@@ -8,6 +8,23 @@
 #include <sstream>
 #include <string>
 
+#ifdef _WIN32
+  #include <stdlib.h>
+  inline int quarry_setenv(const char* name, const char* value, int overwrite) {
+    if (!overwrite) {
+      size_t size = 0;
+      if (getenv_s(&size, nullptr, 0, name) == 0 && size > 0) {
+        return 0;
+      }
+    }
+    return _putenv_s(name, value);
+  }
+#else
+  inline int quarry_setenv(const char* name, const char* value, int overwrite) {
+    return setenv(name, value, overwrite);
+  }
+#endif
+
 namespace quarry {
 void load_dotenv(const std::string &path = ".env") {
   namespace fs = std::filesystem;
@@ -37,7 +54,7 @@ void load_dotenv(const std::string &path = ".env") {
         value.erase(0, value.find_first_not_of(" \t\""));
         value.erase(value.find_last_not_of(" \t\"") + 1);
 
-        setenv(key.c_str(), value.c_str(), 1); // overwrite = true
+        quarry_setenv(key.c_str(), value.c_str(), 1); // overwrite = true
       }
     }
   }

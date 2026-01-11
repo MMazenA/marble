@@ -10,4 +10,6 @@
   "cSpell.words": [
     "aggs"
   ],
+  // enable for windows, clangd doesnt work correctly with msvc
+  // "C_Cpp.intelliSenseEngine": "default"
 }

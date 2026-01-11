@@ -29,7 +29,7 @@ public:
 
   // https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
   [[nodiscard]] int get_wait_time(uint8_t attempt_n) const {
-    int strategy_bound = m_get_fall_back_time(attempt_n);
+    int strategy_bound = m_get_backoff_time(attempt_n);
 
     static std::mt19937 rng{std::random_device{}()};
 
@@ -40,7 +40,7 @@ public:
   };
 
 private:
-  [[nodiscard]] int m_get_fall_back_time(uint8_t attempt_n) const {
+  [[nodiscard]] int m_get_backoff_time (uint8_t attempt_n) const {
     switch (m_strategy) {
     case (PolicyStrategy::exponential):
       return m_initial_ms * static_cast<int>(pow(2, attempt_n));

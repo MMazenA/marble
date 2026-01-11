@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <logging.h>
+#include <print>
 #include <string>
 
 #include <grpcpp/grpcpp.h>

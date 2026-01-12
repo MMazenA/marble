@@ -1,6 +1,7 @@
 #ifndef HTTP_CLIENT_H
 #define HTTP_CLIENT_H
 #include "http_types.h"
+#include "retry_policy.h"
 #include "ssl_context_provider.h"
 #include "transport_pool.h"
 #include <boost/asio/connect.hpp>
@@ -23,13 +24,9 @@ public:
   /**
   todo:
     - template the ssl provider, doesnt need function call overhead
-    - pass in pool size
+    - pass in pool size -- done
     - pass in retry policy
-      - retry policy can be its own class
-      - includes base retries
-      - retries on certain errors
-      - jitter policy
-      - refactor with std::expected as well
+    - refactor with std::expected as well
 
   */
   HttpClient(std::string host, port_type port, bool is_tls = false,

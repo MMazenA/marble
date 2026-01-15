@@ -44,12 +44,17 @@ void TransportPool::send_and_read(
     m_free_cv.notify_one();
   };
 
-  for (int attempt = 0; attempt < MAX_RETRY_ATTEMPTS_TRANSPORT; ++attempt) {
+  // noexcept, guarantees release
+  for (int attempt = 0; attempt < m_retry_policy.get_max_attempts();
+       ++attempt) {
     quarry::Transport &transport = *m_transports[idx];
-    if (transport.write_and_read(request, response)) {
-      break;
+    if (auto code = transport.write_and_read(request, response);
+        code != 200 && m_retry_policy.should_retry(code)) {
+      m_retry_policy.wait(attempt);
+      restore_stream(idx);
+      continue;
     }
-    restore_stream(idx);
+    break; // exit loop on non-retry
   }
 
   release_on_exit();

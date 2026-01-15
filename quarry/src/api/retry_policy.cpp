@@ -1,10 +1,15 @@
 #include "retry_policy.h"
 
+#include <chrono>
+#include <random>
+#include <thread>
+
 namespace quarry {
 
 RetryPolicy::RetryPolicy()
     : m_initial_ms(100), m_max_wait_ms(1000),
       m_strategy(PolicyStrategy::exponential), m_max_attempts(3) {
+  m_retry_lookup.set(DEAD_STREAM_ERROR_CODE); // internal code for dead stream
   m_retry_lookup.set(503);
   m_retry_lookup.set(502);
   m_retry_lookup.set(504);
@@ -13,7 +18,7 @@ RetryPolicy::RetryPolicy()
   m_retry_lookup.set(429);
 }
 
-bool RetryPolicy::should_retry(int http_code) const {
+bool RetryPolicy::should_retry(unsigned int http_code) const noexcept {
   return http_code >= 0 && http_code < m_retry_lookup.size() &&
          m_retry_lookup.test(http_code);
 }
@@ -54,6 +59,15 @@ int RetryPolicy::get_wait_time(uint8_t attempt_n) const {
   return dist(rng);
 };
 
+void RetryPolicy::wait(uint8_t attempt_n) const noexcept {
+  const int wait_ms = get_wait_time(attempt_n);
+  if (wait_ms <= 0) {
+    return;
+  }
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(wait_ms));
+}
+
 int RetryPolicy::m_get_backoff_time(uint8_t attempt_n) const {
   switch (m_strategy) {
   case (PolicyStrategy::exponential):
@@ -62,5 +76,7 @@ int RetryPolicy::m_get_backoff_time(uint8_t attempt_n) const {
     return m_initial_ms;
   }
 }
+
+int RetryPolicy::get_max_attempts() const { return m_max_attempts; };
 
 } // namespace quarry

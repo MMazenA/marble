@@ -1,6 +1,7 @@
 #include "api/transport.h"
 #include "http_types.h"
 #include "logging.h"
+#include "retry_policy.h"
 #include <boost/beast/core/flat_buffer.hpp>
 #include <boost/beast/http.hpp>
 #include <quill/LogMacros.h>
@@ -38,21 +39,21 @@ void Transport::read(http::response<http::string_body> &resp) {
 /// @param req
 /// @param resp
 /// @return bool: Status of response read/write
-bool Transport::write_and_read(
-    const http::request<http::string_body> &req,
-    http::response<http::string_body> &resp) noexcept {
+unsigned int
+Transport::write_and_read(const http::request<http::string_body> &req,
+                          http::response<http::string_body> &resp) noexcept {
   try {
     write(req);
     read(resp);
-    return true;
+    return resp.result_int();
   } catch (const boost::system::system_error &ec) {
     auto *logger = quarry::logging::get_logger();
     LOG_INFO(logger, "Cycled read/write, eof dead stream");
-    return false;
+    return quarry::DEAD_STREAM_ERROR_CODE;
   } catch (...) {
     auto *logger = quarry::logging::get_logger();
     LOG_ERROR(logger, "Unknown error on cycled read/write");
-    return false;
+    return quarry::DEAD_STREAM_ERROR_CODE;
   }
 }
 

@@ -2,7 +2,6 @@
 #define QUARRY_API_TRANSPORT_POOL_H
 
 #include "api/transport.h"
-#include "dns_cache.h"
 #include "http_types.h"
 #include "retry_policy.h"
 #include <boost/asio/io_context.hpp>

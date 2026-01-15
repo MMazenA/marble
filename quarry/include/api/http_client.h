@@ -1,7 +1,6 @@
 #ifndef HTTP_CLIENT_H
 #define HTTP_CLIENT_H
 #include "http_types.h"
-#include "retry_policy.h"
 #include "ssl_context_provider.h"
 #include "transport_pool.h"
 #include <boost/asio/connect.hpp>

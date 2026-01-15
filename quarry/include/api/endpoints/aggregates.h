@@ -16,8 +16,8 @@ struct AggBar {
   double h;
   double l;
   std::int64_t n;
-  std::int64_t t;
   bool otc;
+  std::int64_t t;
   double v;
   double vw;
 

@@ -15,11 +15,11 @@ struct AggBar {
   double c;
   double h;
   double l;
-  double v;
-  double vw;
   std::int64_t n;
   std::int64_t t;
   bool otc;
+  double v;
+  double vw;
 
   [[nodiscard]] auto to_tuple() const {
     return std::make_tuple(o, c, h, l, n, otc, t, v, vw);

@@ -25,7 +25,7 @@ public:
   TransportPool(std::uint16_t max_connections, const std::string &host,
                 net::io_context &ioc, ssl::context &ssl_ctx,
                 const tcp_resolver_results &endpoints,
-                const RetryPolicy &retry_policy = RetryPolicy{});
+                std::optional<RetryPolicy> retry_policy = std::nullopt);
 
   TransportPool(TransportPool &&other) noexcept;
   TransportPool &operator=(TransportPool &&other) noexcept = delete;
@@ -50,7 +50,7 @@ private:
   ssl::context *m_ssl_ctx;
   bool m_is_tls;
   RetryPolicy m_retry_policy;
-
+  
   int acquire_index();
   void restore_stream(int idx);
 };

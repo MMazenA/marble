@@ -8,7 +8,7 @@
   "cmake.ctest.testExplorerIntegrationEnabled": true,
   "C_Cpp.intelliSenseEngine": "disabled",
   // enable for windows, clangd doesnt work correctly with msvc
-  // "C_Cpp.intelliSenseEngine": "default",
+  "C_Cpp.intelliSenseEngine": "default",
       "search.exclude": {
         "build**": true,
         "external**": true

@@ -19,7 +19,7 @@ RetryPolicy::RetryPolicy()
 }
 
 bool RetryPolicy::should_retry(unsigned int http_code) const noexcept {
-  return http_code >= 0 && http_code < m_retry_lookup.size() &&
+  return http_code < m_retry_lookup.size() &&
          m_retry_lookup.test(http_code);
 }
 

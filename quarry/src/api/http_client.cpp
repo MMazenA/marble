@@ -17,7 +17,9 @@ constexpr int DEFAULT_HTTP_TLS_POOL_SIZE = 5;
 
 HttpClient::HttpClient(std::string host, port_type port, bool is_tls,
                        const std::function<ssl::context()> &ctx_provider,
-                       std::optional<int> http_pool_size)
+                       std::optional<int> http_pool_size,
+                       std::optional<RetryPolicy> retry_policy
+                      )
     : m_host(std::move(host)), m_ssl_ioc(ctx_provider()), m_port(port),
       m_is_tls(is_tls || port == 443) {
 

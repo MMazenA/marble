@@ -9,10 +9,11 @@ TransportPool::TransportPool(std::uint16_t max_connections,
                              const std::string &host, net::io_context &ioc,
                              ssl::context &ssl_ctx,
                              const tcp_resolver_results &endpoints,
-                             const RetryPolicy &retry_policy)
+                             std::optional<RetryPolicy> retry_policy
+                            )
     : m_max_connections(max_connections), m_endpoints(endpoints), m_host(host),
       m_ioc(ioc), m_ssl_ctx(&ssl_ctx), m_is_tls(true),
-      m_retry_policy(retry_policy) {
+      m_retry_policy(retry_policy.value_or(RetryPolicy{})) {
   m_transports.reserve(m_max_connections);
   m_free_list.reserve(m_max_connections);
   for (int i = 0; i < m_max_connections; ++i) {

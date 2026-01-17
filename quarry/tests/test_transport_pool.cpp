@@ -12,13 +12,13 @@
 #include <vector>
 
 TEST_CASE("TransportPool") {
+
+  using Index = quarry::TransportPool::Index;
   using namespace std::chrono;
   using duration_type =
       std::chrono::duration<long long, std::ratio<1, 1000000>>;
 
   constexpr const char *test_host = "localhost";
-  // NOLINTNEXTLINE
-  constexpr uint16_t test_port_http = 18080;
   // NOLINTNEXTLINE
   constexpr uint16_t test_port_https = 18443;
 
@@ -55,7 +55,7 @@ TEST_CASE("TransportPool") {
     // single transport
     {
       auto start = high_resolution_clock::now();
-      for (int i = 0; i < requests_count; ++i) {
+      for (Index i = 0; i < requests_count; ++i) {
         quarry::Transport transport(std::string{context.host}, ioc, ssl_ctx);
         transport.connect(endpoints);
         http::response<http::string_body> resp;
@@ -74,7 +74,7 @@ TEST_CASE("TransportPool") {
       threads.reserve(requests_count);
 
       auto start = high_resolution_clock::now();
-      for (int i = 0; i < requests_count; ++i) {
+      for (Index i = 0; i < requests_count; ++i) {
         threads.emplace_back(
             [&, i]() { pool.send_and_read(req, responses[i]); });
       }
@@ -84,7 +84,7 @@ TEST_CASE("TransportPool") {
       auto stop = high_resolution_clock::now();
       pool_duration = duration_cast<microseconds>(stop - start);
 
-      for (int i = 0; i < requests_count; ++i) {
+      for (Index i = 0; i < requests_count; ++i) {
         REQUIRE(responses[i].result_int() == 200);
       }
     }
@@ -124,7 +124,7 @@ TEST_CASE("TransportPool") {
     std::vector<std::thread> threads;
     threads.reserve(num_requests);
 
-    for (int i = 0; i < num_requests; ++i) {
+    for (Index i = 0; i < num_requests; ++i) {
       threads.emplace_back([&, i]() {
         pool.send_and_read(req, responses[i]);
         INFO(std::format("Thread {}: status {}", i + 1,
@@ -136,7 +136,7 @@ TEST_CASE("TransportPool") {
       t.join();
     }
 
-    for (int i = 0; i < num_requests; ++i) {
+    for (Index i = 0; i < num_requests; ++i) {
       REQUIRE(responses[i].result_int() == 200);
     }
   }

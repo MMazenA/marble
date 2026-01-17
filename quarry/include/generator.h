@@ -447,6 +447,7 @@ template <typename _Ref> struct __generator_promise_base {
   yield_value(std::ranges::elements_of<_Rng, _Allocator> &&__x) {
     return [](allocator_arg_t, _Allocator alloc, auto &&__rng)
                -> generator<_Ref, std::remove_cvref_t<_Ref>, _Allocator> {
+      (void)alloc; // removing unused warning
       for (auto &&e : __rng)
         co_yield static_cast<decltype(e)>(e);
     }(std::allocator_arg, __x.get_allocator(), std::forward<_Rng>(__x.get()));

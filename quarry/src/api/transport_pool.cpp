@@ -1,22 +1,19 @@
 #include "api/transport_pool.h"
 #include "retry_policy.h"
+#include <cstdint>
 
 namespace quarry {
-// NOLINTNEXTLINE
-constexpr int MAX_RETRY_ATTEMPTS_TRANSPORT = 3;
-
 TransportPool::TransportPool(std::uint16_t max_connections,
                              const std::string &host, net::io_context &ioc,
                              ssl::context &ssl_ctx,
                              const tcp_resolver_results &endpoints,
-                             std::optional<RetryPolicy> retry_policy
-                            )
+                             std::optional<RetryPolicy> retry_policy)
     : m_max_connections(max_connections), m_endpoints(endpoints), m_host(host),
       m_ioc(ioc), m_ssl_ctx(&ssl_ctx), m_is_tls(true),
       m_retry_policy(retry_policy.value_or(RetryPolicy{})) {
   m_transports.reserve(m_max_connections);
   m_free_list.reserve(m_max_connections);
-  for (int i = 0; i < m_max_connections; ++i) {
+  for (TransportPool::Index i = 0; i < m_max_connections; ++i) {
     auto t = std::make_unique<Transport>(host, ioc, ssl_ctx);
     t->connect(endpoints);
     m_transports.push_back(std::move(t));
@@ -37,7 +34,7 @@ void TransportPool::send_and_read(
     const http::request<http::string_body> &request,
     http::response<http::string_body> &response) {
 
-  int idx = acquire_index();
+  auto idx = acquire_index();
 
   auto release_on_exit = [&]() {
     std::lock_guard<std::mutex> lock(m_free_mutex);
@@ -61,7 +58,7 @@ void TransportPool::send_and_read(
   release_on_exit();
 }
 
-void TransportPool::restore_stream(int idx) {
+void TransportPool::restore_stream(TransportPool::Index idx) {
   auto &transport = *m_transports[idx];
   transport.shut_down();
   if (m_is_tls) {
@@ -75,10 +72,10 @@ void TransportPool::restore_stream(int idx) {
   }
 }
 
-int TransportPool::acquire_index() {
+TransportPool::Index TransportPool::acquire_index() {
   std::unique_lock<std::mutex> lock(m_free_mutex);
   m_free_cv.wait(lock, [&]() { return !m_free_list.empty(); });
-  int idx = m_free_list.back();
+  auto idx = m_free_list.back();
   m_free_list.pop_back();
   return idx;
 }

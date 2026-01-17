@@ -18,8 +18,7 @@ constexpr int DEFAULT_HTTP_TLS_POOL_SIZE = 5;
 HttpClient::HttpClient(std::string host, port_type port, bool is_tls,
                        const std::function<ssl::context()> &ctx_provider,
                        std::optional<int> http_pool_size,
-                       std::optional<RetryPolicy> retry_policy
-                      )
+                       std::optional<RetryPolicy> retry_policy)
     : m_host(std::move(host)), m_ssl_ioc(ctx_provider()), m_port(port),
       m_is_tls(is_tls || port == 443) {
 
@@ -35,7 +34,7 @@ HttpClient::HttpClient(std::string host, port_type port, bool is_tls,
   if (m_is_tls) {
     m_transport_pool_tls.emplace(
         http_pool_size.value_or(DEFAULT_HTTP_TLS_POOL_SIZE), m_host, m_ioc,
-        m_ssl_ioc, endpoints);
+        m_ssl_ioc, endpoints, retry_policy);
   }
 }
 
@@ -73,7 +72,7 @@ HttpClient::get(const std::string_view endpoint,
 };
 
 http::response<http::string_body>
-HttpClient::post(const std::string_view endpoint, const std::string_view body,
+HttpClient::post(const std::string_view endpoint,
                  const std::unordered_map<std::string, std::string> &headers) {
   http::response<http::string_body> response;
 

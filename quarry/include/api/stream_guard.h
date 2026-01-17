@@ -22,7 +22,6 @@ public:
   StreamGuard &operator=(const StreamGuard &) = delete;
 
   void connect(const tcp::resolver::results_type &);
-  void set_sni_hostname(const std::string &);
 
   template <stream_type_c StreamType> StreamType &get() {
     return std::get<StreamType>(m_stream);
@@ -36,6 +35,8 @@ private:
   ssl::context *m_tls_ctx;
   net::io_context &m_ioc;
   std::string m_host;
+
+  void set_sni_hostname(const std::string &);
 
   template <stream_type_c StreamType>
   [[nodiscard]] constexpr bool holds_stream_type() const {

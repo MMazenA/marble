@@ -22,7 +22,7 @@ using AggBar = quarry::ep::AggBar;
 class AggregatesServiceImpl final : public marble::AggregatesService::Service {
 
 public:
-  grpc::Status GetAggregate(grpc::ServerContext *context,
+  grpc::Status GetAggregate(grpc::ServerContext * /*unused*/,
                             const marble::AggregatesRequest *request,
                             marble::AggregatesResponse *response) override {
 

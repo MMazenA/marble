@@ -19,13 +19,12 @@ RetryPolicy::RetryPolicy()
 }
 
 bool RetryPolicy::should_retry(unsigned int http_code) const noexcept {
-  return http_code < m_retry_lookup.size() &&
-         m_retry_lookup.test(http_code);
+  return http_code < m_retry_lookup.size() && m_retry_lookup.test(http_code);
 }
 
 // https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
-int RetryPolicy::get_wait_time(uint8_t attempt_n) const {
-  int strategy_bound = m_get_backoff_time(attempt_n);
+int RetryPolicy::get_wait_time(Count_type attempt_n) const {
+  auto strategy_bound = m_get_backoff_time(attempt_n);
 
   thread_local uint64_t s = [] {
     const uint64_t t = static_cast<uint64_t>(
@@ -68,7 +67,8 @@ void RetryPolicy::wait(uint8_t attempt_n) const noexcept {
   std::this_thread::sleep_for(std::chrono::milliseconds(wait_ms));
 }
 
-int RetryPolicy::m_get_backoff_time(uint8_t attempt_n) const {
+RetryPolicy::Ms_type
+RetryPolicy::m_get_backoff_time(Count_type attempt_n) const {
   switch (m_strategy) {
   case (PolicyStrategy::exponential):
     return m_initial_ms * (1 << attempt_n); // initial_ms * 2^n

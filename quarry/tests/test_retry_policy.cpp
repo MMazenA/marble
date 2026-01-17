@@ -1,7 +1,5 @@
 #include "api/retry_policy.h"
 #include <catch2/catch_test_macros.hpp>
-#include <thread>
-#include <chrono>
 
 using namespace quarry;
 
@@ -13,7 +11,8 @@ TEST_CASE("RetryPolicy Construction") {
   }
 
   SECTION("Constructs with multiple retry codes") {
-    RetryPolicy policy(100, 1000, PolicyStrategy::exponential, 5, 429, 500, 502, 503, 504);
+    RetryPolicy policy(100, 1000, PolicyStrategy::exponential, 5, 429, 500, 502,
+                       503, 504);
     REQUIRE(policy.should_retry(429));
     REQUIRE(policy.should_retry(500));
     REQUIRE(policy.should_retry(502));
@@ -31,7 +30,8 @@ TEST_CASE("RetryPolicy Construction") {
 }
 
 TEST_CASE("RetryPolicy should_retry") {
-  RetryPolicy policy(100, 1000, PolicyStrategy::exponential, 3, 429, 500, 502, 503);
+  RetryPolicy policy(100, 1000, PolicyStrategy::exponential, 3, 429, 500, 502,
+                     503);
 
   SECTION("Returns true for configured retry codes") {
     REQUIRE(policy.should_retry(429));
@@ -46,11 +46,6 @@ TEST_CASE("RetryPolicy should_retry") {
     REQUIRE_FALSE(policy.should_retry(400));
     REQUIRE_FALSE(policy.should_retry(404));
     REQUIRE_FALSE(policy.should_retry(501));
-  }
-
-  SECTION("Returns false for negative HTTP codes") {
-    REQUIRE_FALSE(policy.should_retry(-1));
-    REQUIRE_FALSE(policy.should_retry(-100));
   }
 
   SECTION("Returns false for HTTP codes >= MAX_HTTP_STATUS_CODE") {
@@ -145,5 +140,4 @@ TEST_CASE("RetryPolicy get_wait_time - Edge cases") {
     REQUIRE(wait_time >= 0);
     REQUIRE(wait_time <= 500);
   }
-
 }

@@ -1,7 +1,6 @@
 #include "api/transport_pool.h"
 #include "retry_policy.h"
 #include <cstdint>
-#include <sys/types.h>
 
 namespace quarry {
 TransportPool::TransportPool(std::uint16_t max_connections,

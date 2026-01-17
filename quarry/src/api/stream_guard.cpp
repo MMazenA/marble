@@ -19,7 +19,10 @@ StreamGuard::StreamGuard(StreamGuard &&other) noexcept
 
 StreamGuard::~StreamGuard() noexcept { shutdown_safely(); };
 
-// configures ssl stream and handshakes the stream
+/**
+ * @brief  configures ssl stream and handshakes the stream
+ * @warning Undefined behavior for TCP stream
+ */
 void StreamGuard::set_sni_hostname(const std::string &host_str) {
   // NOLINTNEXTLINE -- unused param
   auto tcp_handler = [&](tcp_stream &stream) {

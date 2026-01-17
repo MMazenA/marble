@@ -7,7 +7,7 @@
   "configurePresets": [
     {
       "name": "dev",
-      "displayName": "Dev (Ninja + vcpkg)",
+      "displayName": "Dev (Mac)",
       "generator": "Ninja",
       "binaryDir": "build",
       "cacheVariables": {
@@ -16,13 +16,13 @@
         "BUILD_TESTING": "ON",
         "CMAKE_FIND_PACKAGE_PREFER_CONFIG": "ON",
         "CMAKE_EXE_LINKER_FLAGS": "-Wl",
-        "CMAKE_CXX_FLAGS": "-O0",
+        "CMAKE_CXX_FLAGS": "-O0 -Wreorder",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/external/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
     },
     {
       "name": "debug",
-      "displayName": "Debug (symbols + frame pointers)",
+      "displayName": "Debug (mac, symbols + frame pointers)",
       "generator": "Ninja",
       "binaryDir": "build-debug",
       "cacheVariables": {
@@ -36,7 +36,7 @@
     },
     {
       "name": "release",
-      "displayName": "Release (O3 + LTO)",
+      "displayName": "Release (mac, O3 + LTO)",
       "generator": "Ninja",
       "binaryDir": "build-release",
       "cacheVariables": {

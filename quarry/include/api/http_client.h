@@ -22,19 +22,14 @@ class HttpClient {
 public:
   /**
   todo:
-    - template the ssl provider, doesnt need function call overhead
-    - pass in pool size
-    - pass in retry policy
-      - retry policy can be its own class
-      - includes base retries
-      - retries on certain errors
-      - jitter policy
-      - refactor with std::expected as well
-
+    - refactor with std::expected as well
   */
   HttpClient(std::string host, port_type port, bool is_tls = false,
              const std::function<ssl::context()> &ctx_provider =
-                 SslContextProvider::make_client_ctx);
+                 SslContextProvider::make_client_ctx,
+             std::optional<int> http_pool_size = std::nullopt,
+             std::optional<RetryPolicy> retry_policy = std::nullopt
+            );
 
   http::response<http::string_body>
   get(std::string_view endpoint,

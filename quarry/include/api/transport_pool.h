@@ -2,8 +2,8 @@
 #define QUARRY_API_TRANSPORT_POOL_H
 
 #include "api/transport.h"
-#include "dns_cache.h"
 #include "http_types.h"
+#include "retry_policy.h"
 #include <boost/asio/io_context.hpp>
 #include <boost/beast/http.hpp>
 #include <condition_variable>
@@ -24,13 +24,16 @@ public:
   // tls
   TransportPool(std::uint16_t max_connections, const std::string &host,
                 net::io_context &ioc, ssl::context &ssl_ctx,
-                const tcp_resolver_results &endpoints);
+                const tcp_resolver_results &endpoints,
+                std::optional<RetryPolicy> retry_policy = std::nullopt);
 
   TransportPool(TransportPool &&other) noexcept;
   TransportPool &operator=(TransportPool &&other) noexcept = delete;
 
   TransportPool(TransportPool const &other) noexcept = delete;
   TransportPool &operator=(TransportPool const &other) = delete;
+
+  ~TransportPool() = default;
 
   void send_and_read(const http::request<http::string_body> &request,
                      http::response<http::string_body> &response);
@@ -46,7 +49,8 @@ private:
   net::io_context &m_ioc;
   ssl::context *m_ssl_ctx;
   bool m_is_tls;
-
+  RetryPolicy m_retry_policy;
+  
   int acquire_index();
   void restore_stream(int idx);
 };

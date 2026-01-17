@@ -16,8 +16,8 @@ public:
   void connect(const tcp_resolver_results &endpoints);
   void write(const http::request<http::string_body> &req);
   void read(http::response<http::string_body> &resp);
-  bool write_and_read(const http::request<http::string_body> &req,
-                      http::response<http::string_body> &resp) noexcept;
+  unsigned int write_and_read(const http::request<http::string_body> &req,
+                              http::response<http::string_body> &resp) noexcept;
   [[nodiscard]] bool is_open();
   [[nodiscard]] bool is_tls() const noexcept { return m_guard.is_ssl(); }
   void shut_down() noexcept;

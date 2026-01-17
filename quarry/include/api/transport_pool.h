@@ -39,9 +39,11 @@ public:
                      http::response<http::string_body> &response);
 
 private:
-  std::uint16_t m_max_connections;
+  using Index = size_t;
+
+  Index m_max_connections;
   std::vector<std::unique_ptr<quarry::Transport>> m_transports;
-  std::vector<int> m_free_list;
+  std::vector<Index> m_free_list;
   std::mutex m_free_mutex;
   std::condition_variable m_free_cv;
   tcp_resolver_results m_endpoints;
@@ -50,9 +52,9 @@ private:
   ssl::context *m_ssl_ctx;
   bool m_is_tls;
   RetryPolicy m_retry_policy;
-  
-  int acquire_index();
-  void restore_stream(int idx);
+
+  Index acquire_index();
+  void restore_stream(Index idx);
 };
 
 } // namespace quarry

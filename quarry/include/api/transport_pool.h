@@ -19,8 +19,9 @@ namespace quarry {
  * stream reuse on TLS streams
  */
 class TransportPool {
-
 public:
+  using Index = size_t;
+
   // tls
   TransportPool(std::uint16_t max_connections, const std::string &host,
                 net::io_context &ioc, ssl::context &ssl_ctx,
@@ -39,8 +40,6 @@ public:
                      http::response<http::string_body> &response);
 
 private:
-  using Index = size_t;
-
   Index m_max_connections;
   std::vector<std::unique_ptr<quarry::Transport>> m_transports;
   std::vector<Index> m_free_list;

@@ -17,12 +17,13 @@ public:
   RetryPolicy();
 
   template <std::integral... codes>
-  RetryPolicy(int initial_ms, int max_wait_ms, PolicyStrategy strategy,
-              uint8_t max_attempts, codes... retry_on_codes)
+  RetryPolicy(u_int16_t initial_ms, u_int16_t max_wait_ms,
+              PolicyStrategy strategy, uint8_t max_attempts,
+              codes... retry_on_codes)
       : m_initial_ms(initial_ms), m_max_wait_ms(max_wait_ms),
         m_strategy(strategy), m_max_attempts(max_attempts) {
     m_retry_lookup.set(DEAD_STREAM_ERROR_CODE); // internal code for dead stream
-    (m_retry_lookup.set(static_cast<int>(retry_on_codes)), ...);
+    (m_retry_lookup.set(static_cast<u_int16_t>(retry_on_codes)), ...);
   }
 
   [[nodiscard]] bool should_retry(unsigned int http_code) const noexcept;

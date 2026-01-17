@@ -14,7 +14,7 @@ TransportPool::TransportPool(std::uint16_t max_connections,
       m_retry_policy(retry_policy.value_or(RetryPolicy{})) {
   m_transports.reserve(m_max_connections);
   m_free_list.reserve(m_max_connections);
-  for (int i = 0; i < m_max_connections; ++i) {
+  for (TransportPool::Index i = 0; i < m_max_connections; ++i) {
     auto t = std::make_unique<Transport>(host, ioc, ssl_ctx);
     t->connect(endpoints);
     m_transports.push_back(std::move(t));

@@ -16,7 +16,7 @@
         "BUILD_TESTING": "ON",
         "CMAKE_FIND_PACKAGE_PREFER_CONFIG": "ON",
         "CMAKE_EXE_LINKER_FLAGS": "-Wl",
-        "CMAKE_CXX_FLAGS": "-O0 -Wreorder -Wformat=2 -Wall -Wextra -Wpedantic -Wshadow -Wnon-virtual-dtor -Wsign-conversion -Wlifetime",
+        "CMAKE_CXX_FLAGS": "-O0 -Wreorder -Wformat=2 -Wall -Wextra -Wpedantic -Wshadow -Wnon-virtual-dtor -Wsign-conversion",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/external/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
     },

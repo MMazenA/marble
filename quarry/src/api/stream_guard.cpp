@@ -1,6 +1,7 @@
 #include "stream_guard.h"
 #include "http_types.h"
 #include <boost/asio/io_context.hpp>
+#include <utility>
 
 namespace quarry {
 StreamGuard::StreamGuard(net::io_context &ioc)
@@ -20,7 +21,11 @@ StreamGuard::~StreamGuard() noexcept { shutdown_safely(); };
 
 // configures ssl stream and handshakes the stream
 void StreamGuard::set_sni_hostname(const std::string &host_str) {
-  auto tcp_handler = [&](tcp_stream &stream) {};
+  // NOLINTNEXTLINE -- unused param
+  auto tcp_handler = [&](tcp_stream &stream) {
+    (void)stream;
+    std::unreachable();
+  };
   auto tls_handler = [&](tls_stream &stream) {
     if (!SSL_set_tlsext_host_name(stream.native_handle(), host_str.c_str())) {
       auto err_code = static_cast<int>(::ERR_get_error());

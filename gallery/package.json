@@ -8,6 +8,12 @@
     "proto:gen": "protoc -I=../proto --js_out=import_style=commonjs:./src/proto --grpc-web_out=import_style=typescript,mode=grpcwebtext:./src/proto ../proto/aggregates.proto"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^7.3.7",
+    "@mui/x-date-pickers": "^8.25.0",
+    "dayjs": "^1.11.19",
+    "echarts": "^6.0.0",
     "google-protobuf": "^4.0.1",
     "grpc-web": "^2.0.2",
     "react": "^18.3.1",

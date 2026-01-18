@@ -10,6 +10,7 @@ Results & Strategy Visualizer
 - Make sure envoy is running from docker
 - `cd gallery`
 - `pnpm i`
+- `pnpm proto:gen`
 - `pnpm start`
 
 ## Charting options

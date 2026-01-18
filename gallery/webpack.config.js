@@ -10,6 +10,10 @@ module.exports = {
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
+    alias: {
+      '@proto': path.resolve(__dirname, 'src/proto'),
+      '@components': path.resolve(__dirname, 'src/components'),
+    },
   },
   module: {
     rules: [

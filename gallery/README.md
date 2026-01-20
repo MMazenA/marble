@@ -18,3 +18,7 @@ Results & Strategy Visualizer
 - https://echarts.apache.org/examples/en/index.html#chart-type-candlestick
 - https://recharts.github.io/en-US/examples/Candlestick/
 
+- https://echarts.apache.org/examples/en/editor.html?c=heatmap-large
+  - X -> time
+  - Y -> Single value parametrized function
+         backtesting engine should support dynamic creation of these 

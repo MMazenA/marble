@@ -94,7 +94,6 @@ export default function AggregatesPanel() {
     <ThemeProvider theme={darkTheme}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <div>
-          <div className="center main-title">Marble</div>
           <h3>Aggregates Endpoint</h3>
 
           <div className="layout-grid">

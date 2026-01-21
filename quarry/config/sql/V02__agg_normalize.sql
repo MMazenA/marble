@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS dim_tickers (
   ticker_id VARCHAR(20) PRIMARY KEY,
-  source VARCHAR(32) NOT NULL DEFAULT 'polygon',
+  source VARCHAR(32) NOT NULL DEFAULT 'massive',
   display_name VARCHAR(128),
   last_ingested_request_id VARCHAR(100),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

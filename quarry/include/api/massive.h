@@ -13,16 +13,16 @@ namespace quarry {
 
 // Should contain higher level functions I.E
 // get_minute_aggregates(?),
-class Polygon {
+class Massive {
 
 public:
   /**
-   * @brief Polygon API Client
+   * @brief Massive API Client
    *
-   * @param api_key Polygon API Key
+   * @param api_key Massive API Key
    *
    */
-  explicit Polygon(std::string api_key);
+  explicit Massive(std::string api_key);
 
   template <quarry::endpoint_c E> E::response_type execute(const E &ep) {
     std::string url = m_authenticate_url(ep);

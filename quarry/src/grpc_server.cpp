@@ -1,7 +1,7 @@
 #include "aggregates.h"
 #include "base_endpoint.h"
 #include "logging.h"
-#include "polygon.h"
+#include "massive.h"
 #include "utils.h"
 #include <memory>
 #include <optional>
@@ -45,7 +45,7 @@ public:
       std::string last_ticker;
 
       for (const auto &aggregate_bar_batch :
-           m_polygon.execute_with_pagination(aggregate_ep)) {
+           m_massive.execute_with_pagination(aggregate_ep)) {
 
         if (!aggregate_bar_batch.results.has_value() ||
             aggregate_bar_batch.results->empty()) {
@@ -83,11 +83,11 @@ public:
       return {grpc::StatusCode::INTERNAL, ex.what()};
     }
   }
-  explicit AggregatesServiceImpl(quarry::Polygon &polygon)
-      : m_polygon(polygon) {}
+  explicit AggregatesServiceImpl(quarry::Massive &massive)
+      : m_massive(massive) {}
 
 private:
-  quarry::Polygon &m_polygon;
+  quarry::Massive &m_massive;
 };
 
 } // namespace
@@ -102,7 +102,7 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  quarry::Polygon polygon{api_key};
+  quarry::Massive massive{api_key};
 
   // grpc setup
   std::string server_address = "0.0.0.0:50051";
@@ -112,7 +112,7 @@ int main(int argc, char **argv) {
 
   grpc::reflection::InitProtoReflectionServerBuilderPlugin();
 
-  AggregatesServiceImpl service{polygon};
+  AggregatesServiceImpl service{massive};
   grpc::ServerBuilder builder;
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
 

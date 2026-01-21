@@ -1,5 +1,5 @@
 #include "aggregates.h"
-#include "polygon.h"
+#include "massive.h"
 #include "utils.h"
 #include <catch2/catch_test_macros.hpp>
 #include <glaze/glaze.hpp>
@@ -50,7 +50,7 @@ static constexpr std::string_view MOCK_AGGREGATES_RESPONSE = R"({
   ]
 })";
 
-TEST_CASE("Polygon") {
+TEST_CASE("Massive") {
   SECTION("Parse aggregates response from JSON") {
     auto parsed =
         glz::read_json<quarry::ep::AggregatesR>(MOCK_AGGREGATES_RESPONSE);
@@ -82,7 +82,7 @@ TEST_CASE("Polygon") {
 
   // Uses tokens:
 
-  // SECTION("Polygon can send request to endpoint (requires API token)") {
+  // SECTION("Massive can send request to endpoint (requires API token)") {
   //   quarry::load_dotenv("../../quarry/.env");
   //   const char *api_key = std::getenv("POLYGON_API_KEY");
 
@@ -90,13 +90,13 @@ TEST_CASE("Polygon") {
   //     SKIP("POLYGON_API_KEY not set");
   //   }
 
-  //   quarry::Polygon polygon(api_key);
+  //   quarry::Massive massive(api_key);
 
   //   auto ep = quarry::ep::Aggregates::with_ticker("AAPL")
   //                 .from_date("2024-01-09")
   //                 .to_date("2024-01-11");
 
-  //   quarry::ep::Aggregates::response_type response = polygon.execute(ep);
+  //   quarry::ep::Aggregates::response_type response = massive.execute(ep);
 
   //   REQUIRE(response.ticker == "AAPL");
   //   REQUIRE(response.resultsCount == 3);

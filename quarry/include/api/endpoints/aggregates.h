@@ -49,7 +49,7 @@ struct AggregatesR {
  *
  * @attention Use `with_ticker` to begin builder
  *
- * @see https://massive.io/docs/rest/stocks/aggregates/custom-bars
+ * @see https://massive.com/docs/rest/stocks/aggregates/custom-bars
  */
 class Aggregates {
 private:

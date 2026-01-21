@@ -2,4 +2,4 @@
 
 quarry::Massive::Massive(std::string key)
     : m_api_key{std::move(key)},
-      m_http{std::make_unique<quarry::HttpClient>("api.massive.io", 443)} {};
+      m_http{std::make_unique<quarry::HttpClient>("api.massive.com", 443)} {};

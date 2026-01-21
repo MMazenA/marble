@@ -38,7 +38,7 @@ void Sql::normalize_staged_aggregates(
   if (source.has_value()) {
     params.append(std::string{source.value()});
   } else {
-    params.append("polygon");
+    params.append("massive");
   }
   txn.exec("SELECT normalize_aggregate_stage($1, $2, $3, $4);", params);
   txn.commit();

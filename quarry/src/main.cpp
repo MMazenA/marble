@@ -1,6 +1,6 @@
 #include "aggregates.h"
 #include "base_endpoint.h"
-#include "polygon.h"
+#include "massive.h"
 #include "sql.h"
 #include "utils.h"
 #include <future>
@@ -12,7 +12,7 @@ int main() {
   using Aggregates = quarry::ep::Aggregates;
   using AggBar = quarry::ep::AggBar;
   quarry::load_dotenv("./quarry/.env");
-  quarry::Polygon polygon(std::getenv("POLYGON_API_KEY"));
+  quarry::Massive massive(std::getenv("POLYGON_API_KEY"));
 
   auto aapl_daily_agg = Aggregates::with_ticker("AAPL")
                             .time_span(quarry::timespan_options::DAY)
@@ -27,7 +27,7 @@ int main() {
   bool staged_rows = false;
 
   for (const auto &aggregate_bar_batch :
-       polygon.execute_with_pagination(aapl_daily_agg)) {
+       massive.execute_with_pagination(aapl_daily_agg)) {
     if (!aggregate_bar_batch.results.has_value() ||
         aggregate_bar_batch.results->empty()) {
       continue;

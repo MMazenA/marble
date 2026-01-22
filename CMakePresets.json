@@ -30,7 +30,7 @@
         "CMAKE_CXX_STANDARD": "23",
         "BUILD_TESTING": "ON",
         "CMAKE_FIND_PACKAGE_PREFER_CONFIG": "ON",
-        "CMAKE_CXX_FLAGS": "-O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -fno-sanitize-recover=all",
+        "CMAKE_CXX_FLAGS": "-O1 -g -fno-omit-frame-pointer -fno-optimize-sibling-calls -fsanitize=address,undefined -fno-sanitize-recover=all",
         "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=address,undefined",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/external/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
@@ -45,22 +45,8 @@
         "CMAKE_CXX_STANDARD": "23",
         "BUILD_TESTING": "ON",
         "CMAKE_FIND_PACKAGE_PREFER_CONFIG": "ON",
-        "CMAKE_CXX_FLAGS": "-O1 -g -fno-omit-frame-pointer -fsanitize=thread",
+        "CMAKE_CXX_FLAGS": "-O1 -g -fno-omit-frame-pointer -fno-optimize-sibling-calls -fsanitize=thread",
         "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=thread",
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/external/vcpkg/scripts/buildsystems/vcpkg.cmake"
-      }
-    },
-    {
-      "name": "debug",
-      "displayName": "Debug (mac, symbols + frame pointers)",
-      "generator": "Ninja",
-      "binaryDir": "build-debug",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_CXX_STANDARD": "23",
-        "BUILD_TESTING": "ON",
-        "CMAKE_FIND_PACKAGE_PREFER_CONFIG": "ON",
-        "CMAKE_CXX_FLAGS": "-O0 -g -fno-omit-frame-pointer -fno-optimize-sibling-calls",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/external/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
     },
@@ -136,10 +122,6 @@
       "configurePreset": "dev"
     },
     {
-      "name": "debug",
-      "configurePreset": "debug"
-    },
-    {
       "name": "release",
       "configurePreset": "release"
     },
@@ -164,13 +146,6 @@
     {
       "name": "dev",
       "configurePreset": "dev",
-      "output": {
-        "outputOnFailure": true
-      }
-    },
-    {
-      "name": "debug",
-      "configurePreset": "debug",
       "output": {
         "outputOnFailure": true
       }

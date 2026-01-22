@@ -122,29 +122,31 @@ public:
     query += std::to_string(m_limit == 0 ? 1U : m_limit);
     return query;
   }
-
+  //**
+  // std::in_place_t{} needed to prevent RVO breaking
+  // https://www.youtube.com/watch?v=0yJk5yfdih0
+  //  */
   [[nodiscard]] constexpr auto validate() const noexcept
       -> std::expected<bool, std::string_view> {
+    using unexp_type = std::unexpected<std::string_view>;
+
     if (m_ticker.empty()) {
-      return std::unexpected<std::string_view>(std::in_place, "empty_ticker");
+      return unexp_type(std::in_place_t{}, "empty_ticker");
     }
     if (m_multiplier == 0) {
-      return std::unexpected<std::string_view>(std::in_place,
-                                               "non_negative_multiplier");
+      return unexp_type(std::in_place_t{}, "non_negative_multiplier");
     }
     if (m_limit == 0) {
-      return std::unexpected<std::string_view>(std::in_place,
-                                               "non_negative_limit");
+      return unexp_type(std::in_place_t{}, "non_negative_limit");
     }
     if (!m_from_date.empty() && !quarry::is_iso_date(m_from_date)) {
-      return std::unexpected<std::string_view>(std::in_place, "invalid_date");
+      return unexp_type(std::in_place_t{}, "invalid_date");
     }
     if (!m_to_date.empty() && !quarry::is_iso_date(m_to_date)) {
-      return std::unexpected<std::string_view>(std::in_place, "invalid_date");
+      return unexp_type(std::in_place_t{}, "invalid_date");
     }
 
-    // NOLINTNEXTLINE
-    return std::expected<bool, std::string>(true);
+    return std::expected<bool, std::string_view>{true};
   }
 
   // builders

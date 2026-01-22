@@ -13,15 +13,14 @@ class HttpRequestBuilder {
 
 public:
   [[nodiscard]] HttpRequestBuilder &verb(http::verb verb) noexcept;
-  [[nodiscard]] HttpRequestBuilder &target(std::string_view target) noexcept;
+  [[nodiscard]] HttpRequestBuilder &target(std::string_view target);
   [[nodiscard]] HttpRequestBuilder &version(int version) noexcept;
-  [[nodiscard]] HttpRequestBuilder &host(std::string_view host_name) noexcept;
-  [[nodiscard]] HttpRequestBuilder &
-  user_agent(std::string_view user_agent) noexcept;
+  [[nodiscard]] HttpRequestBuilder &host(std::string_view host_name);
+  [[nodiscard]] HttpRequestBuilder &user_agent(std::string_view user_agent);
   [[nodiscard]] HttpRequestBuilder &keep_alive(bool keep_alive) noexcept;
   [[nodiscard]] HttpRequestBuilder &
-  headers(const std::unordered_map<std::string, std::string> &headers) noexcept;
-  [[nodiscard]] HttpRequestBuilder &body(std::string_view body) noexcept;
+  headers(const std::unordered_map<std::string, std::string> &headers);
+  [[nodiscard]] HttpRequestBuilder &body(std::string_view body);
 
   [[nodiscard]] http::request<http::string_body> build() const;
 

@@ -79,7 +79,7 @@ timespan_resolver(uint8_t value) noexcept {
   std::unreachable();
 }
 
-[[nodiscard]] inline bool is_iso_date(std::string_view s) noexcept {
+[[nodiscard]] constexpr bool is_iso_date(const std::string_view s) noexcept {
   if (s[4] != '-' || s[7] != '-') {
     return false;
   }

@@ -7,8 +7,7 @@ HttpRequestBuilder &HttpRequestBuilder::verb(http::verb verb) noexcept {
   return *this;
 }
 
-HttpRequestBuilder &
-HttpRequestBuilder::target(std::string_view target) noexcept {
+HttpRequestBuilder &HttpRequestBuilder::target(std::string_view target) {
   m_target = std::string{target};
   return *this;
 }
@@ -18,14 +17,13 @@ HttpRequestBuilder &HttpRequestBuilder::version(int version) noexcept {
   return *this;
 }
 
-HttpRequestBuilder &
-HttpRequestBuilder::host(std::string_view host_name) noexcept {
+HttpRequestBuilder &HttpRequestBuilder::host(std::string_view host_name) {
   m_host_name = std::string{host_name};
   return *this;
 }
 
 HttpRequestBuilder &
-HttpRequestBuilder::user_agent(std::string_view user_agent) noexcept {
+HttpRequestBuilder::user_agent(std::string_view user_agent) {
   m_user_agent = std::string{user_agent};
   return *this;
 }
@@ -36,12 +34,12 @@ HttpRequestBuilder &HttpRequestBuilder::keep_alive(bool keep_alive) noexcept {
 }
 
 HttpRequestBuilder &HttpRequestBuilder::headers(
-    const std::unordered_map<std::string, std::string> &headers) noexcept {
+    const std::unordered_map<std::string, std::string> &headers) {
   m_headers = headers;
   return *this;
 }
 
-HttpRequestBuilder &HttpRequestBuilder::body(std::string_view body) noexcept {
+HttpRequestBuilder &HttpRequestBuilder::body(std::string_view body) {
   m_body = std::string{body};
   return *this;
 }

@@ -8,6 +8,10 @@
 #include <variant>
 
 namespace quarry {
+//**
+// Rule of 5
+// Streams cannot be copied, they are associated with sockets
+//  */
 class StreamGuard {
 
 public:

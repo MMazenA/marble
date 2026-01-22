@@ -9,6 +9,10 @@
 namespace quarry {
 
 namespace http = boost::beast::http;
+//**
+// Abides by rule of zero
+// Data class
+//  */
 class HttpRequestBuilder {
 
 public:

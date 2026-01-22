@@ -12,6 +12,9 @@ enum class PolicyStrategy : std::uint8_t {
   exponential,
 };
 
+//**
+// Rule of zero
+//  */
 class RetryPolicy {
 public:
   using Ms_type = uint16_t;

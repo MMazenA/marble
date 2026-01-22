@@ -18,6 +18,10 @@
 #include <unordered_map>
 
 namespace quarry {
+//**
+// Rule of zero - all RAII guarded
+//
+//  */
 class HttpClient {
 public:
   /**

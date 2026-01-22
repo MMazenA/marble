@@ -17,6 +17,9 @@ namespace quarry {
 /**
  * @brief A thread safe pool for managing Transport/Stream objects optimized for
  * stream reuse on TLS streams
+ *
+ * Rule of 5, moves allowed, only implemented as ctor
+ * Underlying resources cannot be copied, thread safety
  */
 class TransportPool {
 public:

@@ -11,6 +11,10 @@
 
 namespace quarry::ep {
 
+//**
+// Abides by rule of zero
+// Data class
+//  */
 struct AggBar {
   double o;
   double c;

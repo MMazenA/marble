@@ -12,6 +12,12 @@
 
 namespace quarry {
 
+//**
+// @todo, delete move ctors
+// Add move ctors
+// Cannot allow unique_ptr copies
+// default delete should be fine
+//  */
 class Massive {
 
 public:

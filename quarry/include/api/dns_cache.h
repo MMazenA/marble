@@ -5,6 +5,11 @@
 #include <shared_mutex>
 
 namespace quarry {
+
+//**
+// Rule of 5
+// Moves allowed, copies not allowed due to mutex
+// */
 class DnsCache {
 public:
   static DnsCache &global_cache();

@@ -30,14 +30,14 @@ public:
   [[nodiscard]] bool should_retry(unsigned int http_code) const noexcept;
 
   // https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
-  [[nodiscard]] int get_wait_time(Count_type attempt_n) const;
+  [[nodiscard]] int get_wait_time(Count_type attempt_n) const noexcept;
 
-  [[nodiscard]] int get_max_attempts() const;
+  [[nodiscard]] int get_max_attempts() const noexcept;
 
   void wait(Count_type attempt_n) const noexcept;
 
 private:
-  [[nodiscard]] Ms_type m_get_backoff_time(Count_type attempt_n) const;
+  [[nodiscard]] Ms_type m_get_backoff_time(Count_type attempt_n) const noexcept;
 
   // NOLINTNEXTLINE
   static constexpr int MAX_HTTP_STATUS_CODE = 600;

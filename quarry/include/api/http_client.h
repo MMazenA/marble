@@ -30,11 +30,11 @@ public:
              std::optional<int> http_pool_size = std::nullopt,
              std::optional<RetryPolicy> retry_policy = std::nullopt);
 
-  http::response<http::string_body>
+  [[nodiscard]] http::response<http::string_body>
   get(std::string_view endpoint,
       const std::unordered_map<std::string, std::string> &headers = {});
 
-  http::response<http::string_body>
+  [[nodiscard]] http::response<http::string_body>
   post(std::string_view endpoint,
        const std::unordered_map<std::string, std::string> &headers = {});
 

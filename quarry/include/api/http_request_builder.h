@@ -12,15 +12,16 @@ namespace http = boost::beast::http;
 class HttpRequestBuilder {
 
 public:
-  HttpRequestBuilder &verb(http::verb verb);
-  HttpRequestBuilder &target(std::string_view target);
-  HttpRequestBuilder &version(int version);
-  HttpRequestBuilder &host(std::string_view host_name);
-  HttpRequestBuilder &user_agent(std::string_view user_agent);
-  HttpRequestBuilder &keep_alive(bool keep_alive);
-  HttpRequestBuilder &
-  headers(const std::unordered_map<std::string, std::string> &headers);
-  HttpRequestBuilder &body(std::string_view body);
+  [[nodiscard]] HttpRequestBuilder &verb(http::verb verb) noexcept;
+  [[nodiscard]] HttpRequestBuilder &target(std::string_view target) noexcept;
+  [[nodiscard]] HttpRequestBuilder &version(int version) noexcept;
+  [[nodiscard]] HttpRequestBuilder &host(std::string_view host_name) noexcept;
+  [[nodiscard]] HttpRequestBuilder &
+  user_agent(std::string_view user_agent) noexcept;
+  [[nodiscard]] HttpRequestBuilder &keep_alive(bool keep_alive) noexcept;
+  [[nodiscard]] HttpRequestBuilder &
+  headers(const std::unordered_map<std::string, std::string> &headers) noexcept;
+  [[nodiscard]] HttpRequestBuilder &body(std::string_view body) noexcept;
 
   [[nodiscard]] http::request<http::string_body> build() const;
 

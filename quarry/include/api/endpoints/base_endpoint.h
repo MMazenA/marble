@@ -4,6 +4,7 @@
 #include <array>
 #include <concepts>
 #include <cstdint>
+#include <expected>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -29,7 +30,7 @@ enum class timespan_options : uint8_t {
 
 constexpr uint8_t ticker_size = 6;
 
-constexpr std::string_view
+[[nodiscard]] constexpr std::string_view
 timespan_resolver(timespan_options timespan) noexcept {
   switch (timespan) {
   case timespan_options::SECOND:
@@ -52,7 +53,8 @@ timespan_resolver(timespan_options timespan) noexcept {
   std::unreachable();
 }
 
-constexpr timespan_options timespan_resolver(uint8_t value) noexcept {
+[[nodiscard]] constexpr timespan_options
+timespan_resolver(uint8_t value) noexcept {
   // NOLINTNEXTLINE(bugprone-switch-missing-default-case)
   switch (value) {
   case 0:
@@ -94,7 +96,7 @@ concept endpoint_c = requires(const T &ep) {
   { ep.path() } -> std::convertible_to<std::string_view>;
   { ep.query() } -> std::convertible_to<std::string_view>;
   { ep.headers() } -> std::same_as<headers>;
-  { ep.validate() } -> std::same_as<std::optional<std::string>>;
+  { ep.validate() } -> std::same_as<std::expected<bool, std::string_view>>;
   typename T::response_type;
 };
 

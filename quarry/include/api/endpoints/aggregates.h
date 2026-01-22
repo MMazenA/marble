@@ -2,6 +2,7 @@
 #define AGGREGATES_DAILY_H
 
 #include "base_endpoint.h"
+#include <expected>
 #include <format>
 #include <stdexcept>
 #include <string>
@@ -122,23 +123,28 @@ public:
     return query;
   }
 
-  [[nodiscard]] std::optional<std::string> validate() const noexcept {
+  [[nodiscard]] constexpr auto validate() const noexcept
+      -> std::expected<bool, std::string_view> {
     if (m_ticker.empty()) {
-      return "ticker empty";
+      return std::unexpected<std::string_view>(std::in_place, "empty_ticker");
     }
     if (m_multiplier == 0) {
-      return "multiplier must be > 0";
+      return std::unexpected<std::string_view>(std::in_place,
+                                               "non_negative_multiplier");
     }
     if (m_limit == 0) {
-      return "limit must be > 0";
+      return std::unexpected<std::string_view>(std::in_place,
+                                               "non_negative_limit");
     }
     if (!m_from_date.empty() && !quarry::is_iso_date(m_from_date)) {
-      return "from_date not ISO YYYY-MM-DD";
+      return std::unexpected<std::string_view>(std::in_place, "invalid_date");
     }
     if (!m_to_date.empty() && !quarry::is_iso_date(m_to_date)) {
-      return "to_date not ISO YYYY-MM-DD";
+      return std::unexpected<std::string_view>(std::in_place, "invalid_date");
     }
-    return std::nullopt;
+
+    // NOLINTNEXTLINE
+    return std::expected<bool, std::string>(true);
   }
 
   // builders

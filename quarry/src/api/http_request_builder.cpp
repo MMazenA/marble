@@ -2,44 +2,46 @@
 
 namespace quarry {
 
-HttpRequestBuilder &HttpRequestBuilder::verb(http::verb verb) {
+HttpRequestBuilder &HttpRequestBuilder::verb(http::verb verb) noexcept {
   m_verb = verb;
   return *this;
 }
 
-HttpRequestBuilder &HttpRequestBuilder::target(std::string_view target) {
+HttpRequestBuilder &
+HttpRequestBuilder::target(std::string_view target) noexcept {
   m_target = std::string{target};
   return *this;
 }
 
-HttpRequestBuilder &HttpRequestBuilder::version(int version) {
+HttpRequestBuilder &HttpRequestBuilder::version(int version) noexcept {
   m_version = version;
   return *this;
 }
 
-HttpRequestBuilder &HttpRequestBuilder::host(std::string_view host_name) {
+HttpRequestBuilder &
+HttpRequestBuilder::host(std::string_view host_name) noexcept {
   m_host_name = std::string{host_name};
   return *this;
 }
 
 HttpRequestBuilder &
-HttpRequestBuilder::user_agent(std::string_view user_agent) {
+HttpRequestBuilder::user_agent(std::string_view user_agent) noexcept {
   m_user_agent = std::string{user_agent};
   return *this;
 }
 
-HttpRequestBuilder &HttpRequestBuilder::keep_alive(bool keep_alive) {
+HttpRequestBuilder &HttpRequestBuilder::keep_alive(bool keep_alive) noexcept {
   m_keep_alive = keep_alive;
   return *this;
 }
 
 HttpRequestBuilder &HttpRequestBuilder::headers(
-    const std::unordered_map<std::string, std::string> &headers) {
+    const std::unordered_map<std::string, std::string> &headers) noexcept {
   m_headers = headers;
   return *this;
 }
 
-HttpRequestBuilder &HttpRequestBuilder::body(std::string_view body) {
+HttpRequestBuilder &HttpRequestBuilder::body(std::string_view body) noexcept {
   m_body = std::string{body};
   return *this;
 }

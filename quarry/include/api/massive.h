@@ -4,6 +4,7 @@
 #include "generator.h" // IWYU pragma: keep
 #include "http_client.h"
 #include "logging.h"
+#include <format>
 #include <glaze/glaze.hpp>
 #include <memory>
 #include <quill/LogMacros.h>
@@ -11,8 +12,6 @@
 
 namespace quarry {
 
-// Should contain higher level functions I.E
-// get_minute_aggregates(?),
 class Massive {
 
 public:
@@ -24,7 +23,8 @@ public:
    */
   explicit Massive(std::string api_key);
 
-  template <quarry::endpoint_c E> E::response_type execute(const E &ep) {
+  template <quarry::endpoint_c E>
+  auto execute(const E &ep) -> E::response_type {
     std::string url = m_authenticate_url(ep);
 
     http::response<http::string_body> result;
@@ -50,8 +50,8 @@ public:
   };
 
   template <quarry::endpoint_c E>
-  std::generator<typename E::response_type>
-  execute_with_pagination(const E &ep) {
+  auto execute_with_pagination(const E &ep)
+      -> std::generator<typename E::response_type> {
     std::string url = m_authenticate_url(ep);
 
     while (!url.empty()) {
@@ -89,26 +89,32 @@ public:
 private:
   std::string m_api_key;
 
-  template <quarry::endpoint_c E> std::string m_get_url(const E &ep) {
-    const std::optional<std::string> validation = ep.validate();
-    if (validation != std::nullopt) {
-      throw std::invalid_argument(validation.value());
+  template <quarry::endpoint_c E> auto m_get_url(const E &ep) -> std::string {
+    const std::expected<bool, std::string_view> validation = ep.validate();
+    if (validation.has_value()) {
+      std::string full_url = ep.path() + ep.query();
+      return full_url;
     }
 
-    std::string full_url = ep.path() + ep.query();
-    return full_url;
+    throw std::invalid_argument(std::string{validation.error()});
   }
 
-  template <quarry::endpoint_c E> std::string m_authenticate_url(const E &ep) {
+  template <quarry::endpoint_c E>
+  auto m_authenticate_url(const E &ep) -> std::string {
     std::string url = m_get_url(ep);
     return m_authenticate_url(url);
   };
 
-  std::string m_authenticate_url(const std::string &url) {
-    std::string api_key = "&apiKey=" + m_api_key;
-    std::string full_url = url + api_key;
-    return full_url;
-  };
+  auto m_authenticate_url(const std::string &url) -> std::string {
+    std::string out;
+    out.reserve(url.size() + m_api_key.size() + 8); // "&apiKey="
+
+    out += url;
+    out += "&apiKey=";
+    out += m_api_key;
+
+    return out;
+  }
 
   std::unique_ptr<quarry::HttpClient> m_http;
 };

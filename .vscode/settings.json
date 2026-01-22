@@ -12,7 +12,7 @@
   "search.exclude": {
     "build**": true,
     "external**": true,
-    "var/**": true,
+    "/var/**": true,
     ".git/": true
   }
 }

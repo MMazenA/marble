@@ -8,6 +8,10 @@
 
 namespace quarry {
 
+/**
+ * Abides by rule of zero
+ * @brief Should be used through class TransportPool in most situations
+ */
 class Transport {
 public:
   explicit Transport(net::io_context &ioc);
@@ -16,8 +20,9 @@ public:
   void connect(const tcp_resolver_results &endpoints);
   void write(const http::request<http::string_body> &req);
   void read(http::response<http::string_body> &resp);
-  unsigned int write_and_read(const http::request<http::string_body> &req,
-                              http::response<http::string_body> &resp) noexcept;
+  [[maybe_unused]] unsigned int
+  write_and_read(const http::request<http::string_body> &req,
+                 http::response<http::string_body> &resp) noexcept;
   [[nodiscard]] bool is_open();
   [[nodiscard]] bool is_tls() const noexcept { return m_guard.is_ssl(); }
   void shut_down() noexcept;

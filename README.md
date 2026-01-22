@@ -8,7 +8,8 @@ Mono-repo for stock ingestion, back testing, and analysis
 - Docker ^27.1.2
 - Ninja ^1.13.1
 - Clang ^17 
-  - Other compilers not tested
+- MSVC
+  - GCC Not Tested
 
 ## Build and Run
 1. CD into the root `/marble`

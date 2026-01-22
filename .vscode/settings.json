@@ -11,6 +11,8 @@
   // "C_Cpp.intelliSenseEngine": "default"
   "search.exclude": {
     "build**": true,
-    "external**": true
+    "external**": true,
+    "var/**": true,
+    ".git/": true
   }
 }

@@ -125,11 +125,7 @@ TEST_CASE("TransportPool") {
     threads.reserve(num_requests);
 
     for (Index i = 0; i < num_requests; ++i) {
-      threads.emplace_back([&, i]() {
-        pool.send_and_read(req, responses[i]);
-        INFO(std::format("Thread {}: status {}", i + 1,
-                         responses[i].result_int()));
-      });
+      threads.emplace_back([&, i]() { pool.send_and_read(req, responses[i]); });
     }
 
     for (auto &t : threads) {
@@ -137,6 +133,8 @@ TEST_CASE("TransportPool") {
     }
 
     for (Index i = 0; i < num_requests; ++i) {
+      INFO(std::format("Thread {}: status {}", i + 1,
+                       responses[i].result_int()));
       REQUIRE(responses[i].result_int() == 200);
     }
   }

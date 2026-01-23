@@ -8,22 +8,25 @@
 #include <variant>
 
 namespace quarry {
-//**
-// Rule of 5
-// Streams cannot be copied, they are associated with sockets
-//  */
+
+/**
+ * Rule of 5: move ctor allowed, copy/move-assign deleted (socket ownership).
+ */
 class StreamGuard {
 
 public:
   explicit StreamGuard(net::io_context &ioc);
   StreamGuard(std::string, net::io_context &, ssl::context &);
-  ~StreamGuard() noexcept;
 
+  // references can be initialized, they cannot be rebound
+  // ctor move allowed, direct assignment not allowed
   StreamGuard(StreamGuard &&other) noexcept;
   StreamGuard &operator=(StreamGuard &&) noexcept = delete;
 
   StreamGuard(const StreamGuard &) = delete;
   StreamGuard &operator=(const StreamGuard &) = delete;
+
+  ~StreamGuard() noexcept;
 
   void connect(const tcp::resolver::results_type &);
 

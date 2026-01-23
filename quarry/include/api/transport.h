@@ -17,6 +17,14 @@ public:
   explicit Transport(net::io_context &ioc);
   Transport(std::string host, net::io_context &ioc, ssl::context &ssl_ctx);
 
+  Transport(Transport &&other) noexcept = default;
+  Transport &operator=(Transport &&other) = delete;
+
+  Transport(const Transport &other) = delete;
+  Transport &operator=(const Transport &other) = delete;
+
+  ~Transport() noexcept = default;
+
   void connect(const tcp_resolver_results &endpoints);
   void write(const http::request<http::string_body> &req);
   void read(http::response<http::string_body> &resp);

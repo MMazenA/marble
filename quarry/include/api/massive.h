@@ -12,12 +12,9 @@
 
 namespace quarry {
 
-//**
-// @todo, delete move ctors
-// Add move ctors
-// Cannot allow unique_ptr copies
-// default delete should be fine
-//  */
+/**
+ * Rule of zero - movable via unique_ptr, non-copyable.
+ */
 class Massive {
 
 public:
@@ -28,6 +25,14 @@ public:
    *
    */
   explicit Massive(std::string api_key);
+
+  Massive(Massive &&) noexcept = default;
+  Massive &operator=(Massive &&) noexcept = default;
+
+  Massive(const Massive &other) = delete;
+  Massive &operator=(const Massive &other) = delete;
+
+  ~Massive() noexcept = default;
 
   template <quarry::endpoint_c E>
   auto execute(const E &ep) -> E::response_type {
@@ -112,11 +117,13 @@ private:
   };
 
   auto m_authenticate_url(const std::string &url) -> std::string {
+    constexpr std::string_view api_key_prefix = "&apiKey=";
+
     std::string out;
-    out.reserve(url.size() + m_api_key.size() + 8); // "&apiKey="
+    out.reserve(url.size() + m_api_key.size() + api_key_prefix.size());
 
     out += url;
-    out += "&apiKey=";
+    out += api_key_prefix;
     out += m_api_key;
 
     return out;

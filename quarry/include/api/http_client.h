@@ -18,10 +18,10 @@
 #include <unordered_map>
 
 namespace quarry {
-//**
-// Rule of zero - all RAII guarded
-//
-//  */
+
+/**
+ * Rule of five - non-movable, non-copyable
+ */
 class HttpClient {
 public:
   /**
@@ -33,6 +33,14 @@ public:
                  SslContextProvider::make_client_ctx,
              std::optional<int> http_pool_size = std::nullopt,
              std::optional<RetryPolicy> retry_policy = std::nullopt);
+
+  HttpClient(HttpClient &&other) noexcept = delete;
+  HttpClient &operator=(HttpClient &&other) noexcept = delete;
+
+  HttpClient(const HttpClient &other) = delete;
+  HttpClient &operator=(const HttpClient &other) = delete;
+
+  ~HttpClient() noexcept = default;
 
   [[nodiscard]] http::response<http::string_body>
   get(std::string_view endpoint,

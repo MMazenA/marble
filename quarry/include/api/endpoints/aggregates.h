@@ -11,10 +11,9 @@
 
 namespace quarry::ep {
 
-//**
-// Abides by rule of zero
-// Data class
-//  */
+/**
+ * Rule of zero - POD-like data class.
+ */
 struct AggBar {
   double o;
   double c;
@@ -126,13 +125,18 @@ public:
     query += std::to_string(m_limit == 0 ? 1U : m_limit);
     return query;
   }
-  //**
-  // std::in_place_t{} needed to prevent RVO breaking
-  // https://www.youtube.com/watch?v=0yJk5yfdih0
-  //  */
+
+  /**
+   * std::in_place_t{} needed to prevent RVO breaking.
+   * @see https://www.youtube.com/watch?v=0yJk5yfdih0
+   */
   [[nodiscard]] constexpr auto validate() const noexcept
       -> std::expected<bool, std::string_view> {
     using validation_error = std::unexpected<std::string_view>;
+    // TODO: Error names are misleading ("non_negative_limit" should be
+    // "zero_limit"
+    //       since we check == 0, not < 0). Consider clearer, user-facing
+    //       messages.
 
     if (m_ticker.empty()) {
       return validation_error(std::in_place_t{}, "empty_ticker");

@@ -6,10 +6,9 @@
 
 namespace quarry {
 
-//**
-// Rule of 5
-// Moves allowed, copies not allowed due to mutex
-// */
+/**
+ * Rule of 5: move operations allowed, copy operations deleted due to mutex.
+ */
 class DnsCache {
 public:
   static DnsCache &global_cache();
@@ -22,7 +21,7 @@ public:
   DnsCache &operator=(DnsCache &&) noexcept;
   DnsCache(DnsCache &&) noexcept;
 
-  ~DnsCache() = default;
+  ~DnsCache() noexcept = default;
 
   [[nodiscard]] const tcp_resolver_results &get(const DnsCacheContext &) const;
 

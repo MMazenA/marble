@@ -9,10 +9,10 @@
 namespace quarry {
 
 namespace http = boost::beast::http;
-//**
-// Abides by rule of zero
-// Data class
-//  */
+
+/**
+ * Rule of zero - builder pattern data class.
+ */
 class HttpRequestBuilder {
 
 public:

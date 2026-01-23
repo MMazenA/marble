@@ -133,19 +133,15 @@ public:
   [[nodiscard]] constexpr auto validate() const noexcept
       -> std::expected<bool, std::string_view> {
     using validation_error = std::unexpected<std::string_view>;
-    // TODO: Error names are misleading ("non_negative_limit" should be
-    // "zero_limit"
-    //       since we check == 0, not < 0). Consider clearer, user-facing
-    //       messages.
 
     if (m_ticker.empty()) {
       return validation_error(std::in_place_t{}, "empty_ticker");
     }
     if (m_multiplier == 0) {
-      return validation_error(std::in_place_t{}, "non_negative_multiplier");
+      return validation_error(std::in_place_t{}, "zero_multiplier");
     }
     if (m_limit == 0) {
-      return validation_error(std::in_place_t{}, "non_negative_limit");
+      return validation_error(std::in_place_t{}, "zero_limit");
     }
     if (!m_from_date.empty() && !quarry::is_iso_date(m_from_date)) {
       return validation_error(std::in_place_t{}, "invalid_date");

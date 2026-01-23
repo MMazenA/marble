@@ -31,7 +31,7 @@ enum class timespan_options : uint8_t {
 constexpr uint8_t ticker_size = 6;
 
 [[nodiscard]] constexpr std::string_view
-timespan_resolver(timespan_options timespan) noexcept {
+timespan_resolver(const timespan_options timespan) noexcept {
   switch (timespan) {
   case timespan_options::SECOND:
     return "second";
@@ -54,7 +54,7 @@ timespan_resolver(timespan_options timespan) noexcept {
 }
 
 [[nodiscard]] constexpr timespan_options
-timespan_resolver(uint8_t value) noexcept {
+timespan_resolver(const uint8_t value) noexcept {
   // NOLINTNEXTLINE(bugprone-switch-missing-default-case)
   switch (value) {
   case 0:

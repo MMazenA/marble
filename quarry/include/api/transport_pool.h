@@ -15,8 +15,11 @@
 namespace quarry {
 
 /**
- * @brief A thread safe pool for managing Transport/Stream objects optimized for
- * stream reuse on TLS streams
+ * @brief A thread-safe pool for managing Transport/Stream objects, optimized
+ * for TLS stream reuse.
+ *
+ * Rule of 5: move ctor allowed, copy ops and move-assign deleted
+ * (mutex/cv not copyable, shared state requires explicit ownership transfer).
  */
 class TransportPool {
 public:
@@ -34,7 +37,7 @@ public:
   TransportPool(TransportPool const &other) noexcept = delete;
   TransportPool &operator=(TransportPool const &other) = delete;
 
-  ~TransportPool() = default;
+  ~TransportPool() noexcept = default;
 
   void send_and_read(const http::request<http::string_body> &request,
                      http::response<http::string_body> &response);

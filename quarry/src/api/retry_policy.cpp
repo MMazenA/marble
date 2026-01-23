@@ -23,7 +23,7 @@ bool RetryPolicy::should_retry(unsigned int http_code) const noexcept {
 }
 
 // https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/
-int RetryPolicy::get_wait_time(Count_type attempt_n) const {
+int RetryPolicy::get_wait_time(Count_type attempt_n) const noexcept {
   auto strategy_bound = m_get_backoff_time(attempt_n);
 
   thread_local uint64_t s = [] {
@@ -68,7 +68,7 @@ void RetryPolicy::wait(uint8_t attempt_n) const noexcept {
 }
 
 RetryPolicy::Ms_type
-RetryPolicy::m_get_backoff_time(Count_type attempt_n) const {
+RetryPolicy::m_get_backoff_time(Count_type attempt_n) const noexcept {
   switch (m_strategy) {
   case (PolicyStrategy::exponential):
     return m_initial_ms * (1 << attempt_n); // initial_ms * 2^n
@@ -77,6 +77,6 @@ RetryPolicy::m_get_backoff_time(Count_type attempt_n) const {
   }
 }
 
-int RetryPolicy::get_max_attempts() const { return m_max_attempts; };
+int RetryPolicy::get_max_attempts() const noexcept { return m_max_attempts; };
 
 } // namespace quarry

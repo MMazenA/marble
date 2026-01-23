@@ -18,6 +18,10 @@
 #include <unordered_map>
 
 namespace quarry {
+
+/**
+ * Rule of five - non-movable, non-copyable
+ */
 class HttpClient {
 public:
   /**
@@ -30,11 +34,19 @@ public:
              std::optional<int> http_pool_size = std::nullopt,
              std::optional<RetryPolicy> retry_policy = std::nullopt);
 
-  http::response<http::string_body>
+  HttpClient(HttpClient &&other) noexcept = delete;
+  HttpClient &operator=(HttpClient &&other) noexcept = delete;
+
+  HttpClient(const HttpClient &other) = delete;
+  HttpClient &operator=(const HttpClient &other) = delete;
+
+  ~HttpClient() noexcept = default;
+
+  [[nodiscard]] http::response<http::string_body>
   get(std::string_view endpoint,
       const std::unordered_map<std::string, std::string> &headers = {});
 
-  http::response<http::string_body>
+  [[nodiscard]] http::response<http::string_body>
   post(std::string_view endpoint,
        const std::unordered_map<std::string, std::string> &headers = {});
 

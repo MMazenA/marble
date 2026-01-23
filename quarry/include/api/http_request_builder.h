@@ -9,18 +9,22 @@
 namespace quarry {
 
 namespace http = boost::beast::http;
+
+/**
+ * Rule of zero - builder pattern data class.
+ */
 class HttpRequestBuilder {
 
 public:
-  HttpRequestBuilder &verb(http::verb verb);
-  HttpRequestBuilder &target(std::string_view target);
-  HttpRequestBuilder &version(int version);
-  HttpRequestBuilder &host(std::string_view host_name);
-  HttpRequestBuilder &user_agent(std::string_view user_agent);
-  HttpRequestBuilder &keep_alive(bool keep_alive);
-  HttpRequestBuilder &
+  [[nodiscard]] HttpRequestBuilder &verb(http::verb verb) noexcept;
+  [[nodiscard]] HttpRequestBuilder &target(std::string_view target);
+  [[nodiscard]] HttpRequestBuilder &version(int version) noexcept;
+  [[nodiscard]] HttpRequestBuilder &host(std::string_view host_name);
+  [[nodiscard]] HttpRequestBuilder &user_agent(std::string_view user_agent);
+  [[nodiscard]] HttpRequestBuilder &keep_alive(bool keep_alive) noexcept;
+  [[nodiscard]] HttpRequestBuilder &
   headers(const std::unordered_map<std::string, std::string> &headers);
-  HttpRequestBuilder &body(std::string_view body);
+  [[nodiscard]] HttpRequestBuilder &body(std::string_view body);
 
   [[nodiscard]] http::request<http::string_body> build() const;
 

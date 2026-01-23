@@ -2,6 +2,7 @@
 #define AGGREGATES_DAILY_H
 
 #include "base_endpoint.h"
+#include <expected>
 #include <format>
 #include <stdexcept>
 #include <string>
@@ -10,6 +11,9 @@
 
 namespace quarry::ep {
 
+/**
+ * Rule of zero - POD-like data class.
+ */
 struct AggBar {
   double o;
   double c;
@@ -122,23 +126,31 @@ public:
     return query;
   }
 
-  [[nodiscard]] std::optional<std::string> validate() const noexcept {
+  /**
+   * std::in_place_t{} needed to prevent RVO breaking.
+   * @see https://www.youtube.com/watch?v=0yJk5yfdih0
+   */
+  [[nodiscard]] constexpr auto validate() const noexcept
+      -> std::expected<bool, std::string_view> {
+    using validation_error = std::unexpected<std::string_view>;
+
     if (m_ticker.empty()) {
-      return "ticker empty";
+      return validation_error(std::in_place_t{}, "empty_ticker");
     }
     if (m_multiplier == 0) {
-      return "multiplier must be > 0";
+      return validation_error(std::in_place_t{}, "zero_multiplier");
     }
     if (m_limit == 0) {
-      return "limit must be > 0";
+      return validation_error(std::in_place_t{}, "zero_limit");
     }
     if (!m_from_date.empty() && !quarry::is_iso_date(m_from_date)) {
-      return "from_date not ISO YYYY-MM-DD";
+      return validation_error(std::in_place_t{}, "invalid_date");
     }
     if (!m_to_date.empty() && !quarry::is_iso_date(m_to_date)) {
-      return "to_date not ISO YYYY-MM-DD";
+      return validation_error(std::in_place_t{}, "invalid_date");
     }
-    return std::nullopt;
+
+    return std::expected<bool, std::string_view>{true};
   }
 
   // builders

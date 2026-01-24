@@ -5,7 +5,6 @@
 #include <concepts>
 #include <cstdint>
 #include <expected>
-#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>

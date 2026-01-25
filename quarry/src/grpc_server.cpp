@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
 
   quarry::load_dotenv();
   const char *api_key = std::getenv("MASSIVE_API_KEY");
-  if (!api_key || std::string(api_key).empty()) {
+  if ((api_key == nullptr) || std::string(api_key).empty()) {
     api_key = std::getenv("POLYGON_API_KEY");
   }
   if (api_key == nullptr || std::string(api_key).empty()) {

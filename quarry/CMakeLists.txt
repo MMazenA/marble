@@ -59,9 +59,28 @@ add_library(quarry_core STATIC
 )
 
 target_include_directories(quarry_core
-  PUBLIC
+  PRIVATE
     "${QUARRY_DIR}/include"
     "${QUARRY_DIR}/include/db"
+    "${QUARRY_DIR}/include/api"
+    "${QUARRY_DIR}/include/api/endpoints"
+)
+
+add_library(quarry_internal INTERFACE)
+target_link_libraries(quarry_internal INTERFACE quarry_core)
+target_include_directories(quarry_internal
+  INTERFACE
+    "${QUARRY_DIR}/include"
+    "${QUARRY_DIR}/include/db"
+    "${QUARRY_DIR}/include/api"
+    "${QUARRY_DIR}/include/api/endpoints"
+)
+
+add_library(quarry_api INTERFACE)
+target_link_libraries(quarry_api INTERFACE quarry_core)
+target_include_directories(quarry_api
+  INTERFACE
+    "${QUARRY_DIR}/include"
     "${QUARRY_DIR}/include/api"
     "${QUARRY_DIR}/include/api/endpoints"
 )
@@ -91,15 +110,15 @@ target_link_libraries(quarry_core INTERFACE)
 
 # ---- Executables ----
 add_executable(quarry_main "${QUARRY_DIR}/src/main.cpp")
-target_link_libraries(quarry_main PRIVATE quarry_core)
+target_link_libraries(quarry_main PRIVATE quarry_internal)
 
 add_executable(quarry_bootstrap "${QUARRY_DIR}/src/bootstrap.cpp")
-target_link_libraries(quarry_bootstrap PRIVATE quarry_core)
+target_link_libraries(quarry_bootstrap PRIVATE quarry_internal)
 
 add_executable(quarry_grpc_server "${QUARRY_DIR}/src/grpc_server.cpp")
 target_link_libraries(quarry_grpc_server
   PRIVATE
-    quarry_core
+    quarry_internal
     marble_protos
     gRPC::grpc++
     gRPC::grpc++_reflection
@@ -124,7 +143,7 @@ if(BUILD_TESTING)
     add_executable(${TEST_NAME} "${TEST_SRC}")
     target_link_libraries(${TEST_NAME}
       PRIVATE
-        quarry_core
+        quarry_internal
         Catch2::Catch2WithMain
     )
 

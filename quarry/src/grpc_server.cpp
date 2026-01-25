@@ -95,10 +95,15 @@ private:
 int main(int argc, char **argv) {
   auto *logger = quarry::logging::init();
 
-  quarry::load_dotenv("./quarry/.env");
-  const char *api_key = std::getenv("POLYGON_API_KEY");
+  quarry::load_dotenv();
+  const char *api_key = std::getenv("MASSIVE_API_KEY");
+  if (!api_key || std::string(api_key).empty()) {
+    api_key = std::getenv("POLYGON_API_KEY");
+  }
   if (api_key == nullptr || std::string(api_key).empty()) {
-    LOG_ERROR(logger, "POLYGON_API_KEY missing; refusing to start server");
+    LOG_ERROR(
+        logger,
+        "MASSIVE_API_KEY or POLYGON_API_KEY missing; refusing to start server");
     return 1;
   }
 

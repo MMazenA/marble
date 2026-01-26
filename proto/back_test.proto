@@ -31,7 +31,7 @@ message Signal {
 // ActionType == ACTION_HOLD, this is not there
 message Execution {
   SideType side = 1;
-  uint32 quantity = 2;
+  int32 quantity = 2;
   double price = 3;
   double slippage = 4;
 }
@@ -62,7 +62,7 @@ message Snapshot {
   uint64 step = 1;
   AggregateBar candle = 2;
   Signal signal = 3;
-  Execution execution = 4;
+  optional Execution execution = 4;
   AccountState account = 5;
   repeated Indicator indicators = 6;
 }
@@ -99,5 +99,5 @@ message BacktestEvent {
 message BacktestRequest {}
 
 service BacktestService {
-  rpc runBackTest(BacktestRequest) returns (stream BacktestEvent);
+  rpc RunBackTest(BacktestRequest) returns (stream BacktestEvent);
 }

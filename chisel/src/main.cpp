@@ -17,7 +17,7 @@ void example() {
   const char *api_key = std::getenv("MASSIVE_API_KEY");
 
   if ((api_key == nullptr) || std::string_view(api_key).empty()) {
-    LOG_ERROR(logger, "MASSIVE_API_KEY or POLYGON_API_KEY is not set");
+    LOG_ERROR(logger, "MASSIVE_API_KEY is not set");
     return;
   }
 

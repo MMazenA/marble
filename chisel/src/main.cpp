@@ -1,85 +1,44 @@
-#include <chrono>
+// engine code for main
+
 #include <cstdlib>
-#include <iostream>
-#include <logging.h>
-#include <print>
 #include <string>
 
-#include <grpcpp/grpcpp.h>
+#include "api/endpoints/aggregates.h"
+#include "api/massive.h"
+#include "logging.h"
+#include "utils.h"
 
-#include "aggregates.grpc.pb.h"
+void example() {
+  quarry::logging::Config log_config{};
+  log_config.logger_name = "chisel";
+  log_config.log_path = "logs/chisel.log";
+  auto *logger = quarry::logging::init(log_config);
+  quarry::load_dotenv();
+  const char *api_key = std::getenv("MASSIVE_API_KEY");
 
-namespace {
-
-class AggregatesClient {
-public:
-  explicit AggregatesClient(std::shared_ptr<grpc::Channel> channel)
-      : stub_(marble::AggregatesService::NewStub(std::move(channel))) {}
-
-  void do_aggregate(marble::AggregatesResponse &response,
-                    const std::string &ticker, const std::string &from_date,
-                    const std::string &to_date,
-                    marble::timespan_options time_span) {
-    marble::AggregatesRequest request;
-
-    request.set_ticker(ticker);
-    request.set_from_date(from_date);
-    request.set_to_date(to_date);
-    request.set_time_span(time_span);
-
-    grpc::ClientContext context;
-    const grpc::Status status =
-        stub_->GetAggregate(&context, request, &response);
-
-    if (!status.ok()) {
-      auto *logger = quarry::logging::init();
-      LOG_ERROR(logger, "Unary RPC failed: {}", status.error_message());
-
-      return;
-    }
+  if ((api_key == nullptr) || std::string_view(api_key).empty()) {
+    LOG_ERROR(logger, "MASSIVE_API_KEY is not set");
+    return;
   }
 
-private:
-  std::unique_ptr<marble::AggregatesService::Stub> stub_;
-};
+  quarry::Massive massive(api_key);
 
-} // namespace
+  auto ep = quarry::ep::Aggregates::with_ticker("AAPL")
+                .time_span(quarry::timespan_options::DAY)
+                .from_date("2025-01-01")
+                .to_date("2025-01-05");
 
-int main(int argc, char **argv) {
-  using namespace std::chrono;
-  std::string target = "localhost:50051";
-  int iterations = 1;
-
-  if (argc > 1) {
-    iterations = std::max(1, std::atoi(argv[1]));
+  try {
+    const auto response = massive.execute(ep);
+    const auto count = response.results ? response.results->size() : 0;
+    LOG_INFO(logger, "Fetched {} aggregate bars", count);
+  } catch (const std::exception &ex) {
+    LOG_ERROR(logger, "Massive request failed: {}", ex.what());
+    return;
   }
+}
 
-  const auto channel_start = steady_clock::now();
-  auto channel =
-      grpc::CreateChannel(target, grpc::InsecureChannelCredentials());
-  const auto channel_ready = steady_clock::now();
-
-  AggregatesClient client(channel);
-  const auto client_ready = steady_clock::now();
-
-  auto print_ms = [](auto start, auto end, const char *label) {
-    const auto ms = duration_cast<microseconds>(end - start).count() / 1000.0;
-    std::cout << label << ": " << ms << " ms" << std::endl;
-  };
-
-  print_ms(channel_start, channel_ready, "channel setup");
-  print_ms(channel_ready, client_ready, "stub setup");
-
-  for (int i = 0; i < iterations; ++i) {
-    marble::AggregatesResponse response;
-    const auto rpc_start = steady_clock::now();
-    client.do_aggregate(response, "AAPL", "2025-01-01", "2025-01-09",
-                        marble::timespan_options::DAY);
-    const auto rpc_end = steady_clock::now();
-    std::println("rpc[{}] duration {}ms", i,
-                 duration_cast<microseconds>(rpc_end - rpc_start).count() /
-                     1000.0);
-  }
-
+int main() {
+  example();
   return 0;
 }

@@ -4,7 +4,6 @@
 #include "generator.h" // IWYU pragma: keep
 #include "http_client.h"
 #include "logging.h"
-#include <format>
 #include <glaze/glaze.hpp>
 #include <memory>
 #include <quill/LogMacros.h>

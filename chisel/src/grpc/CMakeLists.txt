@@ -1,0 +1,4 @@
+cmake_minimum_required(VERSION 3.29)
+
+file(GLOB CHISEL_GRPC_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+target_sources(chisel_grpc PRIVATE ${CHISEL_GRPC_SOURCES})

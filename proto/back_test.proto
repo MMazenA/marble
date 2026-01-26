@@ -1,0 +1,103 @@
+syntax = "proto3";
+
+package marble;
+
+import "aggregates.proto";
+
+option cc_enable_arenas = true;
+
+// used per snapshot
+enum ActionType {
+  ACTION_HOLD = 0;
+  ACTION_BUY = 1;
+  ACTION_SELL = 2;
+}
+
+// on executing a trade
+enum SideType {
+  SIDE_UNKNOWN = 0;
+  SIDE_BUY = 1;
+  SIDE_SELL = 2;
+}
+
+// used per snapshot
+message Signal {
+  ActionType action = 1;
+  string reason = 2;
+}
+
+// actual trade occurring,
+// optional return on snapshot, might not exist
+// ActionType == ACTION_HOLD, this is not there
+message Execution {
+  SideType side = 1;
+  int32 quantity = 2;
+  double price = 3;
+  double slippage = 4;
+}
+
+// account positions per ticker
+message Position {
+  string ticker = 1;
+  int32 quantity = 2;
+  double entry_price = 3;
+  double unrealized_pnl = 4;
+}
+
+message AccountState {
+  double cash = 1;
+  repeated Position positions = 2;
+  double realized_pnl = 3;
+  double total_equity = 4;
+}
+
+// Core for snapshotting state -------
+
+// used to show state of indicators per snapshot
+message Indicator {
+  string name = 1;  // ex moving average 20 or RSI
+  double value = 2; // state of the indictors
+}
+message Snapshot {
+  uint64 step = 1;
+  AggregateBar candle = 2;
+  Signal signal = 3;
+  optional Execution execution = 4;
+  AccountState account = 5;
+  repeated Indicator indicators = 6;
+}
+
+// ------ service
+
+message BacktestConfig {
+  string strategy_name = 1;
+  string symbol = 2;
+  int64 start = 3;
+  int64 end = 4;
+}
+
+message BacktestSummary {
+  double start_balance = 1;
+  double end_balance = 2;
+  double return_percent = 3;
+  double max_drawdown = 4; // largest peak to trough
+  int32 trade_count = 5;
+  double win_rate = 6;
+  double sharpe_ratio = 7; // risk ratio?
+}
+
+message BacktestEvent {
+  oneof event {
+    BacktestConfig started = 1;
+    Snapshot step = 2;
+    BacktestSummary end = 3;
+  }
+}
+
+// front end will just say go
+// can include params future
+message BacktestRequest {}
+
+service BacktestService {
+  rpc RunBackTest(BacktestRequest) returns (stream BacktestEvent);
+}

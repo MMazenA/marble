@@ -11,12 +11,12 @@
 int main() {
   using Aggregates = quarry::ep::Aggregates;
   using AggBar = quarry::ep::AggBar;
-  quarry::load_dotenv("./quarry/.env");
-  quarry::Massive massive(std::getenv("POLYGON_API_KEY"));
+  quarry::load_dotenv();
+  quarry::Massive massive(std::getenv("MASSIVE_API_KEY"));
 
   auto aapl_daily_agg = Aggregates::with_ticker("AAPL")
                             .time_span(quarry::timespan_options::DAY)
-                            .from_date("2024-01-01")
+                            .from_date("2025-01-01")
                             .to_date("2025-01-05");
 
   const std::string table_name = "stg_aggregates_results";

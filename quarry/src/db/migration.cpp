@@ -1,10 +1,10 @@
 
 
 #include "db/migration.h"
+#include "logging.h"
 #include <fstream>
 #include <memory>
 #include <pqxx/pqxx>
-#include "logging.h"
 #include <regex>
 #include <sstream>
 #include <string>
@@ -88,10 +88,12 @@ Migration::file_map Migration::get_files_to_apply(int lower_bound) {
     if (fs::is_regular_file(file_path)) {
       std::string file_name = file_path.path().filename().string();
       std::smatch match;
-      std::regex_match(file_name, match, pattern);
+      if (!std::regex_match(file_name, match, pattern)) {
+        continue;
+      }
 
       int version = stoi(match[1]);
-      if (version < lower_bound) {
+      if (version <= lower_bound) {
         continue;
       }
       version_to_path[version] = file_path.path();

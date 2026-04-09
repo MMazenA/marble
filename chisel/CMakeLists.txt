@@ -61,7 +61,6 @@ target_link_libraries(main
 # ============================================================================
 # Tests
 # ============================================================================
-include(CTest)
-include(Catch)
-
-add_subdirectory(src/tests)
+if(BUILD_TESTING)
+  add_subdirectory(src/tests)
+endif()

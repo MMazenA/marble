@@ -190,7 +190,8 @@ public:
   }
 
   /// @todo add r-value && operators so builder pattern can be expanded to
-  /// invalidate built objects
+  /// invalidate built objects, I return a constantly moved R value
+  /// ex.  Aggregates &&sort ... return std::move(*this)
 };
 
 static_assert(bulk_uploadable_c<AggBar>);

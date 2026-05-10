@@ -41,6 +41,7 @@ add_executable(chisel_server "${CHISEL_DIR}/src/server_main.cpp")
 target_link_libraries(chisel_server
   PRIVATE
     chisel_grpc
+    quarry_api
     quarry_logging
 )
 
@@ -55,7 +56,9 @@ target_link_libraries(chisel_client
 add_executable(main "${CHISEL_DIR}/src/main.cpp")
 target_link_libraries(main
   PRIVATE
+    chisel_core
     quarry_api
+    quarry_logging
 )
 
 # ============================================================================
